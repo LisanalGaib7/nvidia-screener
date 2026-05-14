@@ -570,6 +570,27 @@ Data: Yahoo Finance (~15분 지연)
         st.cache_data.clear()
         st.rerun()
 
+    _url = "https%3A%2F%2Fnvidiascreener.streamlit.app%2F"
+    _text = "엔비디아가+직접+투자한+기업을+실시간으로+트래킹하는+포트폴리오+트래커"
+    st.markdown(
+        f'<div style="display:flex;gap:8px;margin-top:8px">'
+        f'<a href="https://twitter.com/intent/tweet?url={_url}&text={_text}" target="_blank" '
+        f'style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;'
+        f'background:#0e0e0e;border:1px solid #2a2a2a;border-radius:4px;padding:8px;'
+        f'color:#909090;font-size:0.72rem;font-weight:600;letter-spacing:0.8px;text-decoration:none;'
+        f'transition:all 0.15s" onmouseover="this.style.borderColor=\'#e7e7e7\';this.style.color=\'#e7e7e7\'" '
+        f'onmouseout="this.style.borderColor=\'#2a2a2a\';this.style.color=\'#909090\'">'
+        f'𝕏 &nbsp;SHARE</a>'
+        f'<a href="https://t.me/share/url?url={_url}&text={_text}" target="_blank" '
+        f'style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;'
+        f'background:#0e0e0e;border:1px solid #2a2a2a;border-radius:4px;padding:8px;'
+        f'color:#909090;font-size:0.72rem;font-weight:600;letter-spacing:0.8px;text-decoration:none;'
+        f'transition:all 0.15s" onmouseover="this.style.borderColor=\'#2aabee\';this.style.color=\'#2aabee\'" '
+        f'onmouseout="this.style.borderColor=\'#2a2a2a\';this.style.color=\'#909090\'">'
+        f'✈ &nbsp;TELEGRAM</a>'
+        f'</div>',
+        unsafe_allow_html=True)
+
     st.markdown("### Feedback")
     with st.form("feedback_form", clear_on_submit=True):
         fb_category = st.selectbox("유형", [
