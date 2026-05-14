@@ -299,32 +299,48 @@ st.markdown("""
                        letter-spacing: 0.5px; transition: all 0.2s; }
   .stButton > button:hover { border-color: #76b900 !important; color: #76b900 !important; }
 
-  /* ── 사이드바 언어 토글 버튼 ── */
-  @keyframes toggle-snap {
+  /* ── 언어 토글 pill (JS가 .lang-pill-block 클래스 주입) ── */
+  @keyframes pill-activate {
     0%   { transform: scale(1); }
-    40%  { transform: scale(0.88); }
-    70%  { transform: scale(1.06); }
+    35%  { transform: scale(0.90); }
+    65%  { transform: scale(1.04); }
     100% { transform: scale(1); }
   }
-  [data-testid="stSidebar"] [data-testid="stHorizontalBlock"] .stButton > button {
-    background: #111 !important;
-    border: 1px solid #2a2a2a !important;
-    border-radius: 20px !important;
-    color: #76b900 !important;
+  .lang-pill-block {
+    background: #080808 !important;
+    border: 1px solid #222 !important;
+    border-radius: 26px !important;
+    padding: 3px !important;
+    gap: 0 !important;
+    overflow: hidden !important;
+    margin-bottom: 12px !important;
+  }
+  .lang-pill-block button {
+    border: none !important;
+    border-radius: 22px !important;
     font-size: 0.68rem !important;
-    font-weight: 700 !important;
-    letter-spacing: 1px !important;
-    padding: 3px 10px !important;
-    white-space: nowrap;
-    transition: all 0.15s ease !important;
+    font-weight: 800 !important;
+    letter-spacing: 2.2px !important;
+    padding: 7px 0 !important;
+    height: 32px !important;
+    min-height: 0 !important;
+    transition: background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease !important;
   }
-  [data-testid="stSidebar"] [data-testid="stHorizontalBlock"] .stButton > button:hover {
-    background: #1a1a1a !important;
-    border-color: #76b900 !important;
-    box-shadow: 0 0 8px rgba(118,185,0,0.25) !important;
+  .lang-pill-block button:disabled {
+    background: linear-gradient(135deg, #d4920a 0%, #b87000 100%) !important;
+    color: #060606 !important;
+    opacity: 1 !important;
+    box-shadow: 0 0 16px rgba(200,127,0,0.5), inset 0 1px 0 rgba(255,255,255,0.15) !important;
+    animation: pill-activate 0.22s cubic-bezier(0.22, 1, 0.36, 1) both !important;
+    cursor: default !important;
   }
-  [data-testid="stSidebar"] [data-testid="stHorizontalBlock"] .stButton > button:active {
-    animation: toggle-snap 0.2s ease both !important;
+  .lang-pill-block button:not(:disabled) {
+    background: transparent !important;
+    color: #303030 !important;
+  }
+  .lang-pill-block button:not(:disabled):hover {
+    color: #c87f00 !important;
+    background: rgba(200,127,0,0.07) !important;
   }
 
   /* ── 입력 필드 ── */
@@ -725,20 +741,19 @@ def ts_to_str(ts):
 
 # ── 사이드바 ──────────────────────────────────────────────────────────────────
 with st.sidebar:
-    _sb_title_col, _sb_lang_col = st.columns([3, 1])
-    with _sb_title_col:
-        st.markdown("## NVIDIA Portfolio Tracker")
-    with _sb_lang_col:
-        st.markdown('<div style="display:flex;align-items:center;height:100%;padding-top:6px">', unsafe_allow_html=True)
-        _cur_lang_sb = st.session_state.lang
-        if st.button(
-            "◀ KOR" if _cur_lang_sb == "ENG" else "ENG ▶",
-            key="lang_toggle",
-            help="Switch language / 언어 전환",
-        ):
-            st.session_state.lang = "ENG" if _cur_lang_sb == "KOR" else "KOR"
+    # KOR/ENG 토글 pill — JS가 .lang-pill-block 클래스 주입
+    _is_kor = st.session_state.lang == "KOR"
+    _lc, _rc = st.columns(2, gap="small")
+    with _lc:
+        if st.button("KOR", key="btn_lang_kor", disabled=_is_kor, use_container_width=True):
+            st.session_state.lang = "KOR"
             st.rerun()
-        st.markdown('</div>', unsafe_allow_html=True)
+    with _rc:
+        if st.button("ENG", key="btn_lang_eng", disabled=not _is_kor, use_container_width=True):
+            st.session_state.lang = "ENG"
+            st.rerun()
+
+    st.markdown("## NVIDIA Portfolio Tracker")
     st.markdown("---")
     show_current  = st.checkbox(t("sb_holdings"), value=True)
     show_partner  = st.checkbox(t("sb_partner"),  value=True)
@@ -1438,6 +1453,30 @@ with st.expander("Admin", expanded=False):
         st.error("비밀번호가 틀렸습니다.")
 
 # ── 푸터 ─────────────────────────────────────────────────────────────────────
+st.markdown("""
+<script>
+(function() {
+  function applyPill() {
+    var sidebar = document.querySelector('[data-testid="stSidebar"]');
+    if (!sidebar) return;
+    sidebar.querySelectorAll('[data-testid="stHorizontalBlock"]').forEach(function(block) {
+      var btns = block.querySelectorAll('button');
+      var hasKor = false, hasEng = false;
+      btns.forEach(function(b) {
+        var txt = b.innerText.trim();
+        if (txt === 'KOR') hasKor = true;
+        if (txt === 'ENG') hasEng = true;
+      });
+      if (hasKor && hasEng) block.classList.add('lang-pill-block');
+    });
+  }
+  setTimeout(applyPill, 80);
+  new MutationObserver(function() { setTimeout(applyPill, 80); })
+    .observe(document.body, { childList: true, subtree: true });
+})();
+</script>
+""", unsafe_allow_html=True)
+
 st.markdown("---")
 st.markdown(
     f"<div style='text-align:center;color:#2a2a2a;font-size:0.72rem;letter-spacing:0.5px'>"
