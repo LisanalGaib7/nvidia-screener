@@ -487,8 +487,12 @@ def fetch_news(ticker):
     except:
         return []
 
-def fmt_cap(v):
+def fmt_cap(v, currency="USD"):
     if v is None: return "—"
+    if currency == "JPY":
+        if v >= 1e12: return f"¥{v/1e12:.1f}T"
+        if v >= 1e9:  return f"¥{v/1e9:.0f}B"
+        return f"¥{v:,.0f}"
     if v >= 1e12: return f"${v/1e12:.2f}T"
     if v >= 1e9:  return f"${v/1e9:.1f}B"
     if v >= 1e6:  return f"${v/1e6:.0f}M"
@@ -946,7 +950,7 @@ with tab1:
             with cols[2]: st.markdown(fmt_pct(sd.get("change_pct")), unsafe_allow_html=True)
             with cols[3]: st.markdown(fmt_pct(sd.get("ytd_pct")),    unsafe_allow_html=True)
             with cols[4]:
-                st.markdown(f'<span style="color:#a0a0a0">{fmt_cap(sd.get("market_cap"))}</span>', unsafe_allow_html=True)
+                st.markdown(f'<span style="color:#a0a0a0">{fmt_cap(sd.get("market_cap"), sd.get("currency","USD"))}</span>', unsafe_allow_html=True)
             with cols[5]:
                 st.markdown(f'<span style="color:#a0a0a0">{fmt_ratio(sd.get("pe_ratio"))}</span>', unsafe_allow_html=True)
             with cols[6]: st.markdown(bar, unsafe_allow_html=True)
