@@ -806,7 +806,23 @@ for col, label, value, color, extra_html in [
          )
      )
      + '</div>'),
-    (m3, "평균 YTD",       avg_ytd_str,  "#76b900", ""),
+    (m3, "평균 YTD",       avg_ytd_str,  "#76b900",
+     '<div class="metric-tooltip" style="min-width:220px">'
+     '<div class="tooltip-title">YTD 수익률 순</div>'
+     + "".join(
+         f'<div class="tooltip-row">'
+         f'<span class="tooltip-ticker">{c["ticker"]}</span>'
+         f'<span class="tooltip-name" style="color:{"#76b900" if ytd>=0 else "#e05050"}">'
+         f'{"▲" if ytd>=0 else "▼"}{abs(ytd):.1f}%</span></div>'
+         for c, ytd in sorted(
+             [(c, stock_data[c["ticker"]].get("ytd_pct"))
+              for c in all_display
+              if stock_data.get(c["ticker"],{}).get("ytd_pct") is not None
+              and c["badge"] != "exited"],
+             key=lambda x: x[1], reverse=True
+         )
+     )
+     + '</div>'),
     (m4, "YTD 플러스",     ytd_plus_str, "#76b900", ""),
 ]:
     col.markdown(
