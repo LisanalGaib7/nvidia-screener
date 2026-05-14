@@ -520,25 +520,6 @@ with st.sidebar:
     st.markdown("---")
     sort_by = st.selectbox("정렬 기준",
         ["투자금액","YTD 수익률","시가총액","일간 등락률","투자 날짜"])
-    st.markdown("---")
-    st.markdown("""
-데이터 출처
-- SEC EDGAR 13F
-- NVIDIA IR
-- 글로벌 주요 언론 교차검증
-  Bloomberg · Reuters · CNBC
-  FT · WSJ · Economist 외
-
----
-⚠️ 투자 조언 아님
-
-Data: Yahoo Finance (~15분 지연)
-""")
-    if st.button("🔄 새로고침", use_container_width=True):
-        st.cache_data.clear()
-        st.rerun()
-
-    st.markdown("---")
 
     with st.expander("태그 가이드"):
         st.markdown("""
@@ -568,6 +549,25 @@ Data: Yahoo Finance (~15분 지연)
   <div class="tag-guide-desc">과거 보유 후<br>완전 청산 완료</div>
 </div>
 """, unsafe_allow_html=True)
+
+    st.markdown("---")
+    st.markdown("""
+데이터 출처
+- SEC EDGAR 13F
+- NVIDIA IR
+- 글로벌 주요 언론 교차검증
+  Bloomberg · Reuters · CNBC
+  FT · WSJ · Economist 외
+
+---
+⚠️ 투자 조언 아님
+
+Data: Yahoo Finance (~15분 지연)
+""")
+    if st.button("🔄 새로고침", use_container_width=True):
+        st.cache_data.clear()
+        st.rerun()
+
     st.markdown("### Feedback")
     with st.form("feedback_form", clear_on_submit=True):
         fb_category = st.selectbox("유형", [
