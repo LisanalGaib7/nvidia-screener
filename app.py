@@ -23,10 +23,17 @@ st.markdown("""
   /* ── 타이포그래피 ── */
   html, body, [class*="css"] { font-family: 'Inter', 'SF Pro Display', system-ui, sans-serif; }
   h1 { color: #f0f0f0 !important; font-size: 1.7rem !important; font-weight: 600 !important; letter-spacing: -0.5px !important; }
-  h2 { color: #e0e0e0 !important; font-size: 1.1rem !important; font-weight: 500 !important; letter-spacing: 0.3px !important; }
-  h3 { color: #c8c8c8 !important; font-size: 0.95rem !important; font-weight: 500 !important;
-       text-transform: uppercase; letter-spacing: 1.2px !important; }
-  p, .stMarkdown p { color: #888 !important; font-size: 0.88rem; line-height: 1.6; }
+  h2 { color: #d0d0d0 !important; font-size: 1.1rem !important; font-weight: 500 !important; letter-spacing: 0.3px !important; }
+  h3 { color: #a0a0a0 !important; font-size: 0.8rem !important; font-weight: 600 !important;
+       text-transform: uppercase; letter-spacing: 1.4px !important; }
+  p, .stMarkdown p { color: #606060 !important; font-size: 0.88rem; line-height: 1.6; }
+
+  /* ── 강조 텍스트 ── */
+  .txt-primary   { color: #e8e8e8; }
+  .txt-secondary { color: #686868; }
+  .txt-accent    { color: #76b900; font-weight: 600; }
+  .txt-gold      { color: #c87f00; font-weight: 600; }
+  .txt-dim       { color: #383838; font-size: 0.75rem; letter-spacing: 0.3px; }
 
   /* ── 신규 투자 알림 배너 ── */
   .alert-banner {
@@ -94,11 +101,36 @@ st.markdown("""
   .filing-hold     { border-left: 3px solid #1e3a5f !important; }
 
   /* ── 지표 카드 ── */
-  div[data-testid="stMetricValue"] { color: #e0e0e0 !important; font-size: 1.5rem !important; font-weight: 500 !important; }
-  div[data-testid="stMetricLabel"] { color: #404040 !important; font-size: 0.72rem !important;
+  div[data-testid="stMetricValue"] { color: #d8d8d8 !important; font-size: 1.5rem !important; font-weight: 500 !important; }
+  div[data-testid="stMetricLabel"] { color: #505050 !important; font-size: 0.72rem !important;
                                      text-transform: uppercase; letter-spacing: 0.8px; }
-  div[data-testid="stMetric"] { background: #0e0e0e; border: 1px solid #181818;
+  div[data-testid="stMetric"] { background: #0e0e0e; border: 1px solid #1c1c1c;
                                  border-radius: 4px; padding: 16px !important; }
+
+  /* ── 팝오버 ── */
+  div[data-testid="stPopover"] button {
+    background: transparent !important;
+    border: 1px solid #1e1e1e !important;
+    color: #404040 !important;
+    border-radius: 2px !important;
+    font-size: 0.68rem !important;
+    letter-spacing: 0.8px;
+    padding: 2px 8px !important;
+    text-transform: uppercase;
+    transition: all 0.15s;
+  }
+  div[data-testid="stPopover"] button:hover {
+    border-color: #76b900 !important;
+    color: #76b900 !important;
+  }
+  div[data-testid="stPopoverBody"] {
+    background: #101010 !important;
+    border: 1px solid #242424 !important;
+    border-radius: 4px !important;
+    padding: 16px !important;
+    min-width: 320px !important;
+    max-width: 400px !important;
+  }
 
   /* ── 탭 ── */
   button[data-baseweb="tab"] { color: #404040 !important; font-size: 0.78rem !important;
@@ -643,36 +675,63 @@ with tab1:
             price = sd.get("price"); currency = sd.get("currency","USD")
             w52h = sd.get("week52_high"); w52l = sd.get("week52_low")
             if w52h and w52l and price:
-                pp = max(0,min(100,(price-w52l)/(w52h-w52l)*100))
-                bar = (f'<div style="font-size:0.7rem;color:#6b7280">'
-                       f'{fmt_price(w52l,currency)} ━ {fmt_price(w52h,currency)}<br>'
-                       f'<div style="background:#374151;border-radius:3px;height:4px;margin-top:2px">'
-                       f'<div style="background:#76b900;width:{pp:.0f}%;height:4px;border-radius:3px"></div>'
-                       f'</div><span style="color:#76b900">{pp:.0f}%</span></div>')
-            else: bar = "—"
+                pp = max(0, min(100, (price - w52l) / (w52h - w52l) * 100))
+                bar = (
+                    f'<div style="font-size:0.7rem;color:#383838">'
+                    f'{fmt_price(w52l,currency)} <span style="color:#242424">━</span> {fmt_price(w52h,currency)}<br>'
+                    f'<div style="background:#1a1a1a;border-radius:2px;height:3px;margin-top:3px">'
+                    f'<div style="background:#76b900;width:{pp:.0f}%;height:3px;border-radius:2px"></div>'
+                    f'</div>'
+                    f'<span style="color:#76b900;font-size:0.68rem">{pp:.0f}%</span></div>'
+                )
+            else:
+                bar = '<span style="color:#2a2a2a">—</span>'
 
-            cols = st.columns([2.5,1.2,1.3,1.3,1.2,1.2,1.5,2.5])
-            amt = f"${c['invest_amt_m']/1000:.1f}B" if (c.get("invest_amt_m") or 0)>=1000 else \
-                  f"${c['invest_amt_m']:.0f}M" if c.get("invest_amt_m") else ""
+            cols = st.columns([2.5, 1.2, 1.3, 1.3, 1.2, 1.2, 1.5, 1.2])
+            amt = (f"${c['invest_amt_m']/1000:.1f}B" if (c.get("invest_amt_m") or 0) >= 1000
+                   else f"${c['invest_amt_m']:.0f}M" if c.get("invest_amt_m") else "")
+
             with cols[0]:
                 st.markdown(
-                    f"**{c['name']}** ({ticker})<br>"
-                    f"{BADGE_MAP[c['badge']]} "
-                    f"<span style='color:#6b7280;font-size:0.75rem'>{c['sector']}</span>"
-                    + (f"&nbsp;·&nbsp;<span style='color:#76b900;font-size:0.8rem;font-weight:700'>{amt}</span>" if amt else ""),
+                    f'<span style="color:#d8d8d8;font-weight:500">{c["name"]}</span>'
+                    f'<span style="color:#383838;font-size:0.78rem;margin-left:6px">{ticker}</span><br>'
+                    f'{BADGE_MAP[c["badge"]]}'
+                    f'<span style="color:#404040;font-size:0.72rem;margin-left:6px">{c["sector"]}</span>'
+                    + (f'<span style="color:#c87f00;font-size:0.78rem;font-weight:600;margin-left:8px">{amt}</span>' if amt else ""),
                     unsafe_allow_html=True)
-            with cols[1]: st.markdown(fmt_price(price,currency), unsafe_allow_html=True)
+            with cols[1]:
+                st.markdown(
+                    f'<span style="color:#c0c0c0;font-weight:500">{fmt_price(price, currency)}</span>',
+                    unsafe_allow_html=True)
             with cols[2]: st.markdown(fmt_pct(sd.get("change_pct")), unsafe_allow_html=True)
-            with cols[3]: st.markdown(fmt_pct(sd.get("ytd_pct")), unsafe_allow_html=True)
-            with cols[4]: st.markdown(fmt_cap(sd.get("market_cap")))
-            with cols[5]: st.markdown(fmt_ratio(sd.get("pe_ratio")))
+            with cols[3]: st.markdown(fmt_pct(sd.get("ytd_pct")),    unsafe_allow_html=True)
+            with cols[4]:
+                st.markdown(f'<span style="color:#686868">{fmt_cap(sd.get("market_cap"))}</span>', unsafe_allow_html=True)
+            with cols[5]:
+                st.markdown(f'<span style="color:#686868">{fmt_ratio(sd.get("pe_ratio"))}</span>', unsafe_allow_html=True)
             with cols[6]: st.markdown(bar, unsafe_allow_html=True)
             with cols[7]:
-                with st.expander("📌 상세"):
-                    st.markdown(f"**투자 근거:** {c['nvidia_thesis']}")
-                    st.markdown(f"**출처:** {c.get('source','—')}")
-                    st.markdown(f"**투자일:** {c.get('invest_date','—')}")
-            st.markdown('<hr style="margin:2px 0;border-color:#1f2937">', unsafe_allow_html=True)
+                with st.popover("Detail"):
+                    st.markdown(
+                        f'<div style="color:#505050;font-size:0.68rem;letter-spacing:1.2px;'
+                        f'text-transform:uppercase;margin-bottom:12px">'
+                        f'{c["ticker"]} &nbsp;·&nbsp; {c.get("invest_date","—")}</div>',
+                        unsafe_allow_html=True)
+                    if amt:
+                        st.markdown(
+                            f'<div style="color:#c87f00;font-size:1.1rem;font-weight:600;margin-bottom:12px">'
+                            f'{amt}</div>',
+                            unsafe_allow_html=True)
+                    st.markdown(
+                        f'<div style="color:#a0a0a0;font-size:0.84rem;line-height:1.8;margin-bottom:14px">'
+                        f'{c["nvidia_thesis"]}</div>',
+                        unsafe_allow_html=True)
+                    st.markdown(
+                        f'<div style="color:#383838;font-size:0.72rem;border-top:1px solid #1e1e1e;'
+                        f'padding-top:10px">{c.get("source","—")}</div>',
+                        unsafe_allow_html=True)
+
+            st.markdown('<hr style="margin:3px 0;border-color:#141414">', unsafe_allow_html=True)
 
 # ══ Tab 2 ════════════════════════════════════════════════════════════════════
 with tab2:
