@@ -165,8 +165,9 @@ st.markdown("""
 
   /* ── 사이드바 텍스트 ── */
   .stSidebar h2, .stSidebar h3 { color: #e0e0e0 !important; }
-  .stSidebar p, .stSidebar label { color: #505050 !important; }
-  .stSidebar .stSelectbox label, .stSidebar .stMultiSelect label { color: #505050 !important; font-size:0.72rem !important; letter-spacing:0.8px; text-transform:uppercase; }
+  .stSidebar p, .stSidebar label { color: #909090 !important; }
+  .stSidebar li { color: #909090 !important; }
+  .stSidebar .stSelectbox label, .stSidebar .stMultiSelect label { color: #909090 !important; font-size:0.72rem !important; letter-spacing:0.8px; text-transform:uppercase; }
 
   /* ── 버튼 ── */
   .stButton > button { background: transparent !important; border: 1px solid #242424 !important;
