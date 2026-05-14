@@ -56,6 +56,11 @@ TRANSLATIONS = {
     # 뉴스탭
     "news_price":           {"KOR": "현재가",                        "ENG": "Price"},
     "news_daily":           {"KOR": "일간등락",                      "ENG": "Daily"},
+    "news_title":           {"KOR": "종목별 최신 뉴스",               "ENG": "Latest News by Stock"},
+    "news_caption":         {"KOR": "Yahoo Finance 기준",            "ENG": "Source: Yahoo Finance"},
+    "news_stock":           {"KOR": "종목",                          "ENG": "Stock"},
+    "news_loading":         {"KOR": "뉴스 로드 중...",                "ENG": "Loading news..."},
+    "news_none":            {"KOR": "뉴스 없음",                     "ENG": "No news found"},
     # 알림 배너
     "alert_title":          {"KOR": "최신 투자 알림",                 "ENG": "Latest Investment Alerts"},
     # 13F 탭
@@ -63,6 +68,39 @@ TRANSLATIONS = {
     "filings_caption":      {"KOR": "SEC EDGAR 13F 기반 · 글로벌 주요 언론 교차검증 · 미확인 항목은 별도 표기",
                              "ENG": "Based on SEC EDGAR 13F · Cross-verified with global media · Unconfirmed items marked separately"},
     "timeline_title":       {"KOR": "공시 타임라인",                  "ENG": "Filing Timeline"},
+    "filings_company":      {"KOR": "기업",                          "ENG": "Company"},
+    "filings_type":         {"KOR": "변동 유형",                     "ENG": "Change Type"},
+    "filings_xaxis":        {"KOR": "공시일",                        "ENG": "Filing Date"},
+    # 퍼포먼스 탭
+    "perf_ytd_start":       {"KOR": "YTD 시작",                     "ENG": "YTD Start"},
+    "perf_yaxis":           {"KOR": "정규화 주가 (100=YTD시작)",      "ENG": "Normalized Price (100=YTD Start)"},
+    # 섹터 탭
+    "sector_count":         {"KOR": "현재 보유 — 섹터별 기업 수",     "ENG": "Holdings by Sector"},
+    "sector_invest":        {"KOR": "확인된 투자액 비중",              "ENG": "Investment Allocation"},
+    # 사이드바 데이터
+    "sb_data_sources":      {"KOR": "데이터 출처",                   "ENG": "Data Sources"},
+    "sb_media":             {"KOR": "글로벌 주요 언론 교차검증",       "ENG": "Global Media Cross-verification"},
+    "sb_disclaimer":        {"KOR": "⚠️ 투자 조언 아님",              "ENG": "⚠️ Not Financial Advice"},
+    "sb_delay":             {"KOR": "Data: Yahoo Finance (~15분 지연)", "ENG": "Data: Yahoo Finance (~15min delay)"},
+    "sb_refresh":           {"KOR": "🔄 새로고침",                    "ENG": "🔄 Refresh"},
+    # 피드백
+    "fb_type":              {"KOR": "유형",                          "ENG": "Type"},
+    "fb_rating":            {"KOR": "만족도",                        "ENG": "Rating"},
+    "fb_content":           {"KOR": "내용",                          "ENG": "Content"},
+    "fb_content_ph":        {"KOR": "예) INTC 투자금액이 다릅니다 / OO 기업도 추가해주세요",
+                             "ENG": "e.g. INTC investment amount is incorrect / Please add XX company"},
+    "fb_name":              {"KOR": "닉네임 (선택)",                  "ENG": "Nickname (optional)"},
+    "fb_name_ph":           {"KOR": "익명",                          "ENG": "Anonymous"},
+    "fb_submit":            {"KOR": "제출하기",                       "ENG": "Submit"},
+    "fb_empty":             {"KOR": "내용을 입력해주세요.",            "ENG": "Please enter your feedback."},
+    "fb_ok":                {"KOR": "피드백 감사합니다!",              "ENG": "Thank you for your feedback!"},
+    "fb_cat_data":          {"KOR": "데이터 오류 제보",               "ENG": "Data Error Report"},
+    "fb_cat_new":           {"KOR": "신규 투자 제보",                 "ENG": "New Investment Tip"},
+    "fb_cat_feat":          {"KOR": "기능 요청",                     "ENG": "Feature Request"},
+    "fb_cat_bug":           {"KOR": "버그 신고",                     "ENG": "Bug Report"},
+    "fb_cat_etc":           {"KOR": "기타 의견",                     "ENG": "Other"},
+    # 로딩
+    "loading":              {"KOR": "실시간 주가 데이터 로드 중...",   "ENG": "Loading live market data..."},
 }
 
 def t(key):
@@ -93,6 +131,11 @@ st.markdown("""
   .txt-dim       { color: #383838; font-size: 0.75rem; letter-spacing: 0.3px; }
 
   /* ── 신규 투자 알림 배너 ── */
+  @keyframes banner-snap {
+    0%   { opacity: 0; transform: translateY(-8px); }
+    60%  { opacity: 1; transform: translateY(2px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
   .alert-banner {
     background: #0e0e0e;
     border: 1px solid #2a2200;
@@ -100,6 +143,7 @@ st.markdown("""
     border-radius: 4px;
     padding: 14px 20px;
     margin-bottom: 20px;
+    animation: banner-snap 0.25s cubic-bezier(0.22, 1, 0.36, 1) both;
   }
   .alert-title { color: #c87f00; font-size: 0.7rem; font-weight: 600;
                  letter-spacing: 1.8px; text-transform: uppercase; margin: 0 0 10px; }
@@ -625,20 +669,16 @@ with st.sidebar:
 """, unsafe_allow_html=True)
 
     st.markdown("---")
-    st.markdown("""
-데이터 출처
-- SEC EDGAR 13F
-- NVIDIA IR
-- 글로벌 주요 언론 교차검증
-  Bloomberg · Reuters · CNBC
-  FT · WSJ · Economist 외
-
----
-⚠️ 투자 조언 아님
-
-Data: Yahoo Finance (~15분 지연)
-""")
-    if st.button("🔄 새로고침", use_container_width=True):
+    st.markdown(
+        f"{t('sb_data_sources')}\n"
+        f"- SEC EDGAR 13F\n"
+        f"- NVIDIA IR\n"
+        f"- {t('sb_media')}\n"
+        f"  Bloomberg · Reuters · CNBC\n"
+        f"  FT · WSJ · Economist {'외' if st.session_state.lang=='KOR' else 'etc.'}\n\n"
+        f"---\n{t('sb_disclaimer')}\n\n{t('sb_delay')}"
+    )
+    if st.button(t("sb_refresh"), use_container_width=True):
         st.cache_data.clear()
         st.rerun()
 
@@ -667,18 +707,14 @@ Data: Yahoo Finance (~15분 지연)
     st.markdown("---")
     st.markdown(f"### {t('sb_feedback')}")
     with st.form("feedback_form", clear_on_submit=True):
-        fb_category = st.selectbox("유형", [
-            "데이터 오류 제보",
-            "신규 투자 제보",
-            "기능 요청",
-            "버그 신고",
-            "기타 의견",
+        fb_category = st.selectbox(t("fb_type"), [
+            t("fb_cat_data"), t("fb_cat_new"), t("fb_cat_feat"), t("fb_cat_bug"), t("fb_cat_etc"),
         ])
-        fb_rating = st.select_slider("만족도", ["⭐","⭐⭐","⭐⭐⭐","⭐⭐⭐⭐","⭐⭐⭐⭐⭐"],
+        fb_rating = st.select_slider(t("fb_rating"), ["⭐","⭐⭐","⭐⭐⭐","⭐⭐⭐⭐","⭐⭐⭐⭐⭐"],
                                      value="⭐⭐⭐⭐⭐")
-        fb_text = st.text_area("내용", placeholder="예) INTC 투자금액이 다릅니다 / OO 기업도 추가해주세요", height=80)
-        fb_name = st.text_input("닉네임 (선택)", placeholder="익명")
-        submitted = st.form_submit_button("제출하기", use_container_width=True)
+        fb_text = st.text_area(t("fb_content"), placeholder=t("fb_content_ph"), height=80)
+        fb_name = st.text_input(t("fb_name"), placeholder=t("fb_name_ph"))
+        submitted = st.form_submit_button(t("fb_submit"), use_container_width=True)
 
         if submitted:
             if fb_text.strip():
@@ -701,9 +737,9 @@ Data: Yahoo Finance (~15분 지연)
                 data.append(entry)
                 with open(path, "w", encoding="utf-8") as f:
                     json.dump(data, f, ensure_ascii=False, indent=2)
-                st.success("감사합니다! 피드백이 접수됐습니다 🙏")
+                st.success(t("fb_ok"))
             else:
-                st.warning("내용을 입력해주세요.")
+                st.warning(t("fb_empty"))
 
 # ── 데이터 로드 ───────────────────────────────────────────────────────────────
 all_display = []
@@ -716,7 +752,7 @@ if show_exited:  all_display += [
 ]
 
 tickers = [c["ticker"] for c in all_display]
-with st.spinner("실시간 주가 데이터 로드 중..."):
+with st.spinner(t("loading")):
     stock_data = fetch_stock_data(tickers)
     usdjpy = fetch_usdjpy()
 
@@ -1071,9 +1107,9 @@ with tab2:
             line=dict(color=SECTOR_COLORS.get(c["sector"],"#76b900"), width=2),
             hovertemplate=f"<b>{c['name']}</b><br>%{{y:.1f}}<extra></extra>",
         ))
-    fig.add_hline(y=100, line_dash="dash", line_color="#6b7280", annotation_text="YTD 시작")
+    fig.add_hline(y=100, line_dash="dash", line_color="#6b7280", annotation_text=t("perf_ytd_start"))
     fig.update_layout(template="plotly_dark", paper_bgcolor="#111827", plot_bgcolor="#111827",
-                      height=500, yaxis_title="정규화 주가 (100=YTD시작)",
+                      height=500, yaxis_title=t("perf_yaxis"),
                       legend=dict(bgcolor="#1f2937"), margin=dict(l=0,r=0,t=20,b=0))
     st.plotly_chart(fig, use_container_width=True)
 
@@ -1101,7 +1137,7 @@ with tab3:
         fig3 = go.Figure(go.Pie(labels=list(sc.keys()), values=list(sc.values()),
             marker_colors=[SECTOR_COLORS.get(s,"#6b7280") for s in sc], hole=0.4))
         fig3.update_layout(template="plotly_dark",paper_bgcolor="#111827",
-            title="현재 보유 — 섹터별 기업 수",title_font_color="#f9fafb",height=380,margin=dict(l=0,r=0,t=40,b=0))
+            title=t("sector_count"),title_font_color="#f9fafb",height=380,margin=dict(l=0,r=0,t=40,b=0))
         st.plotly_chart(fig3, use_container_width=True)
     with cb:
         invest_data = [(c["name"], c["invest_amt_m"]) for c in current_only if c.get("invest_amt_m")]
@@ -1111,16 +1147,16 @@ with tab3:
                 marker_colors=[SECTOR_COLORS.get(c["sector"],"#6b7280") for c in current_only if c.get("invest_amt_m")],
                 hole=0.4, texttemplate="%{label}<br>$%{value:,.0f}M"))
             fig4.update_layout(template="plotly_dark",paper_bgcolor="#111827",
-                title="확인된 투자액 비중",title_font_color="#f9fafb",height=380,margin=dict(l=0,r=0,t=40,b=0))
+                title=t("sector_invest"),title_font_color="#f9fafb",height=380,margin=dict(l=0,r=0,t=40,b=0))
             st.plotly_chart(fig4, use_container_width=True)
 
 # ══ Tab 4: 뉴스 ══════════════════════════════════════════════════════════════
 with tab4:
-    st.markdown("### 종목별 최신 뉴스")
-    st.caption("Yahoo Finance 기준")
+    st.markdown(f"### {t('news_title')}")
+    st.caption(t("news_caption"))
     news_map = {c["ticker"]: f"{c['name']} ({c['ticker']})" for c in all_display
                 if "error" not in stock_data.get(c["ticker"],{})}
-    sel_t = st.selectbox("종목", list(news_map.keys()), format_func=lambda x: news_map[x])
+    sel_t = st.selectbox(t("news_stock"), list(news_map.keys()), format_func=lambda x: news_map[x])
     sel_c = next((c for c in all_display if c["ticker"]==sel_t), None)
     if sel_c:
         sd = stock_data.get(sel_t,{})
@@ -1130,7 +1166,7 @@ with tab4:
                 f'<div style="background:#0e0e0e;border:1px solid #2a2a2a;border-top:2px solid #76b900;'
                 f'border-radius:4px;padding:16px 20px">'
                 f'<div style="color:#484848;font-size:0.7rem;font-weight:600;letter-spacing:1.2px;'
-                f'text-transform:uppercase;margin-bottom:8px">현재가</div>'
+                f'text-transform:uppercase;margin-bottom:8px">{t("news_price")}</div>'
                 f'<div style="color:#e8e8e8;font-size:1.8rem;font-weight:600;letter-spacing:-0.5px;line-height:1">'
                 f'{fmt_price(sd.get("price"), sd.get("currency","USD"))}</div>'
                 f'</div>',
@@ -1139,7 +1175,7 @@ with tab4:
             st.markdown(
                 f'<div style="padding:16px 4px">'
                 f'<div style="color:#484848;font-size:0.7rem;font-weight:600;letter-spacing:1.2px;'
-                f'text-transform:uppercase;margin-bottom:8px">일간등락</div>'
+                f'text-transform:uppercase;margin-bottom:8px">{t("news_daily")}</div>'
                 f'<div style="font-size:1.3rem;font-weight:600">{fmt_pct(sd.get("change_pct"))}</div>'
                 f'</div>',
                 unsafe_allow_html=True)
@@ -1152,7 +1188,7 @@ with tab4:
                 f'</div>',
                 unsafe_allow_html=True)
         st.markdown("---")
-        with st.spinner("뉴스 로드 중..."):
+        with st.spinner(t("news_loading")):
             news_items = fetch_news(sel_t)
         shown = 0
         for item in news_items[:15]:
@@ -1182,9 +1218,9 @@ with tab5:
     cf1, cf2 = st.columns([1,3])
     with cf1:
         all_cos = sorted({f["company"] for f in FILINGS_HISTORY})
-        sel_cos = st.multiselect("기업", all_cos, default=all_cos)
+        sel_cos = st.multiselect(t("filings_company"), all_cos, default=all_cos)
         ct_map = {"new":"🟢 신규","increase":"📈 증가","decrease":"📉 감소","exit":"⬛ 청산","hold":"🔵 유지"}
-        sel_ct = st.multiselect("변동 유형", list(ct_map.values()), default=list(ct_map.values()))
+        sel_ct = st.multiselect(t("filings_type"), list(ct_map.values()), default=list(ct_map.values()))
         sel_ct_keys = [k for k,v in ct_map.items() if v in sel_ct]
 
     with cf2:
@@ -1220,7 +1256,7 @@ with tab5:
         ))
     fig6.update_layout(
         template="plotly_dark", paper_bgcolor="#111827", plot_bgcolor="#111827",
-        height=500, xaxis_title="공시일",
+        height=500, xaxis_title=t("filings_xaxis"),
         legend=dict(bgcolor="#1f2937", orientation="h", y=1.12,
                     itemsizing="constant", traceorder="normal"),
         margin=dict(l=0, r=0, t=40, b=0),
