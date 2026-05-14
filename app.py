@@ -744,7 +744,7 @@ import json, os
 st.markdown("---")
 with st.expander("🔐 Admin", expanded=False):
     pw = st.text_input("비밀번호", type="password", key="admin_pw")
-    ADMIN_PW = st.secrets.get("admin", {}).get("password", "nvidia2026")
+    ADMIN_PW = st.secrets.get("admin", {}).get("password", "엔비디아레츠고")
 
     if pw == ADMIN_PW:
         path = "feedback.json"
