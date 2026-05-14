@@ -674,25 +674,6 @@ st.markdown(
     '</p>', unsafe_allow_html=True
 )
 
-# 최신 투자 5개 칩
-col_summary = st.columns(5)
-summary_data = [
-    ("IREN",  "≤ $2.1B  ·  2026.05", "#c87f00"),
-    ("GLW",   "≤ $3.2B  ·  2026.05", "#5a9e3a"),
-    ("MRVL",  "$2B  ·  2026.03",     "#7c5cbf"),
-    ("LITE",  "$2B  ·  2026.03",     "#4a90d9"),
-    ("COHR",  "$2B  ·  2026.03",     "#4a90d9"),
-]
-for col, (t, amt, color) in zip(col_summary, summary_data):
-    col.markdown(
-        f'<div class="ticker-chip">'
-        f'<div class="t" style="color:{color}">{t}</div>'
-        f'<div class="amt">{amt}</div>'
-        f'</div>',
-        unsafe_allow_html=True)
-
-st.markdown("---")
-
 # ── 요약 지표 ─────────────────────────────────────────────────────────────────
 ytd_vals = [stock_data[c["ticker"]].get("ytd_pct")
             for c in all_display
@@ -700,11 +681,26 @@ ytd_vals = [stock_data[c["ticker"]].get("ytd_pct")
 avg_ytd = sum(ytd_vals)/len(ytd_vals) if ytd_vals else None
 total_invest = sum(c["invest_amt_m"] for c in all_display if c.get("invest_amt_m"))
 
+avg_ytd_str   = f"{avg_ytd:+.1f}%" if avg_ytd else "—"
+ytd_plus_str  = f"{sum(1 for v in ytd_vals if v>0)}/{len(ytd_vals)}개"
+invest_str    = f"${total_invest/1000:.1f}B+"
+
 m1,m2,m3,m4 = st.columns(4)
-with m1: st.metric("현재 13F 보유", "5개 종목")
-with m2: st.metric("확인된 투자액", f"${total_invest/1000:.1f}B+")
-with m3: st.metric("평균 YTD", f"{avg_ytd:+.1f}%" if avg_ytd else "—")
-with m4: st.metric("YTD 플러스", f"{sum(1 for v in ytd_vals if v>0)}/{len(ytd_vals)}개")
+for col, label, value, color in [
+    (m1, "현재 13F 보유",  "5개 종목",    "#76b900"),
+    (m2, "확인된 투자액",  invest_str,    "#c87f00"),
+    (m3, "평균 YTD",       avg_ytd_str,   "#76b900"),
+    (m4, "YTD 플러스",     ytd_plus_str,  "#76b900"),
+]:
+    col.markdown(
+        f'<div style="background:#0e0e0e;border:1px solid #2a2a2a;border-top:2px solid {color};"
+        f'border-radius:4px;padding:18px 20px;margin-bottom:4px">'
+        f'<div style="color:#484848;font-size:0.72rem;font-weight:500;letter-spacing:1.2px;'
+        f'text-transform:uppercase;margin-bottom:8px">{label}</div>'
+        f'<div style="color:{color};font-size:1.6rem;font-weight:600;letter-spacing:-0.5px;line-height:1">'
+        f'{value}</div>'
+        f'</div>',
+        unsafe_allow_html=True)
 
 st.markdown("---")
 
