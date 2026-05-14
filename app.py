@@ -1011,7 +1011,7 @@ with tab4:
 # ══ Tab 5: 13F 히스토리 ══════════════════════════════════════════════════════
 with tab5:
     st.markdown("### NVIDIA 13F 공시 히스토리")
-    st.caption("SEC EDGAR 13F 기반 · Bloomberg/CNBC 교차 검증 · 미확인 항목은 별도 표기")
+    st.caption("SEC EDGAR 13F 기반 · 글로벌 주요 언론 교차검증 · 미확인 항목은 별도 표기")
 
     cf1, cf2 = st.columns([1,3])
     with cf1:
