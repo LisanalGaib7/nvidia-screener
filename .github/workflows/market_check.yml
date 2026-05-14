@@ -1,0 +1,65 @@
+name: 📊 Market Close Data Check
+
+on:
+  schedule:
+    # 21:30 UTC = 5:30 PM EDT (여름) / 4:30 PM EST (겨울) — 마감 후 30~90분
+    - cron: '30 21 * * 1-5'
+  workflow_dispatch:  # 수동 실행 버튼
+
+jobs:
+  check-data:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install yfinance
+
+      - name: Run data check
+        id: data_check
+        run: python scripts/check_data.py
+
+      - name: Create GitHub Issue on failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const now = new Date().toISOString().slice(0, 16).replace('T', ' ');
+
+            // 라벨 없으면 자동 생성
+            try {
+              await github.rest.issues.createLabel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                name: 'data-alert',
+                color: 'e11d48',
+                description: '자동 데이터 체크 알림',
+              });
+            } catch(e) { /* 이미 있으면 무시 */ }
+
+            let body = `## 📊 마감 데이터 이상 감지\n\n`;
+            body += `> 체크 시각: **${now} UTC**\n\n`;
+            try {
+              body += fs.readFileSync('check_result.txt', 'utf8');
+            } catch(e) {
+              body += '`check_result.txt` 파일을 읽을 수 없습니다. Actions 로그를 직접 확인하세요.';
+            }
+            body += `\n\n---\n[🔍 Actions 로그 보기](${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions)`;
+
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `[자동체크] 데이터 이상 감지 — ${new Date().toISOString().slice(0, 10)}`,
+              body: body,
+              labels: ['data-alert'],
+            });
