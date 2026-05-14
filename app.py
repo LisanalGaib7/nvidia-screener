@@ -594,9 +594,80 @@ if recent_5:
     </div>""", unsafe_allow_html=True)
 
 # ── 헤더 ─────────────────────────────────────────────────────────────────────
-st.markdown("# NVIDIA Portfolio Screener")
+st.markdown("""
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+@keyframes nvlogo-spin {
+  0%   { transform: perspective(400px) rotateY(0deg);   opacity:1; }
+  40%  { transform: perspective(400px) rotateY(160deg); opacity:0.3; }
+  50%  { transform: perspective(400px) rotateY(180deg); opacity:0.3; }
+  90%  { transform: perspective(400px) rotateY(340deg); opacity:1; }
+  100% { transform: perspective(400px) rotateY(360deg); opacity:1; }
+}
+@keyframes cursor-blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+@keyframes typewriter {
+  from { width: 0; }
+  to   { width: 100%; }
+}
+.nv-header {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin: 4px 0 2px;
+}
+.nv-logo-wrap {
+  display: inline-block;
+  animation: nvlogo-spin 3.2s ease-in-out infinite;
+  transform-style: preserve-3d;
+  line-height: 1;
+}
+.nv-logo {
+  font-size: 2.4rem;
+  font-weight: 900;
+  font-family: 'Inter', system-ui, sans-serif;
+  color: #76b900;
+  letter-spacing: -2px;
+  text-shadow: 0 0 24px rgba(118,185,0,0.5), 0 0 8px rgba(118,185,0,0.3);
+  user-select: none;
+}
+.nv-title-wrap {
+  overflow: hidden;
+  display: inline-block;
+}
+.nv-title {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 1.05rem;
+  color: #76b900;
+  letter-spacing: 1px;
+  line-height: 1.3;
+  text-shadow: 0 0 18px rgba(118,185,0,0.35);
+  white-space: nowrap;
+  display: inline;
+}
+.nv-cursor {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 1.05rem;
+  color: #76b900;
+  animation: cursor-blink 1s step-end infinite;
+  margin-left: 2px;
+}
+</style>
+<div class="nv-header">
+  <div class="nv-logo-wrap">
+    <span class="nv-logo">&#9670;</span>
+  </div>
+  <div>
+    <div class="nv-title-wrap">
+      <span class="nv-title">NVIDIA Portfolio Screener</span><span class="nv-cursor">_</span>
+    </div>
+  </div>
+</div>
+""", unsafe_allow_html=True)
 st.markdown(
-    '<p style="color:#383838;font-size:0.75rem;letter-spacing:0.5px">'
+    '<p style="color:#383838;font-size:0.75rem;letter-spacing:0.5px;margin-top:2px">'
     '마지막 검증 2026-05-14'
     '</p>', unsafe_allow_html=True
 )
