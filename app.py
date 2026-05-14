@@ -667,8 +667,8 @@ with tab1:
         hcols = st.columns([2.5, 1.2, 1.3, 1.3, 1.2, 1.2, 1.5, 1.2])
         for h, col in zip(["기업", "현재가", "일간등락", "YTD", "시총", "P/E", "52주범위", ""], hcols):
             col.markdown(
-                f'<span style="color:#c0c0c0;font-size:0.72rem;font-weight:500;'
-                f'letter-spacing:0.8px;text-transform:uppercase">{h}</span>',
+                f'<span style="color:#c0c0c0;font-size:0.85rem;font-weight:500;'
+                f'letter-spacing:0.3px">{h}</span>',
                 unsafe_allow_html=True)
         st.markdown('<hr style="margin:4px 0;border-color:#1e1e1e">', unsafe_allow_html=True)
 
