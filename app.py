@@ -6,7 +6,7 @@ import plotly.express as px
 from datetime import datetime, date
 
 st.set_page_config(
-    page_title="NVIDIA 투자 기업 트래커",
+    page_title="NVIDIA Portfolio Tracker",
     page_icon="🟢",
     layout="wide",
     initial_sidebar_state="expanded",
@@ -511,7 +511,7 @@ def ts_to_str(ts):
 
 # ── 사이드바 ──────────────────────────────────────────────────────────────────
 with st.sidebar:
-    st.markdown("## NVIDIA Tracker")
+    st.markdown("## NVIDIA Portfolio Tracker")
     st.markdown("---")
     show_current  = st.checkbox("현재 보유 (13F)",  value=True)
     show_partner  = st.checkbox("전략 파트너십",     value=True)
