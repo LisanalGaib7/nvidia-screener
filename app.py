@@ -592,6 +592,7 @@ Data: Yahoo Finance (~15분 지연)
         f'</div>',
         unsafe_allow_html=True)
 
+    st.markdown("---")
     st.markdown("### Feedback")
     with st.form("feedback_form", clear_on_submit=True):
         fb_category = st.selectbox("유형", [
