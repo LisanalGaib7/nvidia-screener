@@ -352,6 +352,67 @@ st.markdown("""
   ::-webkit-scrollbar { width: 4px; }
   ::-webkit-scrollbar-track { background: #080808; }
   ::-webkit-scrollbar-thumb { background: #222; border-radius: 2px; }
+
+  /* ── 모바일 반응형 ─────────────────────────────────────── */
+  @media screen and (max-width: 768px) {
+    /* 전체 패딩 축소 */
+    .main .block-container { padding: 1rem 0.8rem !important; }
+
+    /* 헤더 축소 */
+    .nv-title  { font-size: 0.68rem !important; letter-spacing: 0.5px !important; }
+    .nv-cursor { font-size: 0.68rem !important; }
+    .nv-logo   { font-size: 0.95rem !important; top: -5px !important; }
+
+    /* 알림 배너 — 더 촘촘하게 */
+    .alert-banner { padding: 10px 12px; margin-bottom: 14px; }
+    .alert-title  { font-size: 0.62rem; }
+    .alert-item   { font-size: 0.76rem; }
+    .alert-date   { font-size: 0.65rem; }
+
+    /* 탭 레이블 — 좁은 화면에 맞게 */
+    button[data-baseweb="tab"] {
+      font-size: 0.56rem !important;
+      padding: 10px 9px !important;
+      letter-spacing: 0.5px !important;
+    }
+
+    /* 메트릭 카드 4개 → 2×2 */
+    [data-testid="stHorizontalBlock"]:has(.metric-box) {
+      flex-wrap: wrap !important;
+      gap: 6px !important;
+    }
+    [data-testid="stHorizontalBlock"]:has(.metric-box) > [data-testid="stColumn"] {
+      flex: 0 0 calc(50% - 3px) !important;
+      min-width: calc(50% - 3px) !important;
+      width: calc(50% - 3px) !important;
+    }
+
+    /* 포트폴리오 테이블 — 가로 스크롤 */
+    .main .block-container { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    [data-testid="stTabsContent"] [data-testid="stHorizontalBlock"] { min-width: 680px; }
+
+    /* 팝오버 — 화면 넘침 방지 */
+    div[data-testid="stPopoverBody"] {
+      min-width: 240px !important;
+      max-width: calc(100vw - 32px) !important;
+    }
+
+    /* 뉴스·공시 카드 패딩 축소 */
+    .news-card  { padding: 10px 12px; }
+    .filing-row { padding: 8px 12px; }
+  }
+
+  @media screen and (max-width: 480px) {
+    .nv-title, .nv-cursor { font-size: 0.55rem !important; }
+    button[data-baseweb="tab"] {
+      font-size: 0.5rem !important;
+      padding: 9px 7px !important;
+    }
+    [data-testid="stHorizontalBlock"]:has(.metric-box) > [data-testid="stColumn"] {
+      flex: 0 0 calc(50% - 3px) !important;
+      min-width: calc(50% - 3px) !important;
+    }
+  }
 </style>
 """, unsafe_allow_html=True)
 
