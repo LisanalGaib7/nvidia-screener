@@ -632,7 +632,8 @@ st.markdown("""
   text-shadow: 0 0 24px rgba(118,185,0,0.5), 0 0 8px rgba(118,185,0,0.3);
   user-select: none;
   line-height: 1;
-  vertical-align: middle;
+  position: relative;
+  top: -7px;
 }
 .nv-title-wrap {
   overflow: hidden;
