@@ -686,19 +686,69 @@ ytd_plus_str  = f"{sum(1 for v in ytd_vals if v>0)}/{len(ytd_vals)}개"
 invest_str    = f"${total_invest/1000:.1f}B+"
 
 m1,m2,m3,m4 = st.columns(4)
-for col, label, value, color in [
-    (m1, "현재 13F 보유",  "5개 종목",    "#76b900"),
-    (m2, "확인된 투자액",  invest_str,    "#c87f00"),
-    (m3, "평균 YTD",       avg_ytd_str,   "#76b900"),
-    (m4, "YTD 플러스",     ytd_plus_str,  "#76b900"),
+
+# 13F 호버 툴팁용 CSS
+st.markdown("""
+<style>
+.metric-box { position: relative; }
+.metric-tooltip {
+  display: none;
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 999;
+  background: #141414;
+  border: 1px solid #2a2a2a;
+  border-top: 2px solid #76b900;
+  border-radius: 4px;
+  padding: 12px 16px;
+  min-width: 200px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+}
+.metric-box:hover .metric-tooltip { display: block; }
+.tooltip-title {
+  color: #484848;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.tooltip-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+  border-bottom: 1px solid #1a1a1a;
+}
+.tooltip-row:last-child { border-bottom: none; }
+.tooltip-ticker { color: #76b900; font-size: 0.8rem; font-weight: 600; letter-spacing: 0.5px; }
+.tooltip-name   { color: #686868; font-size: 0.75rem; }
+</style>
+""", unsafe_allow_html=True)
+
+for col, label, value, color, extra_html in [
+    (m1, "현재 13F 보유", "5개 종목", "#76b900",
+     '<div class="metric-tooltip">'
+     '<div class="tooltip-title">SEC 13F 공시 확인</div>'
+     '<div class="tooltip-row"><span class="tooltip-ticker">INTC</span><span class="tooltip-name">Intel</span></div>'
+     '<div class="tooltip-row"><span class="tooltip-ticker">SNPS</span><span class="tooltip-name">Synopsys</span></div>'
+     '<div class="tooltip-row"><span class="tooltip-ticker">NOK</span><span class="tooltip-name">Nokia</span></div>'
+     '<div class="tooltip-row"><span class="tooltip-ticker">CRWV</span><span class="tooltip-name">CoreWeave</span></div>'
+     '<div class="tooltip-row"><span class="tooltip-ticker">NBIS</span><span class="tooltip-name">Nebius Group</span></div>'
+     '</div>'),
+    (m2, "확인된 투자액",  invest_str,   "#c87f00", ""),
+    (m3, "평균 YTD",       avg_ytd_str,  "#76b900", ""),
+    (m4, "YTD 플러스",     ytd_plus_str, "#76b900", ""),
 ]:
     col.markdown(
-        f'<div style="background:#0e0e0e;border:1px solid #2a2a2a;border-top:2px solid {color};'
+        f'<div class="metric-box" style="background:#0e0e0e;border:1px solid #2a2a2a;border-top:2px solid {color};'
         f'border-radius:4px;padding:18px 20px;margin-bottom:4px">'
         f'<div style="color:#484848;font-size:0.72rem;font-weight:500;letter-spacing:1.2px;'
         f'text-transform:uppercase;margin-bottom:8px">{label}</div>'
         f'<div style="color:{color};font-size:1.6rem;font-weight:600;letter-spacing:-0.5px;line-height:1">'
         f'{value}</div>'
+        f'{extra_html}'
         f'</div>',
         unsafe_allow_html=True)
 
