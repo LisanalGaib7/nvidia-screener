@@ -401,6 +401,47 @@ with st.sidebar:
         st.cache_data.clear()
         st.rerun()
 
+    st.markdown("---")
+    st.markdown("### 💬 피드백")
+    with st.form("feedback_form", clear_on_submit=True):
+        fb_category = st.selectbox("유형", [
+            "📊 데이터 오류 제보",
+            "🆕 신규 투자 제보",
+            "✨ 기능 요청",
+            "🐛 버그 신고",
+            "💡 기타 의견",
+        ])
+        fb_rating = st.radio("만족도", ["⭐","⭐⭐","⭐⭐⭐","⭐⭐⭐⭐","⭐⭐⭐⭐⭐"],
+                              index=4, horizontal=True)
+        fb_text = st.text_area("내용", placeholder="예) INTC 투자금액이 다릅니다 / OO 기업도 추가해주세요", height=80)
+        fb_name = st.text_input("닉네임 (선택)", placeholder="익명")
+        submitted = st.form_submit_button("제출하기", use_container_width=True)
+
+        if submitted:
+            if fb_text.strip():
+                import json, os
+                entry = {
+                    "time": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                    "category": fb_category,
+                    "rating": len(fb_rating),
+                    "text": fb_text.strip(),
+                    "name": fb_name.strip() or "익명",
+                }
+                path = "feedback.json"
+                data = []
+                if os.path.exists(path):
+                    try:
+                        with open(path, "r", encoding="utf-8") as f:
+                            data = json.load(f)
+                    except:
+                        data = []
+                data.append(entry)
+                with open(path, "w", encoding="utf-8") as f:
+                    json.dump(data, f, ensure_ascii=False, indent=2)
+                st.success("감사합니다! 피드백이 접수됐습니다 🙏")
+            else:
+                st.warning("내용을 입력해주세요.")
+
 # ── 데이터 로드 ───────────────────────────────────────────────────────────────
 all_display = []
 if show_current: all_display += NEW_2026 + CURRENT_HOLDINGS
@@ -479,9 +520,9 @@ with m4: st.metric("YTD 플러스", f"{sum(1 for v in ytd_vals if v>0)}/{len(ytd
 st.markdown("---")
 
 # ── 탭 ───────────────────────────────────────────────────────────────────────
-tab1, tab2, tab3, tab4, tab5 = st.tabs([
+tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
     "📋 기업 목록", "📈 차트 비교", "🗺️ 섹터 분석",
-    "📰 뉴스 피드", "📊 13F 공시 히스토리"
+    "📰 뉴스 피드", "📊 13F 공시 히스토리", "💬 피드백 현황"
 ])
 
 # ══ Tab 1 ════════════════════════════════════════════════════════════════════
@@ -696,6 +737,58 @@ with tab5:
                        legend=dict(bgcolor="#1f2937",orientation="h",y=1.12),
                        margin=dict(l=0,r=0,t=40,b=0))
     st.plotly_chart(fig6, use_container_width=True)
+
+# ══ Tab 6: 피드백 현황 ═══════════════════════════════════════════════════════
+with tab6:
+    import json, os
+    st.markdown("### 💬 피드백 현황")
+    st.caption("사이드바에서 제출된 피드백이 여기에 표시됩니다.")
+
+    path = "feedback.json"
+    data = []
+    if os.path.exists(path):
+        try:
+            with open(path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+        except:
+            data = []
+
+    if not data:
+        st.info("아직 접수된 피드백이 없습니다. 사이드바에서 첫 번째 피드백을 남겨주세요!")
+    else:
+        # 요약 지표
+        total = len(data)
+        avg_rating = sum(d["rating"] for d in data) / total
+        category_counts = {}
+        for d in data:
+            category_counts[d["category"]] = category_counts.get(d["category"], 0) + 1
+        top_category = max(category_counts, key=category_counts.get)
+
+        m1, m2, m3 = st.columns(3)
+        with m1: st.metric("총 피드백 수", f"{total}건")
+        with m2: st.metric("평균 만족도", f"{'⭐'*round(avg_rating)} ({avg_rating:.1f})")
+        with m3: st.metric("가장 많은 유형", top_category.split(" ", 1)[-1])
+
+        st.markdown("---")
+
+        # 카테고리 필터
+        all_cats = ["전체"] + list(category_counts.keys())
+        sel_cat = st.selectbox("유형 필터", all_cats)
+
+        filtered_fb = data if sel_cat == "전체" else [d for d in data if d["category"] == sel_cat]
+        filtered_fb = list(reversed(filtered_fb))  # 최신순
+
+        for d in filtered_fb:
+            stars = "⭐" * d["rating"]
+            st.markdown(f"""
+            <div class="news-card">
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <span style="color:#f9fafb;font-weight:600">{d['category']}</span>
+                <span style="color:#9ca3af;font-size:0.78rem">{d['time']} · {d['name']}</span>
+              </div>
+              <div style="color:#fbbf24;font-size:0.85rem;margin:4px 0">{stars}</div>
+              <div style="color:#d1d5db;font-size:0.88rem">{d['text']}</div>
+            </div>""", unsafe_allow_html=True)
 
 # ── 푸터 ─────────────────────────────────────────────────────────────────────
 st.markdown("---")
