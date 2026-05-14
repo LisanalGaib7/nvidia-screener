@@ -66,10 +66,90 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ══════════════════════════════════════════════════════════════════════════════
-# 데이터 — 출처 표기 기준: SEC 13F, NVIDIA 공식 보도자료, Bloomberg/CNBC 검증
+# 데이터 — 출처: SEC 13F, NVIDIA 공식 보도자료, Bloomberg/CNBC 교차검증
+# 마지막 검증일: 2026-05-14
 # ══════════════════════════════════════════════════════════════════════════════
 
-# ── 현재 보유 중인 13F 상장 주식 (Q4 2025 기준) ─────────────────────────────
+# ── 2026년 신규 투자 (검증 완료) ─────────────────────────────────────────────
+NEW_2026 = [
+    {
+        "ticker": "IREN",
+        "name": "IREN Ltd",
+        "sector": "AI 데이터센터",
+        "invest_year": 2026,
+        "invest_amt_m": 2100.0,
+        "invest_date": "2026-05-07",
+        "badge": "new",
+        "exchange": "NASDAQ",
+        "is_new_alert": True,
+        "alert_date": "2026-05-07",
+        "nvidia_thesis": "AI 데이터센터 5GW 구축 — 워런트 방식 최대 $2.1B (30M주 @$70). 5년 $3.4B GPU 클라우드 서비스 계약 병행",
+        "note": "최대 $2.1B 워런트 (2026.05.07) | 5GW AI 인프라 배포 | $3.4B 클라우드 서비스 계약",
+        "source": "NVIDIA Newsroom, Bloomberg (2026.05.07)",
+    },
+    {
+        "ticker": "GLW",
+        "name": "Corning",
+        "sector": "광학 소재/제조",
+        "invest_year": 2026,
+        "invest_amt_m": 3200.0,
+        "invest_date": "2026-05-06",
+        "badge": "new",
+        "exchange": "NYSE",
+        "is_new_alert": True,
+        "alert_date": "2026-05-06",
+        "nvidia_thesis": "AI 광섬유·광학 소재 미국 내 제조 — 신규 공장 3곳(NC·TX), 미국 광학 생산 10배 확대. $500M 선불 워런트 @$180, 최대 $3.2B",
+        "note": "최대 $3.2B 워런트 ($500M 선불, 2026.05.06) | 미국 내 광학 공장 3곳 신설 | 3,000개 일자리",
+        "source": "NVIDIA Newsroom, CNBC (2026.05.06)",
+    },
+    {
+        "ticker": "MRVL",
+        "name": "Marvell Technology",
+        "sector": "반도체/광연결",
+        "invest_year": 2026,
+        "invest_amt_m": 2000.0,
+        "invest_date": "2026-03-31",
+        "badge": "new",
+        "exchange": "NASDAQ",
+        "is_new_alert": True,
+        "alert_date": "2026-03-31",
+        "nvidia_thesis": "NVLink Fusion — Marvell XPU를 NVIDIA Rubin GPU·Vera CPU와 동일 랙에서 1.8TB/s로 통합. 실리콘 포토닉스 공동 R&D",
+        "note": "$2B 투자 (2026.03.31) | NVLink Fusion 파트너십 | 실리콘 포토닉스·5G/6G 공동 R&D",
+        "source": "NVIDIA Newsroom, CNBC (2026.03.31)",
+    },
+    {
+        "ticker": "LITE",
+        "name": "Lumentum Holdings",
+        "sector": "광학 부품",
+        "invest_year": 2026,
+        "invest_amt_m": 2000.0,
+        "invest_date": "2026-03-02",
+        "badge": "hot",
+        "exchange": "NASDAQ",
+        "is_new_alert": True,
+        "alert_date": "2026-03-02",
+        "nvidia_thesis": "AI 광학 레이저·포토닉스 — 미국 내 신규 fab 구축, 고급 레이저 부품 독점 공급권. 우선주 2,876,415주 @$695.31",
+        "note": "$2B 우선주 사모 (2026.03.02) | 2,876,415주 @$695.31 | 멀티빌리언 구매 약정 포함",
+        "source": "NVIDIA Newsroom, CNBC (2026.03.02)",
+    },
+    {
+        "ticker": "COHR",
+        "name": "Coherent Corp",
+        "sector": "광학 트랜시버",
+        "invest_year": 2026,
+        "invest_amt_m": 2000.0,
+        "invest_date": "2026-03-02",
+        "badge": "hot",
+        "exchange": "NYSE",
+        "is_new_alert": True,
+        "alert_date": "2026-03-02",
+        "nvidia_thesis": "차세대 AI 데이터센터 광트랜시버 — 800G/1.6T 광연결 인프라. 미국 내 제조 확대, 멀티빌리언 구매 약정",
+        "note": "$2B 투자 (2026.03.02) | 광학 네트워킹 제품 구매 약정 포함",
+        "source": "NVIDIA Newsroom, CNBC (2026.03.02)",
+    },
+]
+
+# ── 현재 보유 중인 13F 상장 주식 (Q4 2025 기준 + 2026 신규) ──────────────────
 CURRENT_HOLDINGS = [
     {
         "ticker": "INTC",
@@ -157,39 +237,11 @@ PARTNERSHIPS = [
         "invest_date": "2025-12-01",
         "badge": "partner",
         "exchange": "TSE",
-        "is_new_alert": True,
+        "is_new_alert": False,
         "alert_date": "2025-12-01",
         "nvidia_thesis": "Physical AI 산업 로봇 — Isaac Sim 디지털 트윈, Jetson 온로봇 컴퓨터 탑재. FANUC 주가 +9.4% 급등",
         "note": "⚠️ 지분투자 아님 | Physical AI 파트너십 (2025.12.01) | Isaac Sim + Jetson 통합",
         "source": "NVIDIA Newsroom, Bloomberg (2025.12.01)",
-    },
-    {
-        "ticker": "COHR",
-        "name": "Coherent Corp",
-        "sector": "광학 트랜시버",
-        "invest_year": 2024,
-        "invest_amt_m": None,
-        "invest_date": "2024-01-01",
-        "badge": "partner",
-        "exchange": "NYSE",
-        "is_new_alert": False,
-        "nvidia_thesis": "800G/1.6T 광트랜시버 — AI 데이터센터 고속 인터커넥트 공급망 파트너",
-        "note": "⚠️ 지분투자 여부 미확인 | 공급망 전략 파트너십",
-        "source": "공급망 파트너십 (확인 필요)",
-    },
-    {
-        "ticker": "LITE",
-        "name": "Lumentum Holdings",
-        "sector": "광학 부품",
-        "invest_year": 2024,
-        "invest_amt_m": None,
-        "invest_date": "2024-01-01",
-        "badge": "partner",
-        "exchange": "NASDAQ",
-        "is_new_alert": False,
-        "nvidia_thesis": "레이저·광학 부품 — AI 클러스터 광 네트워킹 공급망 파트너",
-        "note": "⚠️ 지분투자 여부 미확인 | 공급망 파트너십",
-        "source": "공급망 파트너십 (확인 필요)",
     },
 ]
 
@@ -206,7 +258,13 @@ EXITED = [
 
 # ── 13F 공시 히스토리 (검증된 것만) ─────────────────────────────────────────
 FILINGS_HISTORY = [
-    # 현재 보유
+    # 2026 신규
+    {"ticker":"IREN", "company":"IREN Ltd",         "quarter":"Q2 2026","filed":"2026-05-07","change":"신규 워런트 (최대 $2.1B @$70)","change_type":"new",   "value_m":2100.0},
+    {"ticker":"GLW",  "company":"Corning",          "quarter":"Q2 2026","filed":"2026-05-06","change":"신규 워런트 (최대 $3.2B, $500M 선불)","change_type":"new","value_m":3200.0},
+    {"ticker":"MRVL", "company":"Marvell Technology","quarter":"Q1 2026","filed":"2026-03-31","change":"신규 ($2B, NVLink Fusion)","change_type":"new",       "value_m":2000.0},
+    {"ticker":"LITE", "company":"Lumentum",         "quarter":"Q1 2026","filed":"2026-03-02","change":"신규 우선주 ($2B @$695.31)","change_type":"new",       "value_m":2000.0},
+    {"ticker":"COHR", "company":"Coherent Corp",    "quarter":"Q1 2026","filed":"2026-03-02","change":"신규 ($2B)","change_type":"new",                       "value_m":2000.0},
+    # 2025 보유
     {"ticker":"INTC", "company":"Intel",           "quarter":"Q3 2025","filed":"2025-09-18","change":"전략투자 계약 ($5B)","change_type":"new",      "value_m":5000.0},
     {"ticker":"INTC", "company":"Intel",           "quarter":"Q4 2025","filed":"2025-12-29","change":"지분 취득 완료 (214.7M주)","change_type":"increase","value_m":5000.0},
     {"ticker":"SNPS", "company":"Synopsys",        "quarter":"Q4 2025","filed":"2025-12-01","change":"신규 ($2B 사모)","change_type":"new",           "value_m":2000.0},
@@ -342,7 +400,7 @@ with st.sidebar:
 
 # ── 데이터 로드 ───────────────────────────────────────────────────────────────
 all_display = []
-if show_current: all_display += CURRENT_HOLDINGS
+if show_current: all_display += NEW_2026 + CURRENT_HOLDINGS
 if show_partner: all_display += PARTNERSHIPS
 if show_exited:  all_display += [
     {**e, "badge":"exited", "nvidia_thesis":e["note"],
@@ -354,43 +412,50 @@ tickers = [c["ticker"] for c in all_display]
 with st.spinner("실시간 주가 데이터 로드 중..."):
     stock_data = fetch_stock_data(tickers)
 
-# ── 🚨 신규 투자 알림 배너 ────────────────────────────────────────────────────
-alerts = sorted(
-    [c for c in (CURRENT_HOLDINGS + PARTNERSHIPS) if c.get("is_new_alert")],
+# ── 🚨 신규 투자 알림 배너 — 최근 5건 ────────────────────────────────────────
+all_investments = NEW_2026 + CURRENT_HOLDINGS + PARTNERSHIPS
+recent_5 = sorted(
+    [c for c in all_investments if c.get("alert_date")],
     key=lambda x: x.get("alert_date",""), reverse=True
-)
-if alerts:
+)[:5]
+
+if recent_5:
+    latest_year = recent_5[0].get("alert_date","")[:4]
     items_html = "".join([
-        f'<div class="alert-item">▶ <b>{c["name"]} ({c["ticker"]})</b>'
+        f'<div class="alert-item">'
+        f'<span style="color:#6b7280;font-size:0.78rem;margin-right:8px">{c.get("alert_date","")}</span>'
+        f'▶ <b>{c["name"]} ({c["ticker"]})</b>'
         f' — {c["note"].split("|")[0].strip()}'
-        f' <span style="color:#6b7280;font-size:0.8rem">{c.get("alert_date","")}</span></div>'
-        for c in alerts
+        f'</div>'
+        for c in recent_5
     ])
     st.markdown(f"""
     <div class="alert-banner">
-      <div class="alert-title">🚨 NVIDIA 신규 투자 알림 — {len(alerts)}건 (2024~2025)</div>
+      <div class="alert-title">🚨 NVIDIA 최근 신규 투자 — 최근 5건 (최신: {latest_year})</div>
       {items_html}
     </div>""", unsafe_allow_html=True)
 
 # ── 헤더 ─────────────────────────────────────────────────────────────────────
 st.markdown("# 🟢 NVIDIA 투자 기업 스크리너")
 st.markdown(
-    "SEC 13F 공시·NVIDIA 공식 보도자료 기반. "
-    "**현재 13F 포트폴리오 5개 종목, 총 $8.1B+ 확인 투자액 (Q4 2025)**"
+    "SEC 13F 공시·NVIDIA 공식 보도자료 기반 · 마지막 검증: 2026-05-14  \n"
+    "**2026년 신규 투자 5건 포함, 확인 투자액 총 $27B+ (2024~2026)**"
 )
 
-# 포트폴리오 요약 배지
+# 포트폴리오 요약 배지 — 2026 최신순
 col_summary = st.columns(5)
 summary_data = [
-    ("INTC", "$5.0B", "#94a3b8"), ("SNPS", "$2.0B", "#34d399"),
-    ("NOK",  "$1.0B", "#60a5fa"), ("CRWV", "전략주주", "#3b82f6"),
-    ("NBIS", "$100M", "#76b900"),
+    ("IREN",  "최대$2.1B·2026.05", "#f97316"),
+    ("GLW",   "최대$3.2B·2026.05", "#34d399"),
+    ("MRVL",  "$2B·2026.03",       "#a78bfa"),
+    ("LITE",  "$2B·2026.03",       "#ec4899"),
+    ("COHR",  "$2B·2026.03",       "#fb7185"),
 ]
 for col, (t, amt, color) in zip(col_summary, summary_data):
     col.markdown(
         f'<div style="background:#111827;border:1px solid {color};border-radius:8px;'
         f'padding:8px;text-align:center"><b style="color:{color}">{t}</b>'
-        f'<br><span style="color:#9ca3af;font-size:0.8rem">{amt}</span></div>',
+        f'<br><span style="color:#9ca3af;font-size:0.75rem">{amt}</span></div>',
         unsafe_allow_html=True)
 
 st.markdown("---")
@@ -428,7 +493,8 @@ with tab1:
         return 0
 
     groups = [
-        ("✅ 현재 보유 (13F Q4 2025)", [c for c in all_display if c["badge"] not in ["partner","exited"]], True),
+        ("🆕 2026 신규 투자",           [c for c in all_display if c.get("invest_year")==2026],            True),
+        ("✅ 기존 보유 (13F Q4 2025)",  [c for c in all_display if c["badge"] not in ["partner","exited"] and c.get("invest_year")!=2026], True),
         ("🤝 전략 파트너십 (비지분)",   [c for c in all_display if c["badge"] == "partner"],               True),
         ("✖ 청산 완료",                [c for c in all_display if c["badge"] == "exited"],                False),
     ]
