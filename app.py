@@ -615,23 +615,24 @@ st.markdown("""
 .nv-header {
   display: flex;
   align-items: center;
-  gap: 18px;
+  gap: 14px;
   margin: 4px 0 2px;
 }
 .nv-logo-wrap {
-  display: inline-block;
+  display: flex;
+  align-items: center;
   animation: nvlogo-spin 3.2s ease-in-out infinite;
   transform-style: preserve-3d;
-  line-height: 1;
 }
 .nv-logo {
-  font-size: 1.5rem;
+  font-size: 1.3rem;
   font-weight: 900;
   font-family: 'Inter', system-ui, sans-serif;
   color: #76b900;
   text-shadow: 0 0 24px rgba(118,185,0,0.5), 0 0 8px rgba(118,185,0,0.3);
   user-select: none;
   line-height: 1;
+  vertical-align: middle;
 }
 .nv-title-wrap {
   overflow: hidden;
