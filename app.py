@@ -101,11 +101,15 @@ st.markdown("""
   .filing-hold     { border-left: 3px solid #1e3a5f !important; }
 
   /* ── 지표 카드 ── */
-  div[data-testid="stMetricValue"] { color: #d8d8d8 !important; font-size: 1.5rem !important; font-weight: 500 !important; }
-  div[data-testid="stMetricLabel"] { color: #505050 !important; font-size: 0.72rem !important;
-                                     text-transform: uppercase; letter-spacing: 0.8px; }
-  div[data-testid="stMetric"] { background: #0e0e0e; border: 1px solid #1c1c1c;
-                                 border-radius: 4px; padding: 16px !important; }
+  div[data-testid="stMetricValue"] { color: #76b900 !important; font-size: 1.6rem !important; font-weight: 600 !important; letter-spacing: -0.5px; }
+  div[data-testid="stMetricLabel"] { color: #404040 !important; font-size: 0.68rem !important;
+                                     text-transform: uppercase; letter-spacing: 1px; }
+  div[data-testid="stMetric"] {
+    background: linear-gradient(160deg, #0f0f0f, #0b0b0b) !important;
+    border: 1px solid #1e1e1e !important;
+    border-top: 1px solid #2a2a2a !important;
+    border-radius: 4px; padding: 18px !important;
+  }
 
   /* ── 팝오버 ── */
   div[data-testid="stPopover"] button {
@@ -592,8 +596,8 @@ if recent_5:
 # ── 헤더 ─────────────────────────────────────────────────────────────────────
 st.markdown("# NVIDIA Portfolio Screener")
 st.markdown(
-    '<p style="color:#404040;font-size:0.8rem;letter-spacing:0.5px">'
-    'SEC 13F &nbsp;·&nbsp; NVIDIA IR &nbsp;·&nbsp; Bloomberg / Reuters / FT / WSJ &nbsp;·&nbsp; 마지막 검증 2026-05-14'
+    '<p style="color:#383838;font-size:0.75rem;letter-spacing:0.5px">'
+    '마지막 검증 2026-05-14'
     '</p>', unsafe_allow_html=True
 )
 
@@ -660,10 +664,13 @@ with tab1:
         st.markdown(f"### {group_title}")
         sorted_items = sorted(group_items, key=sort_key, reverse=reverse)
 
-        hcols = st.columns([2.5,1.2,1.3,1.3,1.2,1.2,1.5,2.5])
-        for h, col in zip(["기업","현재가","일간등락","YTD","시총","P/E","52주범위","투자 근거"], hcols):
-            col.markdown(f"**{h}**")
-        st.markdown('<hr style="margin:4px 0;border-color:#374151">', unsafe_allow_html=True)
+        hcols = st.columns([2.5, 1.2, 1.3, 1.3, 1.2, 1.2, 1.5, 1.2])
+        for h, col in zip(["기업", "현재가", "일간등락", "YTD", "시총", "P/E", "52주범위", ""], hcols):
+            col.markdown(
+                f'<span style="color:#c0c0c0;font-size:0.72rem;font-weight:500;'
+                f'letter-spacing:0.8px;text-transform:uppercase">{h}</span>',
+                unsafe_allow_html=True)
+        st.markdown('<hr style="margin:4px 0;border-color:#1e1e1e">', unsafe_allow_html=True)
 
         for c in sorted_items:
             ticker = c["ticker"]
