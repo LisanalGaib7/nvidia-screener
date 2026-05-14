@@ -1021,17 +1021,19 @@ with tab5:
     fig6 = go.Figure()
     for ct, grp in df_f.groupby("change_type"):
         fig6.add_trace(go.Scatter(
-            x=grp["filed"], y=grp["company"], mode="markers+text",
-            name=ct_map.get(ct,ct),
-            marker=dict(color=color_map.get(ct,"#9ca3af"), size=14),
-            text=grp["quarter"], textposition="top center",
-            textfont=dict(size=8, color="#9ca3af"),
-            hovertemplate="<b>%{y}</b><br>%{x}<extra></extra>",
+            x=grp["filed"], y=grp["company"], mode="markers",
+            name=ct_map.get(ct, ct),
+            marker=dict(color=color_map.get(ct, "#9ca3af"), size=14, symbol="circle"),
+            customdata=grp["quarter"],
+            hovertemplate="<b>%{y}</b><br>%{x}<br>%{customdata}<extra></extra>",
         ))
-    fig6.update_layout(template="plotly_dark", paper_bgcolor="#111827", plot_bgcolor="#111827",
-                       height=500, xaxis_title="공시일",
-                       legend=dict(bgcolor="#1f2937",orientation="h",y=1.12),
-                       margin=dict(l=0,r=0,t=40,b=0))
+    fig6.update_layout(
+        template="plotly_dark", paper_bgcolor="#111827", plot_bgcolor="#111827",
+        height=500, xaxis_title="공시일",
+        legend=dict(bgcolor="#1f2937", orientation="h", y=1.12,
+                    itemsizing="constant", traceorder="normal"),
+        margin=dict(l=0, r=0, t=40, b=0),
+    )
     st.plotly_chart(fig6, use_container_width=True)
 
 # ── 어드민 피드백 뷰 (비밀번호 보호) ─────────────────────────────────────────
