@@ -451,6 +451,16 @@ CHANGE_STYLE = {
 
 # ── fetch ────────────────────────────────────────────────────────────────────
 @st.cache_data(ttl=300)
+def fetch_usdjpy():
+    try:
+        t = yf.Ticker("USDJPY=X")
+        info = t.info
+        rate = info.get("regularMarketPrice") or info.get("currentPrice")
+        return rate if rate else 150.0
+    except:
+        return 150.0
+
+@st.cache_data(ttl=300)
 def fetch_stock_data(tickers):
     result = {}
     for ticker in tickers:
@@ -487,12 +497,13 @@ def fetch_news(ticker):
     except:
         return []
 
-def fmt_cap(v, currency="USD"):
+def fmt_cap(v, currency="USD", usdjpy=150.0):
     if v is None: return "—"
     if currency == "JPY":
-        if v >= 1e12: return f"¥{v/1e12:.1f}T"
-        if v >= 1e9:  return f"¥{v/1e9:.0f}B"
-        return f"¥{v:,.0f}"
+        usd = v / usdjpy
+        if usd >= 1e12: return f"${usd/1e12:.2f}T"
+        if usd >= 1e9:  return f"${usd/1e9:.1f}B"
+        return f"${usd/1e6:.0f}M"
     if v >= 1e12: return f"${v/1e12:.2f}T"
     if v >= 1e9:  return f"${v/1e9:.1f}B"
     if v >= 1e6:  return f"${v/1e6:.0f}M"
@@ -650,6 +661,7 @@ if show_exited:  all_display += [
 tickers = [c["ticker"] for c in all_display]
 with st.spinner("실시간 주가 데이터 로드 중..."):
     stock_data = fetch_stock_data(tickers)
+    usdjpy = fetch_usdjpy()
 
 # ── 🚨 신규 투자 알림 배너 — 최근 5건 ────────────────────────────────────────
 all_investments = NEW_2026 + CURRENT_HOLDINGS + PARTNERSHIPS
@@ -950,7 +962,7 @@ with tab1:
             with cols[2]: st.markdown(fmt_pct(sd.get("change_pct")), unsafe_allow_html=True)
             with cols[3]: st.markdown(fmt_pct(sd.get("ytd_pct")),    unsafe_allow_html=True)
             with cols[4]:
-                st.markdown(f'<span style="color:#a0a0a0">{fmt_cap(sd.get("market_cap"), sd.get("currency","USD"))}</span>', unsafe_allow_html=True)
+                st.markdown(f'<span style="color:#a0a0a0">{fmt_cap(sd.get("market_cap"), sd.get("currency","USD"), usdjpy)}</span>', unsafe_allow_html=True)
             with cols[5]:
                 st.markdown(f'<span style="color:#a0a0a0">{fmt_ratio(sd.get("pe_ratio"))}</span>', unsafe_allow_html=True)
             with cols[6]: st.markdown(bar, unsafe_allow_html=True)
