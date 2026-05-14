@@ -625,13 +625,16 @@ st.markdown("""
   line-height: 1;
 }
 .nv-logo {
-  font-size: 2.4rem;
+  font-size: 3.6rem;
   font-weight: 900;
   font-family: 'Inter', system-ui, sans-serif;
   color: #76b900;
   letter-spacing: -2px;
   text-shadow: 0 0 24px rgba(118,185,0,0.5), 0 0 8px rgba(118,185,0,0.3);
   user-select: none;
+  line-height: 1;
+  display: flex;
+  align-items: center;
 }
 .nv-title-wrap {
   overflow: hidden;
