@@ -114,8 +114,8 @@ st.markdown("""
   /* ── 팝오버 ── */
   div[data-testid="stPopover"] button {
     background: transparent !important;
-    border: 1px solid #1e1e1e !important;
-    color: #404040 !important;
+    border: 1px solid #2e2e2e !important;
+    color: #707070 !important;
     border-radius: 2px !important;
     font-size: 0.68rem !important;
     letter-spacing: 0.8px;
@@ -801,7 +801,14 @@ with tab1:
 
     for group_title, group_items, reverse in groups:
         if not group_items: continue
-        st.markdown(f"### {group_title}")
+        accent = "#76b900" if "신규" in group_title else ("#c87f00" if "파트너" in group_title else ("#484848" if "청산" in group_title else "#4a90d9"))
+        st.markdown(
+            f'<div style="display:flex;align-items:center;gap:14px;margin:32px 0 18px">'
+            f'<div style="width:3px;height:22px;background:{accent};border-radius:2px;flex-shrink:0"></div>'
+            f'<span style="color:#d0d0d0;font-size:0.95rem;font-weight:600;letter-spacing:0.4px">{group_title}</span>'
+            f'<div style="flex:1;height:1px;background:#1a1a1a"></div>'
+            f'</div>',
+            unsafe_allow_html=True)
         sorted_items = sorted(group_items, key=sort_key, reverse=reverse)
 
         hcols = st.columns([2.5, 1.2, 1.3, 1.3, 1.2, 1.2, 1.5, 1.2])
@@ -824,8 +831,8 @@ with tab1:
             if w52h and w52l and price:
                 pp = max(0, min(100, (price - w52l) / (w52h - w52l) * 100))
                 bar = (
-                    f'<div style="font-size:0.7rem;color:#383838">'
-                    f'{fmt_price(w52l,currency)} <span style="color:#242424">━</span> {fmt_price(w52h,currency)}<br>'
+                    f'<div style="font-size:0.7rem;color:#686868">'
+                    f'{fmt_price(w52l,currency)} <span style="color:#484848">━</span> {fmt_price(w52h,currency)}<br>'
                     f'<div style="background:#1a1a1a;border-radius:2px;height:3px;margin-top:3px">'
                     f'<div style="background:#76b900;width:{pp:.0f}%;height:3px;border-radius:2px"></div>'
                     f'</div>'
@@ -840,10 +847,10 @@ with tab1:
 
             with cols[0]:
                 st.markdown(
-                    f'<span style="color:#d8d8d8;font-weight:500">{c["name"]}</span>'
-                    f'<span style="color:#383838;font-size:0.78rem;margin-left:6px">{ticker}</span><br>'
+                    f'<span style="color:#e8e8e8;font-weight:500">{c["name"]}</span>'
+                    f'<span style="color:#686868;font-size:0.78rem;margin-left:6px">{ticker}</span><br>'
                     f'{BADGE_MAP[c["badge"]]}'
-                    f'<span style="color:#404040;font-size:0.72rem;margin-left:6px">{c["sector"]}</span>'
+                    f'<span style="color:#686868;font-size:0.72rem;margin-left:6px">{c["sector"]}</span>'
                     + (f'<span style="color:#c87f00;font-size:0.78rem;font-weight:600;margin-left:8px">{amt}</span>' if amt else ""),
                     unsafe_allow_html=True)
             with cols[1]:
@@ -853,9 +860,9 @@ with tab1:
             with cols[2]: st.markdown(fmt_pct(sd.get("change_pct")), unsafe_allow_html=True)
             with cols[3]: st.markdown(fmt_pct(sd.get("ytd_pct")),    unsafe_allow_html=True)
             with cols[4]:
-                st.markdown(f'<span style="color:#686868">{fmt_cap(sd.get("market_cap"))}</span>', unsafe_allow_html=True)
+                st.markdown(f'<span style="color:#a0a0a0">{fmt_cap(sd.get("market_cap"))}</span>', unsafe_allow_html=True)
             with cols[5]:
-                st.markdown(f'<span style="color:#686868">{fmt_ratio(sd.get("pe_ratio"))}</span>', unsafe_allow_html=True)
+                st.markdown(f'<span style="color:#a0a0a0">{fmt_ratio(sd.get("pe_ratio"))}</span>', unsafe_allow_html=True)
             with cols[6]: st.markdown(bar, unsafe_allow_html=True)
             with cols[7]:
                 with st.popover("Detail"):
