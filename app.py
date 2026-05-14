@@ -521,6 +521,8 @@ with st.sidebar:
     sort_by = st.selectbox("정렬 기준",
         ["투자금액","YTD 수익률","시가총액","일간 등락률","투자 날짜"])
 
+    st.markdown("---")
+
     with st.expander("태그 가이드"):
         st.markdown("""
 <style>
