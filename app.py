@@ -1017,7 +1017,7 @@ with tab5:
 
     st.markdown("### 공시 타임라인")
     df_f = pd.DataFrame(FILINGS_HISTORY)
-    color_map  = {"new":"#22c55e","increase":"#76b900","decrease":"#ef4444","exit":"#6b7280","hold":"#3b82f6"}
+    color_map  = {"new":"#22c55e","increase":"#4a90d9","decrease":"#ef4444","exit":"#6b7280","hold":"#3b82f6"}
     label_map  = {"new":"신규","increase":"증가","decrease":"감소","exit":"청산","hold":"유지"}
     fig6 = go.Figure()
     for ct, grp in df_f.groupby("change_type"):
