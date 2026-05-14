@@ -386,13 +386,15 @@ with st.sidebar:
         ["투자금액","YTD 수익률","시가총액","일간 등락률","투자 날짜"])
     st.markdown("---")
     st.markdown("""
-**데이터 출처**
-- SEC EDGAR 13F 공시
-- NVIDIA 공식 보도자료
-- Bloomberg / CNBC 검증
+**📂 데이터 출처**
+- 📋 SEC EDGAR 13F 공시
+- 📢 NVIDIA 공식 보도자료
+- 📰 Bloomberg / CNBC 검증
 
-⚠️ 투자 조언 아님
-**데이터:** Yahoo Finance (~15분 지연)
+---
+⚠️ **Disclaimer:** 본 대시보드는 투자 조언이 아닙니다.
+
+🕐 **Data:** Yahoo Finance (~15분 지연)
 """)
     if st.button("🔄 새로고침", use_container_width=True):
         st.cache_data.clear()
