@@ -411,8 +411,8 @@ with st.sidebar:
             "🐛 버그 신고",
             "💡 기타 의견",
         ])
-        fb_rating = st.radio("만족도", ["⭐","⭐⭐","⭐⭐⭐","⭐⭐⭐⭐","⭐⭐⭐⭐⭐"],
-                              index=4, horizontal=True)
+        fb_rating = st.select_slider("만족도", ["⭐","⭐⭐","⭐⭐⭐","⭐⭐⭐⭐","⭐⭐⭐⭐⭐"],
+                                     value="⭐⭐⭐⭐⭐")
         fb_text = st.text_area("내용", placeholder="예) INTC 투자금액이 다릅니다 / OO 기업도 추가해주세요", height=80)
         fb_name = st.text_input("닉네임 (선택)", placeholder="익명")
         submitted = st.form_submit_button("제출하기", use_container_width=True)
