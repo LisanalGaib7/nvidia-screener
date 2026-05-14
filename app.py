@@ -789,7 +789,21 @@ for col, label, value, color, extra_html in [
      '<div class="tooltip-row"><span class="tooltip-ticker">CRWV</span><span class="tooltip-name">CoreWeave</span></div>'
      '<div class="tooltip-row"><span class="tooltip-ticker">NBIS</span><span class="tooltip-name">Nebius Group</span></div>'
      '</div>'),
-    (m2, "확인된 투자액",  invest_str,   "#c87f00", ""),
+    (m2, "확인된 투자액",  invest_str,   "#c87f00",
+     '<div class="metric-tooltip" style="border-top-color:#c87f00;min-width:220px">'
+     '<div class="tooltip-title" style="color:#c87f00">투자금액 순</div>'
+     + "".join(
+         f'<div class="tooltip-row">'
+         f'<span class="tooltip-ticker">{c["ticker"]}</span>'
+         f'<span class="tooltip-name">'
+         f'{"$"+str(int(c["invest_amt_m"]/1000))+"B" if c["invest_amt_m"]>=1000 else "$"+str(int(c["invest_amt_m"]))+"M"}'
+         f'</span></div>'
+         for c in sorted(
+             [c for c in all_display if c.get("invest_amt_m") and c["badge"] != "exited"],
+             key=lambda x: x["invest_amt_m"], reverse=True
+         )
+     )
+     + '</div>'),
     (m3, "평균 YTD",       avg_ytd_str,  "#76b900", ""),
     (m4, "YTD 플러스",     ytd_plus_str, "#76b900", ""),
 ]:
