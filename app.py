@@ -14,54 +14,132 @@ st.set_page_config(
 
 st.markdown("""
 <style>
-  .stApp { background-color: #0d0d0d; }
+  /* ── 기본 배경 ── */
+  .stApp, .main, section[data-testid="stSidebar"] > div:first-child {
+    background-color: #080808;
+  }
+  section[data-testid="stSidebar"] { background-color: #0c0c0c; border-right: 1px solid #1a1a1a; }
 
+  /* ── 타이포그래피 ── */
+  html, body, [class*="css"] { font-family: 'Inter', 'SF Pro Display', system-ui, sans-serif; }
+  h1 { color: #f0f0f0 !important; font-size: 1.7rem !important; font-weight: 600 !important; letter-spacing: -0.5px !important; }
+  h2 { color: #e0e0e0 !important; font-size: 1.1rem !important; font-weight: 500 !important; letter-spacing: 0.3px !important; }
+  h3 { color: #c8c8c8 !important; font-size: 0.95rem !important; font-weight: 500 !important;
+       text-transform: uppercase; letter-spacing: 1.2px !important; }
+  p, .stMarkdown p { color: #888 !important; font-size: 0.88rem; line-height: 1.6; }
+
+  /* ── 신규 투자 알림 배너 ── */
   .alert-banner {
-    background: linear-gradient(135deg, #1a1a00, #2d2000);
-    border: 2px solid #f59e0b;
-    border-radius: 12px;
+    background: #0e0e0e;
+    border: 1px solid #2a2200;
+    border-left: 3px solid #c87f00;
+    border-radius: 4px;
     padding: 14px 20px;
-    margin-bottom: 16px;
-    animation: pulse 2s infinite;
+    margin-bottom: 20px;
   }
-  @keyframes pulse {
-    0%,100% { border-color:#f59e0b; }
-    50%      { border-color:#fcd34d; box-shadow:0 0 12px #f59e0b66; }
-  }
-  .alert-title { color:#f59e0b; font-size:1rem; font-weight:700; margin:0 0 6px; }
-  .alert-item  { color:#fde68a; font-size:0.88rem; margin:3px 0; }
+  .alert-title { color: #c87f00; font-size: 0.7rem; font-weight: 600;
+                 letter-spacing: 1.8px; text-transform: uppercase; margin: 0 0 10px; }
+  .alert-item  { color: #a0a0a0; font-size: 0.84rem; margin: 5px 0; line-height: 1.5; }
+  .alert-item b { color: #e0e0e0; font-weight: 500; }
+  .alert-date  { color: #444; font-size: 0.75rem; }
 
-  .badge-core    { background:#3b82f6; color:#fff; border-radius:4px; padding:2px 8px; font-size:0.72rem; font-weight:700; }
-  .badge-new     { background:#f59e0b; color:#000; border-radius:4px; padding:2px 8px; font-size:0.72rem; font-weight:700; }
-  .badge-hot     { background:#76b900; color:#000; border-radius:4px; padding:2px 8px; font-size:0.72rem; font-weight:700; }
-  .badge-watch   { background:#6b7280; color:#fff; border-radius:4px; padding:2px 8px; font-size:0.72rem; font-weight:700; }
-  .badge-partner { background:#7c3aed; color:#fff; border-radius:4px; padding:2px 8px; font-size:0.72rem; font-weight:700; }
-  .badge-exited  { background:#374151; color:#9ca3af; border-radius:4px; padding:2px 8px; font-size:0.72rem; font-weight:700; text-decoration:line-through; }
+  /* ── 배지 ── */
+  .badge-core    { background: transparent; color: #4a90d9; border: 1px solid #1e3a5f;
+                   border-radius: 2px; padding: 1px 7px; font-size: 0.65rem; font-weight: 600;
+                   letter-spacing: 1px; text-transform: uppercase; }
+  .badge-new     { background: transparent; color: #c87f00; border: 1px solid #3d2600;
+                   border-radius: 2px; padding: 1px 7px; font-size: 0.65rem; font-weight: 600;
+                   letter-spacing: 1px; text-transform: uppercase; }
+  .badge-hot     { background: transparent; color: #76b900; border: 1px solid #2a3f00;
+                   border-radius: 2px; padding: 1px 7px; font-size: 0.65rem; font-weight: 600;
+                   letter-spacing: 1px; text-transform: uppercase; }
+  .badge-watch   { background: transparent; color: #555; border: 1px solid #222;
+                   border-radius: 2px; padding: 1px 7px; font-size: 0.65rem; font-weight: 600;
+                   letter-spacing: 1px; text-transform: uppercase; }
+  .badge-partner { background: transparent; color: #7c5cbf; border: 1px solid #2a1a4a;
+                   border-radius: 2px; padding: 1px 7px; font-size: 0.65rem; font-weight: 600;
+                   letter-spacing: 1px; text-transform: uppercase; }
+  .badge-exited  { background: transparent; color: #333; border: 1px solid #1a1a1a;
+                   border-radius: 2px; padding: 1px 7px; font-size: 0.65rem; font-weight: 600;
+                   letter-spacing: 1px; text-transform: uppercase; text-decoration: line-through; }
 
-  .positive { color:#22c55e; font-weight:700; }
-  .negative { color:#ef4444; font-weight:700; }
+  /* ── 수익률 색상 ── */
+  .positive { color: #5a9e3a; font-weight: 600; }
+  .negative { color: #a03030; font-weight: 600; }
 
+  /* ── 뉴스 카드 ── */
   .news-card {
-    background:#111827; border-left:3px solid #76b900;
-    border-radius:6px; padding:10px 14px; margin-bottom:8px;
+    background: #0e0e0e;
+    border: 1px solid #1a1a1a;
+    border-left: 2px solid #76b900;
+    border-radius: 3px;
+    padding: 12px 16px;
+    margin-bottom: 6px;
   }
-  .news-title { color:#f9fafb; font-size:0.9rem; font-weight:600; }
-  .news-meta  { color:#6b7280; font-size:0.75rem; margin-top:3px; }
+  .news-title { color: #d0d0d0; font-size: 0.88rem; font-weight: 500; line-height: 1.4; }
+  .news-meta  { color: #3a3a3a; font-size: 0.72rem; margin-top: 4px; letter-spacing: 0.3px; }
 
-  .filing-new      { border-left:4px solid #22c55e !important; }
-  .filing-increase { border-left:4px solid #76b900 !important; }
-  .filing-decrease { border-left:4px solid #ef4444 !important; }
-  .filing-exit     { border-left:4px solid #6b7280 !important; }
-  .filing-hold     { border-left:4px solid #3b82f6 !important; }
+  /* ── 13F 공시 카드 ── */
   .filing-row {
-    background:#111827; border:1px solid #1f2937;
-    border-radius:8px; padding:10px 16px; margin-bottom:6px;
+    background: #0e0e0e;
+    border: 1px solid #181818;
+    border-radius: 3px;
+    padding: 10px 16px;
+    margin-bottom: 4px;
   }
+  .filing-new      { border-left: 3px solid #5a9e3a !important; }
+  .filing-increase { border-left: 3px solid #76b900 !important; }
+  .filing-decrease { border-left: 3px solid #a03030 !important; }
+  .filing-exit     { border-left: 3px solid #2a2a2a !important; }
+  .filing-hold     { border-left: 3px solid #1e3a5f !important; }
 
-  h1,h2,h3 { color:#f9fafb !important; }
-  .stMarkdown p { color:#d1d5db; }
-  div[data-testid="stMetricValue"] { color:#76b900 !important; font-size:1.6rem !important; }
-  div[data-testid="stMetricLabel"] { color:#9ca3af !important; }
+  /* ── 지표 카드 ── */
+  div[data-testid="stMetricValue"] { color: #e0e0e0 !important; font-size: 1.5rem !important; font-weight: 500 !important; }
+  div[data-testid="stMetricLabel"] { color: #404040 !important; font-size: 0.72rem !important;
+                                     text-transform: uppercase; letter-spacing: 0.8px; }
+  div[data-testid="stMetric"] { background: #0e0e0e; border: 1px solid #181818;
+                                 border-radius: 4px; padding: 16px !important; }
+
+  /* ── 탭 ── */
+  button[data-baseweb="tab"] { color: #404040 !important; font-size: 0.78rem !important;
+                                letter-spacing: 0.8px; text-transform: uppercase; font-weight: 500 !important; }
+  button[data-baseweb="tab"][aria-selected="true"] { color: #e0e0e0 !important; border-bottom: 2px solid #76b900 !important; }
+  div[data-baseweb="tab-list"] { border-bottom: 1px solid #181818 !important; gap: 8px; }
+
+  /* ── 사이드바 텍스트 ── */
+  .stSidebar h2, .stSidebar h3 { color: #e0e0e0 !important; }
+  .stSidebar p, .stSidebar label { color: #505050 !important; }
+  .stSidebar .stSelectbox label, .stSidebar .stMultiSelect label { color: #505050 !important; font-size:0.72rem !important; letter-spacing:0.8px; text-transform:uppercase; }
+
+  /* ── 버튼 ── */
+  .stButton > button { background: transparent !important; border: 1px solid #242424 !important;
+                       color: #505050 !important; border-radius: 3px !important; font-size: 0.75rem !important;
+                       letter-spacing: 0.5px; transition: all 0.2s; }
+  .stButton > button:hover { border-color: #76b900 !important; color: #76b900 !important; }
+
+  /* ── 입력 필드 ── */
+  .stTextInput input, .stTextArea textarea, .stSelectbox div[data-baseweb="select"] {
+    background: #0e0e0e !important; border: 1px solid #1e1e1e !important;
+    border-radius: 3px !important; color: #c0c0c0 !important; font-size: 0.85rem !important; }
+
+  /* ── 구분선 ── */
+  hr { border-color: #181818 !important; margin: 20px 0 !important; }
+
+  /* ── 요약 배지 칩 ── */
+  .ticker-chip {
+    background: #0e0e0e;
+    border: 1px solid #1e1e1e;
+    border-radius: 3px;
+    padding: 10px 12px;
+    text-align: center;
+  }
+  .ticker-chip .t  { font-size: 0.9rem; font-weight: 600; letter-spacing: 0.5px; }
+  .ticker-chip .amt { font-size: 0.7rem; color: #404040; margin-top: 3px; letter-spacing: 0.3px; }
+
+  /* ── 스크롤바 ── */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: #080808; }
+  ::-webkit-scrollbar-thumb { background: #222; border-radius: 2px; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -289,12 +367,12 @@ FILINGS_HISTORY = [
 ]
 
 BADGE_MAP = {
-    "core":    '<span class="badge-core">⭐ CORE</span>',
-    "new":     '<span class="badge-new">🆕 NEW</span>',
-    "hot":     '<span class="badge-hot">🔥 HOT</span>',
-    "watch":   '<span class="badge-watch">👁 WATCH</span>',
-    "partner": '<span class="badge-partner">🤝 PARTNER</span>',
-    "exited":  '<span class="badge-exited">✖ EXITED</span>',
+    "core":    '<span class="badge-core">CORE</span>',
+    "new":     '<span class="badge-new">NEW</span>',
+    "hot":     '<span class="badge-hot">ACTIVE</span>',
+    "watch":   '<span class="badge-watch">WATCH</span>',
+    "partner": '<span class="badge-partner">PARTNER</span>',
+    "exited":  '<span class="badge-exited">EXITED</span>',
 }
 
 SECTOR_COLORS = {
@@ -376,40 +454,40 @@ def ts_to_str(ts):
 
 # ── 사이드바 ──────────────────────────────────────────────────────────────────
 with st.sidebar:
-    st.markdown("## 🟢 NVIDIA 포트폴리오 필터")
+    st.markdown("## NVIDIA Screener")
     st.markdown("---")
-    show_current  = st.checkbox("✅ 현재 보유 (13F)",    value=True)
-    show_partner  = st.checkbox("🤝 전략 파트너십",       value=True)
-    show_exited   = st.checkbox("✖ 청산 완료",           value=False)
+    show_current  = st.checkbox("현재 보유 (13F)",  value=True)
+    show_partner  = st.checkbox("전략 파트너십",     value=True)
+    show_exited   = st.checkbox("청산 완료",         value=False)
     st.markdown("---")
     sort_by = st.selectbox("정렬 기준",
         ["투자금액","YTD 수익률","시가총액","일간 등락률","투자 날짜"])
     st.markdown("---")
     st.markdown("""
-**📂 데이터 출처**
-- SEC EDGAR 13F 공시
-- NVIDIA 공식 보도자료
-- Bloomberg, CNBC, Reuters
+데이터 출처
+- SEC EDGAR 13F
+- NVIDIA IR
+- Bloomberg, Reuters, CNBC
 - Financial Times, WSJ, The Economist
 
 ---
-⚠️ **Disclaimer:** 본 대시보드는 투자 조언이 아닙니다.
+⚠️ 투자 조언 아님
 
-🕐 **Data:** Yahoo Finance (~15분 지연)
+Data: Yahoo Finance (~15분 지연)
 """)
     if st.button("🔄 새로고침", use_container_width=True):
         st.cache_data.clear()
         st.rerun()
 
     st.markdown("---")
-    st.markdown("### 💬 피드백")
+    st.markdown("### Feedback")
     with st.form("feedback_form", clear_on_submit=True):
         fb_category = st.selectbox("유형", [
-            "📊 데이터 오류 제보",
-            "🆕 신규 투자 제보",
-            "✨ 기능 요청",
-            "🐛 버그 신고",
-            "💡 기타 의견",
+            "데이터 오류 제보",
+            "신규 투자 제보",
+            "기능 요청",
+            "버그 신고",
+            "기타 의견",
         ])
         fb_rating = st.select_slider("만족도", ["⭐","⭐⭐","⭐⭐⭐","⭐⭐⭐⭐","⭐⭐⭐⭐⭐"],
                                      value="⭐⭐⭐⭐⭐")
@@ -467,39 +545,41 @@ if recent_5:
     latest_year = recent_5[0].get("alert_date","")[:4]
     items_html = "".join([
         f'<div class="alert-item">'
-        f'<span style="color:#6b7280;font-size:0.78rem;margin-right:8px">{c.get("alert_date","")}</span>'
-        f'▶ <b>{c["name"]} ({c["ticker"]})</b>'
-        f' — {c["note"].split("|")[0].strip()}'
+        f'<span class="alert-date">{c.get("alert_date","")}&nbsp;&nbsp;</span>'
+        f'<b>{c["name"]} ({c["ticker"]})</b>'
+        f'&nbsp;—&nbsp;{c["note"].split("|")[0].strip()}'
         f'</div>'
         for c in recent_5
     ])
     st.markdown(f"""
     <div class="alert-banner">
-      <div class="alert-title">🚨 NVIDIA 최근 신규 투자 — 최근 5건 (최신: {latest_year})</div>
+      <div class="alert-title">Recent Investments &nbsp;·&nbsp; {latest_year}</div>
       {items_html}
     </div>""", unsafe_allow_html=True)
 
 # ── 헤더 ─────────────────────────────────────────────────────────────────────
-st.markdown("# 🟢 NVIDIA 투자 기업 스크리너")
+st.markdown("# NVIDIA Portfolio Screener")
 st.markdown(
-    "SEC 13F 공시·NVIDIA 공식 보도자료 기반 · 마지막 검증: 2026-05-14  \n"
-    "**2026년 신규 투자 5건 포함, 확인 투자액 총 $27B+ (2024~2026)**"
+    '<p style="color:#404040;font-size:0.8rem;letter-spacing:0.5px">'
+    'SEC 13F &nbsp;·&nbsp; NVIDIA IR &nbsp;·&nbsp; Bloomberg / Reuters / FT / WSJ &nbsp;·&nbsp; 마지막 검증 2026-05-14'
+    '</p>', unsafe_allow_html=True
 )
 
-# 포트폴리오 요약 배지 — 2026 최신순
+# 최신 투자 5개 칩
 col_summary = st.columns(5)
 summary_data = [
-    ("IREN",  "최대$2.1B·2026.05", "#f97316"),
-    ("GLW",   "최대$3.2B·2026.05", "#34d399"),
-    ("MRVL",  "$2B·2026.03",       "#a78bfa"),
-    ("LITE",  "$2B·2026.03",       "#ec4899"),
-    ("COHR",  "$2B·2026.03",       "#fb7185"),
+    ("IREN",  "≤ $2.1B  ·  2026.05", "#c87f00"),
+    ("GLW",   "≤ $3.2B  ·  2026.05", "#5a9e3a"),
+    ("MRVL",  "$2B  ·  2026.03",     "#7c5cbf"),
+    ("LITE",  "$2B  ·  2026.03",     "#4a90d9"),
+    ("COHR",  "$2B  ·  2026.03",     "#4a90d9"),
 ]
 for col, (t, amt, color) in zip(col_summary, summary_data):
     col.markdown(
-        f'<div style="background:#111827;border:1px solid {color};border-radius:8px;'
-        f'padding:8px;text-align:center"><b style="color:{color}">{t}</b>'
-        f'<br><span style="color:#9ca3af;font-size:0.75rem">{amt}</span></div>',
+        f'<div class="ticker-chip">'
+        f'<div class="t" style="color:{color}">{t}</div>'
+        f'<div class="amt">{amt}</div>'
+        f'</div>',
         unsafe_allow_html=True)
 
 st.markdown("---")
@@ -521,8 +601,8 @@ st.markdown("---")
 
 # ── 탭 ───────────────────────────────────────────────────────────────────────
 tab1, tab2, tab3, tab4, tab5 = st.tabs([
-    "📋 기업 목록", "📈 차트 비교", "🗺️ 섹터 분석",
-    "📰 뉴스 피드", "📊 13F 공시 히스토리"
+    "Portfolio", "Performance", "Sectors",
+    "News", "13F History"
 ])
 
 # ══ Tab 1 ════════════════════════════════════════════════════════════════════
@@ -537,10 +617,10 @@ with tab1:
         return 0
 
     groups = [
-        ("🆕 2026 신규 투자",           [c for c in all_display if c.get("invest_year")==2026],            True),
-        ("✅ 기존 보유 (13F Q4 2025)",  [c for c in all_display if c["badge"] not in ["partner","exited"] and c.get("invest_year")!=2026], True),
-        ("🤝 전략 파트너십 (비지분)",   [c for c in all_display if c["badge"] == "partner"],               True),
-        ("✖ 청산 완료",                [c for c in all_display if c["badge"] == "exited"],                False),
+        ("2026 신규 투자",        [c for c in all_display if c.get("invest_year")==2026],            True),
+        ("기존 보유  ·  Q4 2025", [c for c in all_display if c["badge"] not in ["partner","exited"] and c.get("invest_year")!=2026], True),
+        ("전략 파트너십",         [c for c in all_display if c["badge"] == "partner"],               True),
+        ("청산 완료",             [c for c in all_display if c["badge"] == "exited"],                False),
     ]
 
     for group_title, group_items, reverse in groups:
@@ -742,7 +822,7 @@ with tab5:
 import json, os
 
 st.markdown("---")
-with st.expander("🔐 Admin", expanded=False):
+with st.expander("Admin", expanded=False):
     pw = st.text_input("비밀번호", type="password", key="admin_pw")
     ADMIN_PW = st.secrets.get("admin", {}).get("password", "엔비디아레츠고")
 
@@ -791,7 +871,8 @@ with st.expander("🔐 Admin", expanded=False):
 # ── 푸터 ─────────────────────────────────────────────────────────────────────
 st.markdown("---")
 st.markdown(
-    f"<div style='text-align:center;color:#4b5563;font-size:0.8rem'>"
-    f"출처: SEC EDGAR 13F · NVIDIA IR · Bloomberg · CNBC | Yahoo Finance (15분 지연)<br>"
-    f"마지막 업데이트: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+    f"<div style='text-align:center;color:#2a2a2a;font-size:0.72rem;letter-spacing:0.5px'>"
+    f"SEC EDGAR 13F &nbsp;·&nbsp; NVIDIA IR &nbsp;·&nbsp; Bloomberg &nbsp;·&nbsp; Reuters &nbsp;·&nbsp; FT &nbsp;·&nbsp; WSJ"
+    f"&nbsp;&nbsp;|&nbsp;&nbsp;Yahoo Finance 15분 지연"
+    f"&nbsp;&nbsp;|&nbsp;&nbsp;{datetime.now().strftime('%Y-%m-%d %H:%M')}"
     f"</div>", unsafe_allow_html=True)
