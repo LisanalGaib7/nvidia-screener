@@ -1456,10 +1456,22 @@ import json, os
 
 st.markdown("---")
 with st.expander("Admin", expanded=False):
-    pw = st.text_input("비밀번호", type="password", key="admin_pw")
     ADMIN_PW = st.secrets.get("admin", {}).get("password", "엔비디아레츠고")
+    if "admin_auth" not in st.session_state:
+        st.session_state.admin_auth = False
 
-    if pw == ADMIN_PW:
+    if not st.session_state.admin_auth:
+        with st.form("admin_login_form"):
+            pw = st.text_input("비밀번호", type="password")
+            submitted = st.form_submit_button("로그인")
+            if submitted:
+                if pw == ADMIN_PW:
+                    st.session_state.admin_auth = True
+                    st.rerun()
+                else:
+                    st.error("비밀번호가 틀렸습니다.")
+
+    if st.session_state.admin_auth:
         path = "feedback.json"
         data = []
         if os.path.exists(path):
