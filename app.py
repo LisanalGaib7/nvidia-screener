@@ -1211,16 +1211,17 @@ with tab2:
         if hist is None or hist.empty: continue
         ytd_h = hist[hist.index >= f"{date.today().year}-01-01"]["Close"]
         if ytd_h.empty: continue
-        norm = ytd_h / ytd_h.iloc[0] * 100
+        pct = (ytd_h / ytd_h.iloc[0] - 1) * 100
         fig.add_trace(go.Scatter(
-            x=norm.index, y=norm.values,
+            x=pct.index, y=pct.values,
             name=f"{c['name']} ({c['ticker']})",
             line=dict(color=SECTOR_COLORS.get(c["sector"],"#76b900"), width=2),
-            hovertemplate=f"<b>{c['name']}</b><br>%{{y:.1f}}<extra></extra>",
+            hovertemplate=f"<b>{c['name']}</b><br>%{{y:+.1f}}%<extra></extra>",
         ))
-    fig.add_hline(y=100, line_dash="dash", line_color="#6b7280", annotation_text=t("perf_ytd_start"))
+    fig.add_hline(y=0, line_dash="dash", line_color="#6b7280", annotation_text="0%")
     fig.update_layout(template="plotly_dark", paper_bgcolor="#111827", plot_bgcolor="#111827",
-                      height=500, yaxis_title=t("perf_yaxis"),
+                      height=500, yaxis_title="YTD Return (%)" if st.session_state.lang=="ENG" else "YTD 수익률 (%)",
+                      yaxis_ticksuffix="%",
                       legend=dict(bgcolor="#1f2937"), margin=dict(l=0,r=0,t=20,b=0))
     st.plotly_chart(fig, use_container_width=True)
 
