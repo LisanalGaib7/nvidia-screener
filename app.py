@@ -957,10 +957,33 @@ with tab4:
     sel_c = next((c for c in all_display if c["ticker"]==sel_t), None)
     if sel_c:
         sd = stock_data.get(sel_t,{})
-        n1,n2,n3 = st.columns(3)
-        with n1: st.metric("현재가", fmt_price(sd.get("price"), sd.get("currency","USD")))
-        with n2: st.markdown(f"**일간등락:** {fmt_pct(sd.get('change_pct'))}", unsafe_allow_html=True)
-        with n3: st.markdown(f"**YTD:** {fmt_pct(sd.get('ytd_pct'))}", unsafe_allow_html=True)
+        n1,n2,n3 = st.columns([1.2, 1, 1])
+        with n1:
+            st.markdown(
+                f'<div style="background:#0e0e0e;border:1px solid #2a2a2a;border-top:2px solid #76b900;'
+                f'border-radius:4px;padding:16px 20px">'
+                f'<div style="color:#484848;font-size:0.7rem;font-weight:600;letter-spacing:1.2px;'
+                f'text-transform:uppercase;margin-bottom:8px">현재가</div>'
+                f'<div style="color:#e8e8e8;font-size:1.8rem;font-weight:600;letter-spacing:-0.5px;line-height:1">'
+                f'{fmt_price(sd.get("price"), sd.get("currency","USD"))}</div>'
+                f'</div>',
+                unsafe_allow_html=True)
+        with n2:
+            st.markdown(
+                f'<div style="padding:16px 4px">'
+                f'<div style="color:#484848;font-size:0.7rem;font-weight:600;letter-spacing:1.2px;'
+                f'text-transform:uppercase;margin-bottom:8px">일간등락</div>'
+                f'<div style="font-size:1.3rem;font-weight:600">{fmt_pct(sd.get("change_pct"))}</div>'
+                f'</div>',
+                unsafe_allow_html=True)
+        with n3:
+            st.markdown(
+                f'<div style="padding:16px 4px">'
+                f'<div style="color:#484848;font-size:0.7rem;font-weight:600;letter-spacing:1.2px;'
+                f'text-transform:uppercase;margin-bottom:8px">YTD</div>'
+                f'<div style="font-size:1.3rem;font-weight:600">{fmt_pct(sd.get("ytd_pct"))}</div>'
+                f'</div>',
+                unsafe_allow_html=True)
         st.markdown("---")
         with st.spinner("뉴스 로드 중..."):
             news_items = fetch_news(sel_t)
