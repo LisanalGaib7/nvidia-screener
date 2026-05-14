@@ -693,7 +693,7 @@ for col, label, value, color in [
     (m4, "YTD 플러스",     ytd_plus_str,  "#76b900"),
 ]:
     col.markdown(
-        f'<div style="background:#0e0e0e;border:1px solid #2a2a2a;border-top:2px solid {color};"
+        f'<div style="background:#0e0e0e;border:1px solid #2a2a2a;border-top:2px solid {color};'
         f'border-radius:4px;padding:18px 20px;margin-bottom:4px">'
         f'<div style="color:#484848;font-size:0.72rem;font-weight:500;letter-spacing:1.2px;'
         f'text-transform:uppercase;margin-bottom:8px">{label}</div>'
