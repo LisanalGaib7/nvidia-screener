@@ -524,8 +524,9 @@ with st.sidebar:
 데이터 출처
 - SEC EDGAR 13F
 - NVIDIA IR
-- Bloomberg, Reuters, CNBC
-- Financial Times, WSJ, The Economist
+- 글로벌 주요 언론 교차검증
+  Bloomberg · Reuters · CNBC
+  FT · WSJ · Economist 외
 
 ---
 ⚠️ 투자 조언 아님
