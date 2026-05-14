@@ -570,6 +570,7 @@ Data: Yahoo Finance (~15분 지연)
         st.cache_data.clear()
         st.rerun()
 
+    st.markdown("### 공유하기")
     _url = "https%3A%2F%2Fnvidiascreener.streamlit.app%2F"
     _text = "엔비디아가+직접+투자한+기업을+실시간으로+트래킹하는+포트폴리오+트래커"
     st.markdown(
