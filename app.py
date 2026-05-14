@@ -12,6 +12,63 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
+if "lang" not in st.session_state:
+    st.session_state.lang = "KOR"
+
+TRANSLATIONS = {
+    # 헤더
+    "last_verified":        {"KOR": "마지막 검증 2026-05-14",       "ENG": "Last verified 2026-05-14"},
+    # 메트릭
+    "metric_holdings":      {"KOR": "현재 13F 보유",                "ENG": "13F Holdings"},
+    "metric_invested":      {"KOR": "확인된 투자액",                 "ENG": "Total Invested"},
+    "metric_avg_ytd":       {"KOR": "평균 YTD",                     "ENG": "Avg YTD"},
+    "metric_ytd_plus":      {"KOR": "YTD 플러스",                   "ENG": "YTD Positive"},
+    "tooltip_13f":          {"KOR": "SEC 13F 공시 확인",             "ENG": "SEC 13F Confirmed"},
+    "tooltip_invest_rank":  {"KOR": "투자금액 순",                   "ENG": "By Investment Size"},
+    "tooltip_ytd_rank":     {"KOR": "YTD 수익률 순",                 "ENG": "By YTD Return"},
+    # 섹션 헤더
+    "group_new":            {"KOR": "2026 신규 투자",                "ENG": "2026 New Investments"},
+    "group_hold":           {"KOR": "기존 보유  ·  Q4 2025",         "ENG": "Current Holdings  ·  Q4 2025"},
+    "group_partner":        {"KOR": "전략 파트너십",                  "ENG": "Strategic Partnership"},
+    "group_exited":         {"KOR": "청산 완료",                     "ENG": "Exited"},
+    # 테이블 컬럼
+    "col_company":          {"KOR": "기업",                          "ENG": "Company"},
+    "col_price":            {"KOR": "현재가",                        "ENG": "Price"},
+    "col_daily":            {"KOR": "일간등락",                      "ENG": "Daily"},
+    "col_ytd":              {"KOR": "YTD",                          "ENG": "YTD"},
+    "col_cap":              {"KOR": "시총",                          "ENG": "Mkt Cap"},
+    "col_pe":               {"KOR": "P/E",                          "ENG": "P/E"},
+    "col_52w":              {"KOR": "52주범위",                      "ENG": "52W Range"},
+    # 사이드바
+    "sb_show":              {"KOR": "표시 항목",                     "ENG": "Show"},
+    "sb_holdings":          {"KOR": "현재 보유 (13F)",               "ENG": "Current Holdings (13F)"},
+    "sb_partner":           {"KOR": "전략 파트너십",                  "ENG": "Strategic Partnership"},
+    "sb_exited":            {"KOR": "청산 완료",                     "ENG": "Exited"},
+    "sb_sort":              {"KOR": "정렬 기준",                     "ENG": "Sort By"},
+    "sb_tag_guide":         {"KOR": "태그 가이드",                   "ENG": "Tag Guide"},
+    "sb_share":             {"KOR": "공유하기",                      "ENG": "Share"},
+    "sb_feedback":          {"KOR": "Feedback",                     "ENG": "Feedback"},
+    "sb_sort_invest":       {"KOR": "투자금액",                      "ENG": "Investment"},
+    "sb_sort_ytd":          {"KOR": "YTD 수익률",                    "ENG": "YTD Return"},
+    "sb_sort_cap":          {"KOR": "시가총액",                      "ENG": "Market Cap"},
+    "sb_sort_daily":        {"KOR": "일간 등락률",                   "ENG": "Daily Change"},
+    "sb_sort_date":         {"KOR": "투자 날짜",                     "ENG": "Invest Date"},
+    # 뉴스탭
+    "news_price":           {"KOR": "현재가",                        "ENG": "Price"},
+    "news_daily":           {"KOR": "일간등락",                      "ENG": "Daily"},
+    # 알림 배너
+    "alert_title":          {"KOR": "최신 투자 알림",                 "ENG": "Latest Investment Alerts"},
+    # 13F 탭
+    "filings_title":        {"KOR": "NVIDIA 13F 공시 히스토리",       "ENG": "NVIDIA 13F Filing History"},
+    "filings_caption":      {"KOR": "SEC EDGAR 13F 기반 · 글로벌 주요 언론 교차검증 · 미확인 항목은 별도 표기",
+                             "ENG": "Based on SEC EDGAR 13F · Cross-verified with global media · Unconfirmed items marked separately"},
+    "timeline_title":       {"KOR": "공시 타임라인",                  "ENG": "Filing Timeline"},
+}
+
+def t(key):
+    lang = st.session_state.get("lang", "KOR")
+    return TRANSLATIONS.get(key, {}).get(lang, key)
+
 st.markdown("""
 <style>
   /* ── 기본 배경 ── */
@@ -529,16 +586,16 @@ def ts_to_str(ts):
 with st.sidebar:
     st.markdown("## NVIDIA Portfolio Tracker")
     st.markdown("---")
-    show_current  = st.checkbox("현재 보유 (13F)",  value=True)
-    show_partner  = st.checkbox("전략 파트너십",     value=True)
-    show_exited   = st.checkbox("청산 완료",         value=False)
+    show_current  = st.checkbox(t("sb_holdings"), value=True)
+    show_partner  = st.checkbox(t("sb_partner"),  value=True)
+    show_exited   = st.checkbox(t("sb_exited"),   value=False)
     st.markdown("---")
-    sort_by = st.selectbox("정렬 기준",
-        ["투자금액","YTD 수익률","시가총액","일간 등락률","투자 날짜"])
+    sort_options = [t("sb_sort_invest"), t("sb_sort_ytd"), t("sb_sort_cap"), t("sb_sort_daily"), t("sb_sort_date")]
+    sort_by = st.selectbox(t("sb_sort"), sort_options)
 
     st.markdown("---")
 
-    with st.expander("태그 가이드"):
+    with st.expander(t("sb_tag_guide")):
         st.markdown("""
 <style>
 .tag-guide-row { margin: 10px 0; }
@@ -585,7 +642,7 @@ Data: Yahoo Finance (~15분 지연)
         st.cache_data.clear()
         st.rerun()
 
-    st.markdown("### 공유하기")
+    st.markdown(f"### {t('sb_share')}")
     _url = "https%3A%2F%2Fnvidiascreener.streamlit.app%2F"
     _text = "엔비디아가+직접+투자한+기업을+실시간으로+트래킹하는+포트폴리오+트래커"
     st.markdown(
@@ -608,7 +665,7 @@ Data: Yahoo Finance (~15분 지연)
         unsafe_allow_html=True)
 
     st.markdown("---")
-    st.markdown("### Feedback")
+    st.markdown(f"### {t('sb_feedback')}")
     with st.form("feedback_form", clear_on_submit=True):
         fb_category = st.selectbox("유형", [
             "데이터 오류 제보",
@@ -687,7 +744,15 @@ if recent_5:
     </div>""", unsafe_allow_html=True)
 
 # ── 헤더 ─────────────────────────────────────────────────────────────────────
-st.markdown("""
+_hcol1, _hcol2 = st.columns([9, 1])
+with _hcol2:
+    st.markdown('<div style="display:flex;justify-content:flex-end;padding-top:8px">', unsafe_allow_html=True)
+    if st.button("KOR" if st.session_state.lang == "ENG" else "ENG", key="lang_toggle"):
+        st.session_state.lang = "ENG" if st.session_state.lang == "KOR" else "KOR"
+        st.rerun()
+    st.markdown('</div>', unsafe_allow_html=True)
+with _hcol1:
+    st.markdown("""
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 <style>
 @keyframes nvlogo-spin {
@@ -761,11 +826,11 @@ st.markdown("""
   </div>
 </div>
 """, unsafe_allow_html=True)
-st.markdown(
-    '<p style="color:#383838;font-size:0.75rem;letter-spacing:0.5px;margin-top:2px">'
-    '마지막 검증 2026-05-14'
-    '</p>', unsafe_allow_html=True
-)
+    st.markdown(
+        f'<p style="color:#383838;font-size:0.75rem;letter-spacing:0.5px;margin-top:2px">'
+        f'{t("last_verified")}'
+        f'</p>', unsafe_allow_html=True
+    )
 
 # ── 요약 지표 ─────────────────────────────────────────────────────────────────
 ytd_vals = [stock_data[c["ticker"]].get("ytd_pct")
@@ -821,18 +886,18 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 for col, label, value, color, extra_html in [
-    (m1, "현재 13F 보유", "5개 종목", "#76b900",
+    (m1, t("metric_holdings"), "5개 종목" if st.session_state.lang=="KOR" else "5 stocks", "#76b900",
      '<div class="metric-tooltip">'
-     '<div class="tooltip-title">SEC 13F 공시 확인</div>'
+     f'<div class="tooltip-title">{t("tooltip_13f")}</div>'
      '<div class="tooltip-row"><span class="tooltip-ticker">INTC</span><span class="tooltip-name">Intel</span></div>'
      '<div class="tooltip-row"><span class="tooltip-ticker">SNPS</span><span class="tooltip-name">Synopsys</span></div>'
      '<div class="tooltip-row"><span class="tooltip-ticker">NOK</span><span class="tooltip-name">Nokia</span></div>'
      '<div class="tooltip-row"><span class="tooltip-ticker">CRWV</span><span class="tooltip-name">CoreWeave</span></div>'
      '<div class="tooltip-row"><span class="tooltip-ticker">NBIS</span><span class="tooltip-name">Nebius Group</span></div>'
      '</div>'),
-    (m2, "확인된 투자액",  invest_str,   "#c87f00",
+    (m2, t("metric_invested"), invest_str,   "#c87f00",
      '<div class="metric-tooltip" style="border-top-color:#c87f00;min-width:220px">'
-     '<div class="tooltip-title" style="color:#c87f00">투자금액 순</div>'
+     f'<div class="tooltip-title" style="color:#c87f00">{t("tooltip_invest_rank")}</div>'
      + "".join(
          f'<div class="tooltip-row">'
          f'<span class="tooltip-ticker">{c["ticker"]}</span>'
@@ -845,9 +910,9 @@ for col, label, value, color, extra_html in [
          )
      )
      + '</div>'),
-    (m3, "평균 YTD",       avg_ytd_str,  "#76b900",
+    (m3, t("metric_avg_ytd"), avg_ytd_str,  "#76b900",
      '<div class="metric-tooltip" style="min-width:220px">'
-     '<div class="tooltip-title">YTD 수익률 순</div>'
+     f'<div class="tooltip-title">{t("tooltip_ytd_rank")}</div>'
      + "".join(
          f'<div class="tooltip-row">'
          f'<span class="tooltip-ticker">{c["ticker"]}</span>'
@@ -862,7 +927,7 @@ for col, label, value, color, extra_html in [
          )
      )
      + '</div>'),
-    (m4, "YTD 플러스",     ytd_plus_str, "#76b900", ""),
+    (m4, t("metric_ytd_plus"), ytd_plus_str, "#76b900", ""),
 ]:
     col.markdown(
         f'<div class="metric-box" style="background:#0e0e0e;border:1px solid #2a2a2a;border-top:2px solid {color};'
@@ -887,18 +952,18 @@ tab1, tab2, tab3, tab4, tab5 = st.tabs([
 with tab1:
     def sort_key(c):
         sd = stock_data.get(c["ticker"],{})
-        if sort_by == "투자금액":   return c.get("invest_amt_m") or 0
-        if sort_by == "YTD 수익률": return sd.get("ytd_pct") or -9999
-        if sort_by == "시가총액":   return sd.get("market_cap") or 0
-        if sort_by == "일간 등락률":return sd.get("change_pct") or -9999
-        if sort_by == "투자 날짜":  return c.get("invest_date","")
+        if sort_by == t("sb_sort_invest"): return c.get("invest_amt_m") or 0
+        if sort_by == t("sb_sort_ytd"):    return sd.get("ytd_pct") or -9999
+        if sort_by == t("sb_sort_cap"):    return sd.get("market_cap") or 0
+        if sort_by == t("sb_sort_daily"):  return sd.get("change_pct") or -9999
+        if sort_by == t("sb_sort_date"):   return c.get("invest_date","")
         return 0
 
     groups = [
-        ("2026 신규 투자",        [c for c in all_display if c.get("invest_year")==2026],            True),
-        ("기존 보유  ·  Q4 2025", [c for c in all_display if c["badge"] not in ["partner","exited"] and c.get("invest_year")!=2026], True),
-        ("전략 파트너십",         [c for c in all_display if c["badge"] == "partner"],               True),
-        ("청산 완료",             [c for c in all_display if c["badge"] == "exited"],                False),
+        (t("group_new"),    [c for c in all_display if c.get("invest_year")==2026],            True),
+        (t("group_hold"),   [c for c in all_display if c["badge"] not in ["partner","exited"] and c.get("invest_year")!=2026], True),
+        (t("group_partner"), [c for c in all_display if c["badge"] == "partner"],               True),
+        (t("group_exited"),  [c for c in all_display if c["badge"] == "exited"],                False),
     ]
 
     for group_title, group_items, reverse in groups:
@@ -914,7 +979,7 @@ with tab1:
         sorted_items = sorted(group_items, key=sort_key, reverse=reverse)
 
         hcols = st.columns([2.5, 1.2, 1.3, 1.3, 1.2, 1.2, 1.5, 1.2])
-        for h, col in zip(["기업", "현재가", "일간등락", "YTD", "시총", "P/E", "52주범위", ""], hcols):
+        for h, col in zip([t("col_company"), t("col_price"), t("col_daily"), t("col_ytd"), t("col_cap"), t("col_pe"), t("col_52w"), ""], hcols):
             col.markdown(
                 f'<span style="color:#c0c0c0;font-size:0.85rem;font-weight:500;'
                 f'letter-spacing:0.3px">{h}</span>',
@@ -1111,8 +1176,8 @@ with tab4:
 
 # ══ Tab 5: 13F 히스토리 ══════════════════════════════════════════════════════
 with tab5:
-    st.markdown("### NVIDIA 13F 공시 히스토리")
-    st.caption("SEC EDGAR 13F 기반 · 글로벌 주요 언론 교차검증 · 미확인 항목은 별도 표기")
+    st.markdown(f"### {t('filings_title')}")
+    st.caption(t("filings_caption"))
 
     cf1, cf2 = st.columns([1,3])
     with cf1:
@@ -1140,7 +1205,7 @@ with tab5:
                 f'</div>',
                 unsafe_allow_html=True)
 
-    st.markdown("### 공시 타임라인")
+    st.markdown(f"### {t('timeline_title')}")
     df_f = pd.DataFrame(FILINGS_HISTORY)
     color_map  = {"new":"#22c55e","increase":"#4a90d9","decrease":"#ef4444","exit":"#6b7280","hold":"#3b82f6"}
     label_map  = {"new":"신규","increase":"증가","decrease":"감소","exit":"청산","hold":"유지"}
