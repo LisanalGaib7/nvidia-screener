@@ -299,6 +299,34 @@ st.markdown("""
                        letter-spacing: 0.5px; transition: all 0.2s; }
   .stButton > button:hover { border-color: #76b900 !important; color: #76b900 !important; }
 
+  /* ── 사이드바 언어 토글 버튼 ── */
+  @keyframes toggle-snap {
+    0%   { transform: scale(1); }
+    40%  { transform: scale(0.88); }
+    70%  { transform: scale(1.06); }
+    100% { transform: scale(1); }
+  }
+  [data-testid="stSidebar"] [data-testid="stHorizontalBlock"] .stButton > button {
+    background: #111 !important;
+    border: 1px solid #2a2a2a !important;
+    border-radius: 20px !important;
+    color: #76b900 !important;
+    font-size: 0.68rem !important;
+    font-weight: 700 !important;
+    letter-spacing: 1px !important;
+    padding: 3px 10px !important;
+    white-space: nowrap;
+    transition: all 0.15s ease !important;
+  }
+  [data-testid="stSidebar"] [data-testid="stHorizontalBlock"] .stButton > button:hover {
+    background: #1a1a1a !important;
+    border-color: #76b900 !important;
+    box-shadow: 0 0 8px rgba(118,185,0,0.25) !important;
+  }
+  [data-testid="stSidebar"] [data-testid="stHorizontalBlock"] .stButton > button:active {
+    animation: toggle-snap 0.2s ease both !important;
+  }
+
   /* ── 입력 필드 ── */
   .stTextInput input, .stTextArea textarea, .stSelectbox div[data-baseweb="select"] {
     background: #0e0e0e !important; border: 1px solid #1e1e1e !important;
@@ -697,7 +725,20 @@ def ts_to_str(ts):
 
 # ── 사이드바 ──────────────────────────────────────────────────────────────────
 with st.sidebar:
-    st.markdown("## NVIDIA Portfolio Tracker")
+    _sb_title_col, _sb_lang_col = st.columns([3, 1])
+    with _sb_title_col:
+        st.markdown("## NVIDIA Portfolio Tracker")
+    with _sb_lang_col:
+        st.markdown('<div style="display:flex;align-items:center;height:100%;padding-top:6px">', unsafe_allow_html=True)
+        _cur_lang_sb = st.session_state.lang
+        if st.button(
+            "◀ KOR" if _cur_lang_sb == "ENG" else "ENG ▶",
+            key="lang_toggle",
+            help="Switch language / 언어 전환",
+        ):
+            st.session_state.lang = "ENG" if _cur_lang_sb == "KOR" else "KOR"
+            st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
     st.markdown("---")
     show_current  = st.checkbox(t("sb_holdings"), value=True)
     show_partner  = st.checkbox(t("sb_partner"),  value=True)
@@ -844,24 +885,12 @@ if recent_5:
         f'</div>'
         for c in recent_5
     ])
-    _ban_col, _tog_col = st.columns([11, 1])
-    with _tog_col:
-        if st.button("ENG" if _cur_lang == "KOR" else "KOR", key="lang_toggle"):
-            st.session_state.lang = "ENG" if _cur_lang == "KOR" else "KOR"
-            st.rerun()
-    with _ban_col:
-        st.markdown(
-            f'<div class="alert-banner">'
-            f'<div class="alert-title">{"Recent Investments" if _cur_lang=="ENG" else "최신 투자 알림"}&nbsp;·&nbsp;{latest_year}</div>'
-            f'{items_html}'
-            f'</div>',
-            unsafe_allow_html=True)
-else:
-    _, _tog_col = st.columns([11, 1])
-    with _tog_col:
-        if st.button("ENG" if _cur_lang == "KOR" else "KOR", key="lang_toggle"):
-            st.session_state.lang = "ENG" if _cur_lang == "KOR" else "KOR"
-            st.rerun()
+    st.markdown(
+        f'<div class="alert-banner">'
+        f'<div class="alert-title">{"Recent Investments" if _cur_lang=="ENG" else "최신 투자 알림"}&nbsp;·&nbsp;{latest_year}</div>'
+        f'{items_html}'
+        f'</div>',
+        unsafe_allow_html=True)
 
 # ── 헤더 ─────────────────────────────────────────────────────────────────────
 if True:
