@@ -383,7 +383,7 @@ PARTNERSHIPS = [
 # ── 청산 완료 (과거 13F 보유 후 매도) ────────────────────────────────────────
 EXITED = [
     {"ticker":"RXRX","name":"Recursion Pharma",   "sector":"AI 신약개발",  "invest_date":"2023-07-01","exit_date":"2025-Q4","invest_amt_m":50.0,  "note":"$50M 전략투자 → 2025 Q4 13F 청산"},
-    {"ticker":"ARM", "name":"Arm Holdings",        "sector":"반도체 IP",   "invest_date":"2023-09-14","exit_date":"2025-Q4","invest_amt_m":None,  "note":"2023 IPO 참여 → 지분 감소 후 2025 Q4 청산"},
+    {"ticker":"ARM", "name":"Arm Holdings",        "sector":"반도체 IP",   "invest_date":"2023-09-14","exit_date":"2026-02","invest_amt_m":None,  "note":"2023 IPO 참여 → Q4 2025 지분 감소 → 2026.02 완전 청산 ($140M, 1.1M주)"},
     {"ticker":"APLD","name":"Applied Digital",     "sector":"AI 데이터센터","invest_date":"2024-01-01","exit_date":"2025-Q4","invest_amt_m":None,  "note":"GPU 클라우드 파트너 → 2025 Q4 청산"},
     {"ticker":"WRD", "name":"WeRide",              "sector":"자율주행",    "invest_date":"2024-Q4",  "exit_date":"2025-Q4","invest_amt_m":24.0,  "note":"Q4 2024 신규 매수 ($24M, 1.7M주) → 2025 Q4 청산"},
     {"ticker":"SOUN","name":"SoundHound AI",       "sector":"AI/음성인식", "invest_date":"2023-Q4",  "exit_date":"2024-Q4","invest_amt_m":3.99,  "note":"2023 Q4 13F 신규 → 2024 Q4 완전 청산"},
@@ -410,7 +410,7 @@ FILINGS_HISTORY = [
     {"ticker":"RXRX", "company":"Recursion Pharma","quarter":"Q3 2023","filed":"2023-11-14","change":"전략투자 ($50M)","change_type":"new",            "value_m":50.0},
     {"ticker":"RXRX", "company":"Recursion Pharma","quarter":"Q4 2025","filed":"2025-11-14","change":"완전 청산","change_type":"exit",                 "value_m":None},
     {"ticker":"ARM",  "company":"Arm Holdings",    "quarter":"Q3 2023","filed":"2023-09-14","change":"IPO 참여","change_type":"new",                   "value_m":None},
-    {"ticker":"ARM",  "company":"Arm Holdings",    "quarter":"Q4 2025","filed":"2025-11-14","change":"완전 청산","change_type":"exit",                 "value_m":None},
+    {"ticker":"ARM",  "company":"Arm Holdings",    "quarter":"Q1 2026","filed":"2026-02-17","change":"완전 청산 (1.1M주, $140M)","change_type":"exit","value_m":140.0},
     {"ticker":"WRD",  "company":"WeRide",          "quarter":"Q4 2024","filed":"2025-02-14","change":"신규 ($24M, 1.7M주)","change_type":"new",        "value_m":24.0},
     {"ticker":"WRD",  "company":"WeRide",          "quarter":"Q4 2025","filed":"2025-11-14","change":"완전 청산","change_type":"exit",                 "value_m":None},
     {"ticker":"SOUN", "company":"SoundHound AI",   "quarter":"Q4 2023","filed":"2024-02-14","change":"신규 ($3.99M)","change_type":"new",              "value_m":3.99},
@@ -1005,12 +1005,15 @@ with tab5:
         for f in filtered_f:
             css, label = CHANGE_STYLE.get(f["change_type"],("filing-hold","🔵"))
             val = f"${f['value_m']:,.0f}M" if f.get("value_m") else ""
-            st.markdown(f"""<div class="filing-row {css}">
-              <span style="color:#f9fafb;font-weight:600">{f['company']} ({f['ticker']})</span>
-              &nbsp;<span style="color:#9ca3af;font-size:0.82rem">{f['quarter']} · {f['filed']}</span><br>
-              <span style="font-size:0.9rem">{label} — {f['change']}</span>
-              {"&nbsp;&nbsp;<span style='color:#76b900;font-size:0.85rem;font-weight:700'>" + val + "</span>" if val else ""}
-            </div>""", unsafe_allow_html=True)
+            val_html = f"&nbsp;&nbsp;<span style='color:#76b900;font-size:0.85rem;font-weight:700'>{val}</span>" if val else ""
+            st.markdown(
+                f'<div class="filing-row {css}">'
+                f'<span style="color:#f9fafb;font-weight:600">{f["company"]} ({f["ticker"]})</span>'
+                f'&nbsp;<span style="color:#9ca3af;font-size:0.82rem">{f["quarter"]} · {f["filed"]}</span><br>'
+                f'<span style="font-size:0.9rem">{label} — {f["change"]}</span>'
+                f'{val_html}'
+                f'</div>',
+                unsafe_allow_html=True)
 
     st.markdown("### 공시 타임라인")
     df_f = pd.DataFrame(FILINGS_HISTORY)
