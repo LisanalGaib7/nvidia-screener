@@ -387,9 +387,10 @@ with st.sidebar:
     st.markdown("---")
     st.markdown("""
 **📂 데이터 출처**
-- 📋 SEC EDGAR 13F 공시
-- 📢 NVIDIA 공식 보도자료
-- 📰 Bloomberg / CNBC 검증
+- SEC EDGAR 13F 공시
+- NVIDIA 공식 보도자료
+- Bloomberg, CNBC, Reuters
+- Financial Times, WSJ, The Economist
 
 ---
 ⚠️ **Disclaimer:** 본 대시보드는 투자 조언이 아닙니다.
