@@ -520,9 +520,9 @@ with m4: st.metric("YTD 플러스", f"{sum(1 for v in ytd_vals if v>0)}/{len(ytd
 st.markdown("---")
 
 # ── 탭 ───────────────────────────────────────────────────────────────────────
-tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
+tab1, tab2, tab3, tab4, tab5 = st.tabs([
     "📋 기업 목록", "📈 차트 비교", "🗺️ 섹터 분석",
-    "📰 뉴스 피드", "📊 13F 공시 히스토리", "💬 피드백 현황"
+    "📰 뉴스 피드", "📊 13F 공시 히스토리"
 ])
 
 # ══ Tab 1 ════════════════════════════════════════════════════════════════════
@@ -738,57 +738,55 @@ with tab5:
                        margin=dict(l=0,r=0,t=40,b=0))
     st.plotly_chart(fig6, use_container_width=True)
 
-# ══ Tab 6: 피드백 현황 ═══════════════════════════════════════════════════════
-with tab6:
-    import json, os
-    st.markdown("### 💬 피드백 현황")
-    st.caption("사이드바에서 제출된 피드백이 여기에 표시됩니다.")
+# ── 어드민 피드백 뷰 (비밀번호 보호) ─────────────────────────────────────────
+import json, os
 
-    path = "feedback.json"
-    data = []
-    if os.path.exists(path):
-        try:
-            with open(path, "r", encoding="utf-8") as f:
-                data = json.load(f)
-        except:
-            data = []
+st.markdown("---")
+with st.expander("🔐 Admin", expanded=False):
+    pw = st.text_input("비밀번호", type="password", key="admin_pw")
+    ADMIN_PW = st.secrets.get("admin", {}).get("password", "nvidia2026")
 
-    if not data:
-        st.info("아직 접수된 피드백이 없습니다. 사이드바에서 첫 번째 피드백을 남겨주세요!")
-    else:
-        # 요약 지표
-        total = len(data)
-        avg_rating = sum(d["rating"] for d in data) / total
-        category_counts = {}
-        for d in data:
-            category_counts[d["category"]] = category_counts.get(d["category"], 0) + 1
-        top_category = max(category_counts, key=category_counts.get)
+    if pw == ADMIN_PW:
+        path = "feedback.json"
+        data = []
+        if os.path.exists(path):
+            try:
+                with open(path, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+            except:
+                data = []
 
-        m1, m2, m3 = st.columns(3)
-        with m1: st.metric("총 피드백 수", f"{total}건")
-        with m2: st.metric("평균 만족도", f"{'⭐'*round(avg_rating)} ({avg_rating:.1f})")
-        with m3: st.metric("가장 많은 유형", top_category.split(" ", 1)[-1])
+        if not data:
+            st.info("아직 접수된 피드백이 없습니다.")
+        else:
+            total = len(data)
+            avg_rating = sum(d["rating"] for d in data) / total
+            category_counts = {}
+            for d in data:
+                category_counts[d["category"]] = category_counts.get(d["category"], 0) + 1
 
-        st.markdown("---")
+            m1, m2, m3 = st.columns(3)
+            with m1: st.metric("총 피드백", f"{total}건")
+            with m2: st.metric("평균 만족도", f"{avg_rating:.1f} / 5.0")
+            with m3: st.metric("가장 많은 유형", max(category_counts, key=category_counts.get).split(" ",1)[-1])
 
-        # 카테고리 필터
-        all_cats = ["전체"] + list(category_counts.keys())
-        sel_cat = st.selectbox("유형 필터", all_cats)
+            st.markdown("---")
+            sel_cat = st.selectbox("유형 필터", ["전체"] + list(category_counts.keys()), key="admin_cat")
+            filtered_fb = data if sel_cat == "전체" else [d for d in data if d["category"] == sel_cat]
 
-        filtered_fb = data if sel_cat == "전체" else [d for d in data if d["category"] == sel_cat]
-        filtered_fb = list(reversed(filtered_fb))  # 최신순
-
-        for d in filtered_fb:
-            stars = "⭐" * d["rating"]
-            st.markdown(f"""
-            <div class="news-card">
-              <div style="display:flex;justify-content:space-between;align-items:center">
-                <span style="color:#f9fafb;font-weight:600">{d['category']}</span>
-                <span style="color:#9ca3af;font-size:0.78rem">{d['time']} · {d['name']}</span>
-              </div>
-              <div style="color:#fbbf24;font-size:0.85rem;margin:4px 0">{stars}</div>
-              <div style="color:#d1d5db;font-size:0.88rem">{d['text']}</div>
-            </div>""", unsafe_allow_html=True)
+            for d in reversed(filtered_fb):
+                stars = "⭐" * d["rating"]
+                st.markdown(f"""
+                <div class="news-card">
+                  <div style="display:flex;justify-content:space-between">
+                    <span style="color:#f9fafb;font-weight:600">{d['category']}</span>
+                    <span style="color:#9ca3af;font-size:0.78rem">{d['time']} · {d['name']}</span>
+                  </div>
+                  <div style="color:#fbbf24;font-size:0.85rem;margin:4px 0">{stars}</div>
+                  <div style="color:#d1d5db;font-size:0.88rem">{d['text']}</div>
+                </div>""", unsafe_allow_html=True)
+    elif pw:
+        st.error("비밀번호가 틀렸습니다.")
 
 # ── 푸터 ─────────────────────────────────────────────────────────────────────
 st.markdown("---")
