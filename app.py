@@ -137,10 +137,31 @@ st.markdown("""
   }
 
   /* ── 탭 ── */
-  button[data-baseweb="tab"] { color: #404040 !important; font-size: 0.78rem !important;
-                                letter-spacing: 0.8px; text-transform: uppercase; font-weight: 500 !important; }
-  button[data-baseweb="tab"][aria-selected="true"] { color: #e0e0e0 !important; border-bottom: 2px solid #76b900 !important; }
-  div[data-baseweb="tab-list"] { border-bottom: 1px solid #181818 !important; gap: 8px; }
+  div[data-baseweb="tab-list"] {
+    border-bottom: 1px solid #1e1e1e !important;
+    gap: 0px;
+    background: transparent !important;
+  }
+  button[data-baseweb="tab"] {
+    color: #383838 !important;
+    font-size: 0.72rem !important;
+    font-weight: 600 !important;
+    letter-spacing: 1.6px !important;
+    text-transform: uppercase !important;
+    padding: 12px 24px !important;
+    border-bottom: 2px solid transparent !important;
+    background: transparent !important;
+    transition: color 0.2s ease, border-color 0.2s ease !important;
+  }
+  button[data-baseweb="tab"]:hover {
+    color: #909090 !important;
+    background: transparent !important;
+  }
+  button[data-baseweb="tab"][aria-selected="true"] {
+    color: #e8e8e8 !important;
+    border-bottom: 2px solid #76b900 !important;
+    background: transparent !important;
+  }
 
   /* ── 사이드바 텍스트 ── */
   .stSidebar h2, .stSidebar h3 { color: #e0e0e0 !important; }
