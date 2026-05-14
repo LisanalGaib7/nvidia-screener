@@ -299,48 +299,34 @@ st.markdown("""
                        letter-spacing: 0.5px; transition: all 0.2s; }
   .stButton > button:hover { border-color: #76b900 !important; color: #76b900 !important; }
 
-  /* ── 언어 토글 pill (JS가 .lang-pill-block 클래스 주입) ── */
-  @keyframes pill-activate {
-    0%   { transform: scale(1); }
-    35%  { transform: scale(0.90); }
-    65%  { transform: scale(1.04); }
-    100% { transform: scale(1); }
+  /* ── 언어 토글 st.pills — 선택 = 오렌지 ── */
+  [data-testid="stSidebar"] [data-testid="stPills"] {
+    gap: 6px !important;
   }
-  .lang-pill-block {
-    background: #080808 !important;
-    border: 1px solid #222 !important;
-    border-radius: 26px !important;
-    padding: 3px !important;
-    gap: 0 !important;
-    overflow: hidden !important;
-    margin-bottom: 12px !important;
-  }
-  .lang-pill-block button {
-    border: none !important;
-    border-radius: 22px !important;
-    font-size: 0.68rem !important;
+  [data-testid="stSidebar"] [data-testid="stPills"] button {
+    border-radius: 20px !important;
+    font-size: 0.7rem !important;
     font-weight: 800 !important;
-    letter-spacing: 2.2px !important;
-    padding: 7px 0 !important;
-    height: 32px !important;
-    min-height: 0 !important;
-    transition: background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease !important;
-  }
-  .lang-pill-block button:disabled {
-    background: linear-gradient(135deg, #d4920a 0%, #b87000 100%) !important;
-    color: #060606 !important;
-    opacity: 1 !important;
-    box-shadow: 0 0 16px rgba(200,127,0,0.5), inset 0 1px 0 rgba(255,255,255,0.15) !important;
-    animation: pill-activate 0.22s cubic-bezier(0.22, 1, 0.36, 1) both !important;
-    cursor: default !important;
-  }
-  .lang-pill-block button:not(:disabled) {
+    letter-spacing: 2px !important;
+    padding: 5px 18px !important;
+    transition: all 0.18s ease !important;
+    border: 1px solid #2a2a2a !important;
     background: transparent !important;
-    color: #303030 !important;
+    color: #404040 !important;
   }
-  .lang-pill-block button:not(:disabled):hover {
+  [data-testid="stSidebar"] [data-testid="stPills"] button:hover {
+    border-color: #c87f00 !important;
     color: #c87f00 !important;
-    background: rgba(200,127,0,0.07) !important;
+  }
+  /* 선택된 pill — aria-pressed="true" or data-selected */
+  [data-testid="stSidebar"] [data-testid="stPills"] button[aria-pressed="true"],
+  [data-testid="stSidebar"] [data-testid="stPills"] button[data-selected="true"],
+  [data-testid="stSidebar"] [data-testid="stPills"] button.selected,
+  [data-testid="stSidebar"] [data-testid="stPills"] [data-active="true"] button {
+    background: linear-gradient(135deg, #d4920a, #b87000) !important;
+    border-color: #c87f00 !important;
+    color: #060606 !important;
+    box-shadow: 0 0 14px rgba(200,127,0,0.45) !important;
   }
 
   /* ── 입력 필드 ── */
@@ -585,33 +571,33 @@ EXITED = [
 # ── 13F 공시 히스토리 (검증된 것만) ─────────────────────────────────────────
 FILINGS_HISTORY = [
     # 2026 신규
-    {"ticker":"IREN", "company":"IREN Ltd",         "quarter":"Q2 2026","filed":"2026-05-07","change":"신규 워런트 (최대 $2.1B @$70)","change_type":"new",   "value_m":2100.0},
-    {"ticker":"GLW",  "company":"Corning",          "quarter":"Q2 2026","filed":"2026-05-06","change":"신규 워런트 (최대 $3.2B, $500M 선불)","change_type":"new","value_m":3200.0},
-    {"ticker":"MRVL", "company":"Marvell Technology","quarter":"Q1 2026","filed":"2026-03-31","change":"신규 ($2B, NVLink Fusion)","change_type":"new",       "value_m":2000.0},
-    {"ticker":"LITE", "company":"Lumentum",         "quarter":"Q1 2026","filed":"2026-03-02","change":"신규 우선주 ($2B @$695.31)","change_type":"new",       "value_m":2000.0},
-    {"ticker":"COHR", "company":"Coherent Corp",    "quarter":"Q1 2026","filed":"2026-03-02","change":"신규 ($2B)","change_type":"new",                       "value_m":2000.0},
+    {"ticker":"IREN", "company":"IREN Ltd",         "quarter":"Q2 2026","filed":"2026-05-07","change":"신규 워런트 (최대 $2.1B @$70)",        "change_eng":"New warrants (up to $2.1B @$70)",          "change_type":"new",      "value_m":2100.0},
+    {"ticker":"GLW",  "company":"Corning",          "quarter":"Q2 2026","filed":"2026-05-06","change":"신규 워런트 (최대 $3.2B, $500M 선불)",  "change_eng":"New warrants (up to $3.2B, $500M upfront)","change_type":"new",      "value_m":3200.0},
+    {"ticker":"MRVL", "company":"Marvell Technology","quarter":"Q1 2026","filed":"2026-03-31","change":"신규 ($2B, NVLink Fusion)",           "change_eng":"New ($2B, NVLink Fusion)",                 "change_type":"new",      "value_m":2000.0},
+    {"ticker":"LITE", "company":"Lumentum",         "quarter":"Q1 2026","filed":"2026-03-02","change":"신규 우선주 ($2B @$695.31)",           "change_eng":"New preferred stock ($2B @$695.31)",       "change_type":"new",      "value_m":2000.0},
+    {"ticker":"COHR", "company":"Coherent Corp",    "quarter":"Q1 2026","filed":"2026-03-02","change":"신규 ($2B)",                          "change_eng":"New ($2B)",                                "change_type":"new",      "value_m":2000.0},
     # 2025 보유
-    {"ticker":"INTC", "company":"Intel",           "quarter":"Q3 2025","filed":"2025-09-18","change":"전략투자 계약 ($5B)","change_type":"new",      "value_m":5000.0},
-    {"ticker":"INTC", "company":"Intel",           "quarter":"Q4 2025","filed":"2025-12-29","change":"지분 취득 완료 (214.7M주)","change_type":"increase","value_m":5000.0},
-    {"ticker":"SNPS", "company":"Synopsys",        "quarter":"Q4 2025","filed":"2025-12-01","change":"신규 ($2B 사모)","change_type":"new",           "value_m":2000.0},
-    {"ticker":"NOK",  "company":"Nokia",           "quarter":"Q3 2025","filed":"2025-10-28","change":"신규 ($1B, 2.9%)","change_type":"new",          "value_m":1000.0},
-    {"ticker":"NBIS", "company":"Nebius Group",    "quarter":"Q4 2024","filed":"2024-12-10","change":"신규 ($100M)","change_type":"new",              "value_m":100.0},
-    {"ticker":"CRWV", "company":"CoreWeave",       "quarter":"Q1 2025","filed":"2025-03-28","change":"IPO 참여·전략 주주","change_type":"new",         "value_m":None},
+    {"ticker":"INTC", "company":"Intel",            "quarter":"Q3 2025","filed":"2025-09-18","change":"전략투자 계약 ($5B)",                  "change_eng":"Strategic investment agreement ($5B)",     "change_type":"new",      "value_m":5000.0},
+    {"ticker":"INTC", "company":"Intel",            "quarter":"Q4 2025","filed":"2025-12-29","change":"지분 취득 완료 (214.7M주)",            "change_eng":"Stake acquisition closed (214.7M shares)", "change_type":"increase", "value_m":5000.0},
+    {"ticker":"SNPS", "company":"Synopsys",         "quarter":"Q4 2025","filed":"2025-12-01","change":"신규 ($2B 사모)",                     "change_eng":"New ($2B private placement)",              "change_type":"new",      "value_m":2000.0},
+    {"ticker":"NOK",  "company":"Nokia",            "quarter":"Q3 2025","filed":"2025-10-28","change":"신규 ($1B, 2.9%)",                    "change_eng":"New ($1B, 2.9% stake)",                    "change_type":"new",      "value_m":1000.0},
+    {"ticker":"NBIS", "company":"Nebius Group",     "quarter":"Q4 2024","filed":"2024-12-10","change":"신규 ($100M)",                        "change_eng":"New ($100M)",                              "change_type":"new",      "value_m":100.0},
+    {"ticker":"CRWV", "company":"CoreWeave",        "quarter":"Q1 2025","filed":"2025-03-28","change":"IPO 참여·전략 주주",                   "change_eng":"IPO · Strategic Shareholder",              "change_type":"new",      "value_m":None},
     # 청산
-    {"ticker":"RXRX", "company":"Recursion Pharma","quarter":"Q3 2023","filed":"2023-11-14","change":"전략투자 ($50M)","change_type":"new",            "value_m":50.0},
-    {"ticker":"RXRX", "company":"Recursion Pharma","quarter":"Q4 2025","filed":"2025-11-14","change":"완전 청산","change_type":"exit",                 "value_m":None},
-    {"ticker":"ARM",  "company":"Arm Holdings",    "quarter":"Q3 2023","filed":"2023-09-14","change":"IPO 참여","change_type":"new",                   "value_m":None},
-    {"ticker":"ARM",  "company":"Arm Holdings",    "quarter":"Q1 2026","filed":"2026-02-17","change":"완전 청산 (1.1M주, $140M)","change_type":"exit","value_m":140.0},
-    {"ticker":"WRD",  "company":"WeRide",          "quarter":"Q4 2024","filed":"2025-02-14","change":"신규 ($24M, 1.7M주)","change_type":"new",        "value_m":24.0},
-    {"ticker":"WRD",  "company":"WeRide",          "quarter":"Q4 2025","filed":"2025-11-14","change":"완전 청산","change_type":"exit",                 "value_m":None},
-    {"ticker":"SOUN", "company":"SoundHound AI",   "quarter":"Q4 2023","filed":"2024-02-14","change":"신규 ($3.99M)","change_type":"new",              "value_m":3.99},
-    {"ticker":"SOUN", "company":"SoundHound AI",   "quarter":"Q4 2024","filed":"2024-11-14","change":"완전 청산","change_type":"exit",                 "value_m":None},
-    {"ticker":"SERV", "company":"Serve Robotics",  "quarter":"Q1 2024","filed":"2024-05-15","change":"신규","change_type":"new",                       "value_m":None},
-    {"ticker":"SERV", "company":"Serve Robotics",  "quarter":"Q4 2024","filed":"2024-11-14","change":"완전 청산","change_type":"exit",                 "value_m":None},
-    {"ticker":"APLD", "company":"Applied Digital", "quarter":"Q2 2024","filed":"2024-08-14","change":"신규","change_type":"new",                       "value_m":None},
-    {"ticker":"APLD", "company":"Applied Digital", "quarter":"Q4 2025","filed":"2025-11-14","change":"완전 청산","change_type":"exit",                 "value_m":None},
-    {"ticker":"NNOX", "company":"Nano-X Imaging",  "quarter":"Q4 2023","filed":"2024-02-14","change":"신규","change_type":"new",                       "value_m":None},
-    {"ticker":"NNOX", "company":"Nano-X Imaging",  "quarter":"Q4 2024","filed":"2024-11-14","change":"완전 청산","change_type":"exit",                 "value_m":None},
+    {"ticker":"RXRX", "company":"Recursion Pharma", "quarter":"Q3 2023","filed":"2023-11-14","change":"전략투자 ($50M)",                     "change_eng":"Strategic investment ($50M)",              "change_type":"new",      "value_m":50.0},
+    {"ticker":"RXRX", "company":"Recursion Pharma", "quarter":"Q4 2025","filed":"2025-11-14","change":"완전 청산",                           "change_eng":"Full exit",                                "change_type":"exit",     "value_m":None},
+    {"ticker":"ARM",  "company":"Arm Holdings",     "quarter":"Q3 2023","filed":"2023-09-14","change":"IPO 참여",                            "change_eng":"IPO participation",                        "change_type":"new",      "value_m":None},
+    {"ticker":"ARM",  "company":"Arm Holdings",     "quarter":"Q1 2026","filed":"2026-02-17","change":"완전 청산 (1.1M주, $140M)",           "change_eng":"Full exit (1.1M shares, $140M)",           "change_type":"exit",     "value_m":140.0},
+    {"ticker":"WRD",  "company":"WeRide",           "quarter":"Q4 2024","filed":"2025-02-14","change":"신규 ($24M, 1.7M주)",                 "change_eng":"New ($24M, 1.7M shares)",                  "change_type":"new",      "value_m":24.0},
+    {"ticker":"WRD",  "company":"WeRide",           "quarter":"Q4 2025","filed":"2025-11-14","change":"완전 청산",                           "change_eng":"Full exit",                                "change_type":"exit",     "value_m":None},
+    {"ticker":"SOUN", "company":"SoundHound AI",    "quarter":"Q4 2023","filed":"2024-02-14","change":"신규 ($3.99M)",                       "change_eng":"New ($3.99M)",                             "change_type":"new",      "value_m":3.99},
+    {"ticker":"SOUN", "company":"SoundHound AI",    "quarter":"Q4 2024","filed":"2024-11-14","change":"완전 청산",                           "change_eng":"Full exit",                                "change_type":"exit",     "value_m":None},
+    {"ticker":"SERV", "company":"Serve Robotics",   "quarter":"Q1 2024","filed":"2024-05-15","change":"신규",                                "change_eng":"New position",                             "change_type":"new",      "value_m":None},
+    {"ticker":"SERV", "company":"Serve Robotics",   "quarter":"Q4 2024","filed":"2024-11-14","change":"완전 청산",                           "change_eng":"Full exit",                                "change_type":"exit",     "value_m":None},
+    {"ticker":"APLD", "company":"Applied Digital",  "quarter":"Q2 2024","filed":"2024-08-14","change":"신규",                                "change_eng":"New position",                             "change_type":"new",      "value_m":None},
+    {"ticker":"APLD", "company":"Applied Digital",  "quarter":"Q4 2025","filed":"2025-11-14","change":"완전 청산",                           "change_eng":"Full exit",                                "change_type":"exit",     "value_m":None},
+    {"ticker":"NNOX", "company":"Nano-X Imaging",   "quarter":"Q4 2023","filed":"2024-02-14","change":"신규",                                "change_eng":"New position",                             "change_type":"new",      "value_m":None},
+    {"ticker":"NNOX", "company":"Nano-X Imaging",   "quarter":"Q4 2024","filed":"2024-11-14","change":"완전 청산",                           "change_eng":"Full exit",                                "change_type":"exit",     "value_m":None},
 ]
 
 BADGE_MAP = {
@@ -741,17 +727,16 @@ def ts_to_str(ts):
 
 # ── 사이드바 ──────────────────────────────────────────────────────────────────
 with st.sidebar:
-    # KOR/ENG 토글 pill — JS가 .lang-pill-block 클래스 주입
-    _is_kor = st.session_state.lang == "KOR"
-    _lc, _rc = st.columns(2, gap="small")
-    with _lc:
-        if st.button("KOR", key="btn_lang_kor", disabled=_is_kor, use_container_width=True):
-            st.session_state.lang = "KOR"
-            st.rerun()
-    with _rc:
-        if st.button("ENG", key="btn_lang_eng", disabled=not _is_kor, use_container_width=True):
-            st.session_state.lang = "ENG"
-            st.rerun()
+    # KOR/ENG 토글 — st.pills (Streamlit 1.36+)
+    _lang_pick = st.pills(
+        "language", ["KOR", "ENG"],
+        default=st.session_state.lang,
+        key="lang_pills",
+        label_visibility="collapsed",
+    )
+    if _lang_pick and _lang_pick != st.session_state.lang:
+        st.session_state.lang = _lang_pick
+        st.rerun()
 
     st.markdown("## NVIDIA Portfolio Tracker")
     st.markdown("---")
@@ -1258,10 +1243,11 @@ with tab3:
     current_only = CURRENT_HOLDINGS
     ca, cb = st.columns(2)
     with ca:
-        sc = {}
-        for c in current_only: sc[c["sector"]] = sc.get(c["sector"],0)+1
-        fig3 = go.Figure(go.Pie(labels=list(sc.keys()), values=list(sc.values()),
-            marker_colors=[SECTOR_COLORS.get(s,"#6b7280") for s in sc], hole=0.4))
+        sc_raw = {}
+        for c in current_only: sc_raw[c["sector"]] = sc_raw.get(c["sector"],0)+1
+        sc_labels = [sector_name(s) for s in sc_raw]
+        fig3 = go.Figure(go.Pie(labels=sc_labels, values=list(sc_raw.values()),
+            marker_colors=[SECTOR_COLORS.get(s,"#6b7280") for s in sc_raw], hole=0.4))
         fig3.update_layout(template="plotly_dark",paper_bgcolor="#111827",
             title=t("sector_count"),title_font_color="#f9fafb",height=380,margin=dict(l=0,r=0,t=40,b=0))
         st.plotly_chart(fig3, use_container_width=True)
@@ -1365,11 +1351,12 @@ with tab5:
             css, label = _cs.get(f["change_type"],("filing-hold","🔵 " + t("change_hold")))
             val = f"${f['value_m']:,.0f}M" if f.get("value_m") else ""
             val_html = f"&nbsp;&nbsp;<span style='color:#76b900;font-size:0.85rem;font-weight:700'>{val}</span>" if val else ""
+            _change_txt = (f.get("change_eng") or f["change"]) if st.session_state.lang == "ENG" else f["change"]
             st.markdown(
                 f'<div class="filing-row {css}">'
                 f'<span style="color:#f9fafb;font-weight:600">{f["company"]} ({f["ticker"]})</span>'
                 f'&nbsp;<span style="color:#9ca3af;font-size:0.82rem">{f["quarter"]} · {f["filed"]}</span><br>'
-                f'<span style="font-size:0.9rem">{label} — {f["change"]}</span>'
+                f'<span style="font-size:0.9rem">{label} — {_change_txt}</span>'
                 f'{val_html}'
                 f'</div>',
                 unsafe_allow_html=True)
@@ -1453,30 +1440,6 @@ with st.expander("Admin", expanded=False):
         st.error("비밀번호가 틀렸습니다.")
 
 # ── 푸터 ─────────────────────────────────────────────────────────────────────
-st.markdown("""
-<script>
-(function() {
-  function applyPill() {
-    var sidebar = document.querySelector('[data-testid="stSidebar"]');
-    if (!sidebar) return;
-    sidebar.querySelectorAll('[data-testid="stHorizontalBlock"]').forEach(function(block) {
-      var btns = block.querySelectorAll('button');
-      var hasKor = false, hasEng = false;
-      btns.forEach(function(b) {
-        var txt = b.innerText.trim();
-        if (txt === 'KOR') hasKor = true;
-        if (txt === 'ENG') hasEng = true;
-      });
-      if (hasKor && hasEng) block.classList.add('lang-pill-block');
-    });
-  }
-  setTimeout(applyPill, 80);
-  new MutationObserver(function() { setTimeout(applyPill, 80); })
-    .observe(document.body, { childList: true, subtree: true });
-})();
-</script>
-""", unsafe_allow_html=True)
-
 st.markdown("---")
 st.markdown(
     f"<div style='text-align:center;color:#2a2a2a;font-size:0.72rem;letter-spacing:0.5px'>"
