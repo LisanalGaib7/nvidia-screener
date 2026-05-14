@@ -101,6 +101,29 @@ TRANSLATIONS = {
     "fb_cat_etc":           {"KOR": "기타 의견",                     "ENG": "Other"},
     # 로딩
     "loading":              {"KOR": "실시간 주가 데이터 로드 중...",   "ENG": "Loading live market data..."},
+    # 변동 유형
+    "change_new":           {"KOR": "신규",  "ENG": "New"},
+    "change_increase":      {"KOR": "증가",  "ENG": "Increase"},
+    "change_decrease":      {"KOR": "감소",  "ENG": "Decrease"},
+    "change_exit":          {"KOR": "청산",  "ENG": "Exit"},
+    "change_hold":          {"KOR": "유지",  "ENG": "Hold"},
+    # 퍼포먼스 탭 제목
+    "perf_title":           {"KOR": "YTD 주가 성과 비교",             "ENG": "YTD Price Performance Comparison"},
+    # 태그 가이드
+    "tag_core_desc":        {"KOR": "$1B 이상 직접 지분투자<br>SEC 13F 공시 확인",
+                             "ENG": "Direct equity investment $1B+<br>SEC 13F filing confirmed"},
+    "tag_new_desc":         {"KOR": "투자 발표 후 12개월 이내<br>신규 진입 종목",
+                             "ENG": "Within 12 months of announcement<br>New entry"},
+    "tag_seed_desc":        {"KOR": "$1B 미만 소규모 전략투자<br>또는 IPO 참여",
+                             "ENG": "Strategic investment under $1B<br>or IPO participation"},
+    "tag_partner_desc":     {"KOR": "지분투자 없는<br>공식 전략 파트너십",
+                             "ENG": "Official strategic partnership<br>without equity investment"},
+    "tag_exited_desc":      {"KOR": "과거 보유 후<br>완전 청산 완료",
+                             "ENG": "Fully liquidated<br>from prior holdings"},
+    # 기타
+    "no_news":              {"KOR": "최근 뉴스가 없습니다.",           "ENG": "No recent news found."},
+    "footer_delay":         {"KOR": "Yahoo Finance 15분 지연",        "ENG": "Yahoo Finance ~15min delay"},
+    "detail_basis":         {"KOR": "투자 근거",                      "ENG": "Investment Basis"},
 }
 
 def t(key):
@@ -321,7 +344,9 @@ NEW_2026 = [
         "is_new_alert": True,
         "alert_date": "2026-05-07",
         "nvidia_thesis": "AI 데이터센터 5GW 구축 — 워런트 방식 최대 $2.1B (30M주 @$70). 5년 $3.4B GPU 클라우드 서비스 계약 병행",
+        "nvidia_thesis_eng": "5GW AI Data Center buildout — warrant-based up to $2.1B (30M shares @$70). Paired with 5-year $3.4B GPU cloud services agreement",
         "note": "최대 $2.1B 워런트 (2026.05.07) | 5GW AI 인프라 배포 | $3.4B 클라우드 서비스 계약",
+        "note_eng": "Up to $2.1B warrants (2026.05.07) | 5GW AI infrastructure deployment | $3.4B cloud services contract",
         "source": "NVIDIA Newsroom, Bloomberg (2026.05.07)",
     },
     {
@@ -336,7 +361,9 @@ NEW_2026 = [
         "is_new_alert": True,
         "alert_date": "2026-05-06",
         "nvidia_thesis": "AI 광섬유·광학 소재 미국 내 제조 — 신규 공장 3곳(NC·TX), 미국 광학 생산 10배 확대. $500M 선불 워런트 @$180, 최대 $3.2B",
+        "nvidia_thesis_eng": "AI fiber optic & optical materials domestic manufacturing — 3 new factories (NC·TX), 10x US optical production. $500M upfront warrants @$180, up to $3.2B",
         "note": "최대 $3.2B 워런트 ($500M 선불, 2026.05.06) | 미국 내 광학 공장 3곳 신설 | 3,000개 일자리",
+        "note_eng": "Up to $3.2B warrants ($500M upfront, 2026.05.06) | 3 new US optical factories | 3,000 jobs",
         "source": "NVIDIA Newsroom, CNBC (2026.05.06)",
     },
     {
@@ -351,7 +378,9 @@ NEW_2026 = [
         "is_new_alert": True,
         "alert_date": "2026-03-31",
         "nvidia_thesis": "NVLink Fusion — Marvell XPU를 NVIDIA Rubin GPU·Vera CPU와 동일 랙에서 1.8TB/s로 통합. 실리콘 포토닉스 공동 R&D",
+        "nvidia_thesis_eng": "NVLink Fusion — Marvell XPU integrated with NVIDIA Rubin GPU & Vera CPU in the same rack at 1.8TB/s. Silicon photonics co-R&D",
         "note": "$2B 투자 (2026.03.31) | NVLink Fusion 파트너십 | 실리콘 포토닉스·5G/6G 공동 R&D",
+        "note_eng": "$2B investment (2026.03.31) | NVLink Fusion partnership | Silicon photonics & 5G/6G co-R&D",
         "source": "NVIDIA Newsroom, CNBC (2026.03.31)",
     },
     {
@@ -366,7 +395,9 @@ NEW_2026 = [
         "is_new_alert": True,
         "alert_date": "2026-03-02",
         "nvidia_thesis": "AI 광학 레이저·포토닉스 — 미국 내 신규 fab 구축, 고급 레이저 부품 독점 공급권. 우선주 2,876,415주 @$695.31",
+        "nvidia_thesis_eng": "AI optical lasers & photonics — new US fab construction, exclusive supply of advanced laser components. 2,876,415 preferred shares @$695.31",
         "note": "$2B 우선주 사모 (2026.03.02) | 2,876,415주 @$695.31 | 멀티빌리언 구매 약정 포함",
+        "note_eng": "$2B preferred stock private placement (2026.03.02) | 2,876,415 shares @$695.31 | Multi-billion purchase commitment",
         "source": "NVIDIA Newsroom, CNBC (2026.03.02)",
     },
     {
@@ -381,7 +412,9 @@ NEW_2026 = [
         "is_new_alert": True,
         "alert_date": "2026-03-02",
         "nvidia_thesis": "차세대 AI 데이터센터 광트랜시버 — 800G/1.6T 광연결 인프라. 미국 내 제조 확대, 멀티빌리언 구매 약정",
+        "nvidia_thesis_eng": "Next-gen AI datacenter optical transceivers — 800G/1.6T optical interconnect infrastructure. US manufacturing expansion, multi-billion purchase commitment",
         "note": "$2B 투자 (2026.03.02) | 광학 네트워킹 제품 구매 약정 포함",
+        "note_eng": "$2B investment (2026.03.02) | Optical networking product purchase commitment included",
         "source": "NVIDIA Newsroom, CNBC (2026.03.02)",
     },
 ]
@@ -400,7 +433,9 @@ CURRENT_HOLDINGS = [
         "is_new_alert": True,
         "alert_date": "2025-12-29",
         "nvidia_thesis": "AI 인프라·PC 칩 공동 개발 — x86 CPU+NVIDIA GPU 칩렛 통합 제품 개발. $5B 직접 지분투자(4%), 214.7M주 @$23.28",
+        "nvidia_thesis_eng": "AI infrastructure & PC chip co-development — x86 CPU + NVIDIA GPU chiplet integrated products. $5B direct equity investment (4%), 214.7M shares @$23.28",
         "note": "$5B 지분투자 (2025.09 계약 → 2025.12.29 완료) | 4% 지분 | AI 데이터센터 및 PC 칩 공동개발",
+        "note_eng": "$5B equity investment (2025.09 signed → 2025.12.29 closed) | 4% stake | AI datacenter & PC chip co-development",
         "source": "CNBC, NVIDIA Newsroom (2025.12.29)",
     },
     {
@@ -415,7 +450,9 @@ CURRENT_HOLDINGS = [
         "is_new_alert": True,
         "alert_date": "2025-12-01",
         "nvidia_thesis": "EDA + 에이전틱 AI 엔지니어링 — 칩 설계 자동화·클라우드 가속. $2B 사모 발행 @$414.79/주",
+        "nvidia_thesis_eng": "EDA + Agentic AI Engineering — chip design automation & cloud acceleration. $2B private placement @$414.79/share",
         "note": "$2B 사모 투자 (2025.12.01) | 칩 설계 AI 자동화 파트너십",
+        "note_eng": "$2B private investment (2025.12.01) | Chip design AI automation partnership",
         "source": "NVIDIA Newsroom, CNBC (2025.12.01)",
     },
     {
@@ -430,7 +467,9 @@ CURRENT_HOLDINGS = [
         "is_new_alert": True,
         "alert_date": "2025-10-28",
         "nvidia_thesis": "5G/6G AI 네트워크 — Nokia RAN에 NVIDIA GPU 통합, AI 기반 이동통신 인프라 개발. $1B, 2.9% 지분 @$6.01/주",
+        "nvidia_thesis_eng": "5G/6G AI Network — NVIDIA GPU integration into Nokia RAN, AI-driven mobile telecom infrastructure. $1B, 2.9% stake @$6.01/share",
         "note": "$1B 투자 (2025.10.28) | 2.9% 지분 | 5G RAN AI 통합 파트너십",
+        "note_eng": "$1B investment (2025.10.28) | 2.9% stake | 5G RAN AI integration partnership",
         "source": "Bloomberg, CNBC (2025.10.28)",
     },
     {
@@ -444,7 +483,9 @@ CURRENT_HOLDINGS = [
         "exchange": "NASDAQ",
         "is_new_alert": False,
         "nvidia_thesis": "NVIDIA GPU 특화 하이퍼스케일러 — H100/B200 최대 보유 AI 클라우드. NVIDIA 전략적 주주·최대 고객",
+        "nvidia_thesis_eng": "NVIDIA GPU-specialized hyperscaler — largest H100/B200 AI cloud. NVIDIA strategic shareholder & top customer",
         "note": "2025.03 IPO | NVIDIA 전략적 주주·최대 고객",
+        "note_eng": "2025.03 IPO | NVIDIA strategic shareholder & top customer",
         "source": "CoreWeave IPO Filing (2025.03)",
     },
     {
@@ -458,7 +499,9 @@ CURRENT_HOLDINGS = [
         "exchange": "NASDAQ",
         "is_new_alert": False,
         "nvidia_thesis": "유럽·이스라엘 AI GPU 클라우드 — H100 기반 인프라 구축. $100M 전략적 투자",
+        "nvidia_thesis_eng": "European & Israeli AI GPU cloud — H100-based infrastructure buildout. $100M strategic investment",
         "note": "$100M 전략적 투자 (2024.12) | 전 Yandex NV",
+        "note_eng": "$100M strategic investment (2024.12) | Formerly Yandex NV",
         "source": "NVIDIA IR (2024.12.10)",
     },
 ]
@@ -477,7 +520,9 @@ PARTNERSHIPS = [
         "is_new_alert": False,
         "alert_date": "2025-12-01",
         "nvidia_thesis": "Physical AI 산업 로봇 — Isaac Sim 디지털 트윈, Jetson 온로봇 컴퓨터 탑재. FANUC 주가 +9.4% 급등",
+        "nvidia_thesis_eng": "Physical AI industrial robots — Isaac Sim digital twin, Jetson on-robot computer integration. FANUC stock +9.4% surge on announcement",
         "note": "⚠️ 지분투자 아님 | Physical AI 파트너십 (2025.12.01) | Isaac Sim + Jetson 통합",
+        "note_eng": "⚠️ No equity investment | Physical AI partnership (2025.12.01) | Isaac Sim + Jetson integration",
         "source": "NVIDIA Newsroom, Bloomberg (2025.12.01)",
     },
 ]
@@ -542,13 +587,37 @@ SECTOR_COLORS = {
     "AI/음성인식":"#76b900","AI 의료영상":"#c084fc",
 }
 
-CHANGE_STYLE = {
-    "new":      ("filing-new",      "🟢 신규"),
-    "increase": ("filing-increase", "📈 증가"),
-    "decrease": ("filing-decrease", "📉 감소"),
-    "exit":     ("filing-exit",     "⬛ 청산"),
-    "hold":     ("filing-hold",     "🔵 유지"),
+SECTOR_NAMES = {
+    "반도체/파운드리":  {"KOR": "반도체/파운드리",   "ENG": "Semiconductor/Foundry"},
+    "EDA/칩 설계":     {"KOR": "EDA/칩 설계",       "ENG": "EDA/Chip Design"},
+    "통신 인프라":      {"KOR": "통신 인프라",        "ENG": "Telecom Infrastructure"},
+    "클라우드 GPU":    {"KOR": "클라우드 GPU",       "ENG": "Cloud GPU"},
+    "산업 로봇":        {"KOR": "산업 로봇",          "ENG": "Industrial Robot"},
+    "광학 트랜시버":    {"KOR": "광학 트랜시버",      "ENG": "Optical Transceiver"},
+    "광학 부품":        {"KOR": "광학 부품",          "ENG": "Optical Components"},
+    "광학 소재/제조":   {"KOR": "광학 소재/제조",     "ENG": "Optical Materials/Mfg"},
+    "반도체/광연결":    {"KOR": "반도체/광연결",      "ENG": "Semi/Optical Interconnect"},
+    "AI 신약개발":      {"KOR": "AI 신약개발",        "ENG": "AI Drug Discovery"},
+    "반도체 IP":        {"KOR": "반도체 IP",          "ENG": "Semiconductor IP"},
+    "AI 데이터센터":    {"KOR": "AI 데이터센터",      "ENG": "AI Data Center"},
+    "자율주행":         {"KOR": "자율주행",           "ENG": "Autonomous Driving"},
+    "자율주행 로봇":    {"KOR": "자율주행 로봇",      "ENG": "Autonomous Robot"},
+    "AI/음성인식":      {"KOR": "AI/음성인식",        "ENG": "AI/Speech Recognition"},
+    "AI 의료영상":      {"KOR": "AI 의료영상",        "ENG": "AI Medical Imaging"},
 }
+
+def sector_name(s):
+    lang = st.session_state.get("lang", "KOR")
+    return SECTOR_NAMES.get(s, {}).get(lang, s)
+
+def get_change_style():
+    return {
+        "new":      ("filing-new",      "🟢 " + t("change_new")),
+        "increase": ("filing-increase", "📈 " + t("change_increase")),
+        "decrease": ("filing-decrease", "📉 " + t("change_decrease")),
+        "exit":     ("filing-exit",     "⬛ " + t("change_exit")),
+        "hold":     ("filing-hold",     "🔵 " + t("change_hold")),
+    }
 
 # ── fetch ────────────────────────────────────────────────────────────────────
 @st.cache_data(ttl=300)
@@ -640,31 +709,31 @@ with st.sidebar:
     st.markdown("---")
 
     with st.expander(t("sb_tag_guide")):
-        st.markdown("""
+        st.markdown(f"""
 <style>
-.tag-guide-row { margin: 10px 0; }
-.tag-guide-name { font-size: 0.72rem; font-weight: 700; letter-spacing: 1px; margin-bottom: 3px; }
-.tag-guide-desc { font-size: 0.75rem; color: #686868 !important; line-height: 1.5; }
+.tag-guide-row {{ margin: 10px 0; }}
+.tag-guide-name {{ font-size: 0.72rem; font-weight: 700; letter-spacing: 1px; margin-bottom: 3px; }}
+.tag-guide-desc {{ font-size: 0.75rem; color: #686868 !important; line-height: 1.5; }}
 </style>
 <div class="tag-guide-row">
   <div class="tag-guide-name" style="color:#4a90d9">CORE</div>
-  <div class="tag-guide-desc">$1B 이상 직접 지분투자<br>SEC 13F 공시 확인</div>
+  <div class="tag-guide-desc">{t("tag_core_desc")}</div>
 </div>
 <div class="tag-guide-row">
   <div class="tag-guide-name" style="color:#c87f00">NEW</div>
-  <div class="tag-guide-desc">투자 발표 후 12개월 이내<br>신규 진입 종목</div>
+  <div class="tag-guide-desc">{t("tag_new_desc")}</div>
 </div>
 <div class="tag-guide-row">
   <div class="tag-guide-name" style="color:#76b900">SEED</div>
-  <div class="tag-guide-desc">$1B 미만 소규모 전략투자<br>또는 IPO 참여</div>
+  <div class="tag-guide-desc">{t("tag_seed_desc")}</div>
 </div>
 <div class="tag-guide-row">
   <div class="tag-guide-name" style="color:#7c5cbf">PARTNER</div>
-  <div class="tag-guide-desc">지분투자 없는<br>공식 전략 파트너십</div>
+  <div class="tag-guide-desc">{t("tag_partner_desc")}</div>
 </div>
 <div class="tag-guide-row">
   <div class="tag-guide-name" style="color:#333">EXITED</div>
-  <div class="tag-guide-desc">과거 보유 후<br>완전 청산 완료</div>
+  <div class="tag-guide-desc">{t("tag_exited_desc")}</div>
 </div>
 """, unsafe_allow_html=True)
 
@@ -763,31 +832,39 @@ recent_5 = sorted(
     key=lambda x: x.get("alert_date",""), reverse=True
 )[:5]
 
+_cur_lang = st.session_state.lang
+
 if recent_5:
     latest_year = recent_5[0].get("alert_date","")[:4]
     items_html = "".join([
         f'<div class="alert-item">'
         f'<span class="alert-date">{c.get("alert_date","")}&nbsp;&nbsp;</span>'
         f'<b>{c["name"]} ({c["ticker"]})</b>'
-        f'&nbsp;—&nbsp;{c["note"].split("|")[0].strip()}'
+        f'&nbsp;—&nbsp;{(c.get("note_eng") or c["note"]).split("|")[0].strip() if _cur_lang=="ENG" else c["note"].split("|")[0].strip()}'
         f'</div>'
         for c in recent_5
     ])
-    st.markdown(f"""
-    <div class="alert-banner">
-      <div class="alert-title">Recent Investments &nbsp;·&nbsp; {latest_year}</div>
-      {items_html}
-    </div>""", unsafe_allow_html=True)
+    _ban_col, _tog_col = st.columns([11, 1])
+    with _tog_col:
+        if st.button("ENG" if _cur_lang == "KOR" else "KOR", key="lang_toggle"):
+            st.session_state.lang = "ENG" if _cur_lang == "KOR" else "KOR"
+            st.rerun()
+    with _ban_col:
+        st.markdown(
+            f'<div class="alert-banner">'
+            f'<div class="alert-title">{"Recent Investments" if _cur_lang=="ENG" else "최신 투자 알림"}&nbsp;·&nbsp;{latest_year}</div>'
+            f'{items_html}'
+            f'</div>',
+            unsafe_allow_html=True)
+else:
+    _, _tog_col = st.columns([11, 1])
+    with _tog_col:
+        if st.button("ENG" if _cur_lang == "KOR" else "KOR", key="lang_toggle"):
+            st.session_state.lang = "ENG" if _cur_lang == "KOR" else "KOR"
+            st.rerun()
 
 # ── 헤더 ─────────────────────────────────────────────────────────────────────
-_hcol1, _hcol2 = st.columns([9, 1])
-with _hcol2:
-    st.markdown('<div style="display:flex;justify-content:flex-end;padding-top:8px">', unsafe_allow_html=True)
-    if st.button("KOR" if st.session_state.lang == "ENG" else "ENG", key="lang_toggle"):
-        st.session_state.lang = "ENG" if st.session_state.lang == "KOR" else "KOR"
-        st.rerun()
-    st.markdown('</div>', unsafe_allow_html=True)
-with _hcol1:
+if True:
     st.markdown("""
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 <style>
@@ -876,7 +953,8 @@ avg_ytd = sum(ytd_vals)/len(ytd_vals) if ytd_vals else None
 total_invest = sum(c["invest_amt_m"] for c in all_display if c.get("invest_amt_m"))
 
 avg_ytd_str   = f"{avg_ytd:+.1f}%" if avg_ytd else "—"
-ytd_plus_str  = f"{sum(1 for v in ytd_vals if v>0)}/{len(ytd_vals)}개"
+_ytd_plus_cnt = sum(1 for v in ytd_vals if v>0)
+ytd_plus_str  = f"{_ytd_plus_cnt}/{len(ytd_vals)}" + ("개" if st.session_state.lang == "KOR" else "")
 invest_str    = f"${total_invest/1000:.1f}B+"
 
 m1,m2,m3,m4 = st.columns(4)
@@ -1004,7 +1082,10 @@ with tab1:
 
     for group_title, group_items, reverse in groups:
         if not group_items: continue
-        accent = "#76b900" if "신규" in group_title else ("#c87f00" if "파트너" in group_title else ("#484848" if "청산" in group_title else "#4a90d9"))
+        if group_title == t("group_new"):     accent = "#76b900"
+        elif group_title == t("group_partner"): accent = "#c87f00"
+        elif group_title == t("group_exited"):  accent = "#484848"
+        else:                                   accent = "#4a90d9"
         st.markdown(
             f'<div style="display:flex;align-items:center;gap:14px;margin:32px 0 18px">'
             f'<div style="width:3px;height:22px;background:{accent};border-radius:2px;flex-shrink:0"></div>'
@@ -1053,7 +1134,7 @@ with tab1:
                     f'<span style="color:#e8e8e8;font-weight:500">{c["name"]}</span>'
                     f'<span style="color:#686868;font-size:0.78rem;margin-left:6px">{ticker}</span><br>'
                     f'{BADGE_MAP[c["badge"]]}'
-                    f'<span style="color:#686868;font-size:0.72rem;margin-left:6px">{c["sector"]}</span>'
+                    f'<span style="color:#686868;font-size:0.72rem;margin-left:6px">{sector_name(c["sector"])}</span>'
                     + (f'<span style="color:#c87f00;font-size:0.78rem;font-weight:600;margin-left:8px">{amt}</span>' if amt else ""),
                     unsafe_allow_html=True)
             with cols[1]:
@@ -1079,9 +1160,10 @@ with tab1:
                             f'<div style="color:#c87f00;font-size:1.1rem;font-weight:600;margin-bottom:12px">'
                             f'{amt}</div>',
                             unsafe_allow_html=True)
+                    _thesis = (c.get("nvidia_thesis_eng") or c["nvidia_thesis"]) if st.session_state.lang == "ENG" else c["nvidia_thesis"]
                     st.markdown(
                         f'<div style="color:#a0a0a0;font-size:0.84rem;line-height:1.8;margin-bottom:14px">'
-                        f'{c["nvidia_thesis"]}</div>',
+                        f'{_thesis}</div>',
                         unsafe_allow_html=True)
                     st.markdown(
                         f'<div style="color:#383838;font-size:0.72rem;border-top:1px solid #1e1e1e;'
@@ -1092,7 +1174,7 @@ with tab1:
 
 # ══ Tab 2 ════════════════════════════════════════════════════════════════════
 with tab2:
-    st.markdown("### YTD 주가 성과 비교")
+    st.markdown(f"### {t('perf_title')}")
     chart_items = [c for c in all_display if "error" not in stock_data.get(c["ticker"],{})]
     fig = go.Figure()
     for c in chart_items:
@@ -1208,7 +1290,7 @@ with tab4:
               <div class="news-meta">{pub_str} · {provider}</div>
               {"<div style='color:#9ca3af;font-size:0.8rem;margin-top:4px'>" + summary[:160] + "…</div>" if summary else ""}
             </div>""", unsafe_allow_html=True)
-        if shown == 0: st.info("최근 뉴스가 없습니다.")
+        if shown == 0: st.info(t("no_news"))
 
 # ══ Tab 5: 13F 히스토리 ══════════════════════════════════════════════════════
 with tab5:
@@ -1219,7 +1301,13 @@ with tab5:
     with cf1:
         all_cos = sorted({f["company"] for f in FILINGS_HISTORY})
         sel_cos = st.multiselect(t("filings_company"), all_cos, default=all_cos)
-        ct_map = {"new":"🟢 신규","increase":"📈 증가","decrease":"📉 감소","exit":"⬛ 청산","hold":"🔵 유지"}
+        ct_map = {
+            "new":      "🟢 " + t("change_new"),
+            "increase": "📈 " + t("change_increase"),
+            "decrease": "📉 " + t("change_decrease"),
+            "exit":     "⬛ " + t("change_exit"),
+            "hold":     "🔵 " + t("change_hold"),
+        }
         sel_ct = st.multiselect(t("filings_type"), list(ct_map.values()), default=list(ct_map.values()))
         sel_ct_keys = [k for k,v in ct_map.items() if v in sel_ct]
 
@@ -1228,8 +1316,9 @@ with tab5:
             [f for f in FILINGS_HISTORY if f["company"] in sel_cos and f["change_type"] in sel_ct_keys],
             key=lambda x: x["filed"], reverse=True
         )
+        _cs = get_change_style()
         for f in filtered_f:
-            css, label = CHANGE_STYLE.get(f["change_type"],("filing-hold","🔵"))
+            css, label = _cs.get(f["change_type"],("filing-hold","🔵 " + t("change_hold")))
             val = f"${f['value_m']:,.0f}M" if f.get("value_m") else ""
             val_html = f"&nbsp;&nbsp;<span style='color:#76b900;font-size:0.85rem;font-weight:700'>{val}</span>" if val else ""
             st.markdown(
@@ -1244,7 +1333,13 @@ with tab5:
     st.markdown(f"### {t('timeline_title')}")
     df_f = pd.DataFrame(FILINGS_HISTORY)
     color_map  = {"new":"#22c55e","increase":"#4a90d9","decrease":"#ef4444","exit":"#6b7280","hold":"#3b82f6"}
-    label_map  = {"new":"신규","increase":"증가","decrease":"감소","exit":"청산","hold":"유지"}
+    label_map  = {
+        "new":      t("change_new"),
+        "increase": t("change_increase"),
+        "decrease": t("change_decrease"),
+        "exit":     t("change_exit"),
+        "hold":     t("change_hold"),
+    }
     fig6 = go.Figure()
     for ct, grp in df_f.groupby("change_type"):
         fig6.add_trace(go.Scatter(
@@ -1318,6 +1413,6 @@ st.markdown("---")
 st.markdown(
     f"<div style='text-align:center;color:#2a2a2a;font-size:0.72rem;letter-spacing:0.5px'>"
     f"SEC EDGAR 13F &nbsp;·&nbsp; NVIDIA IR &nbsp;·&nbsp; Bloomberg &nbsp;·&nbsp; Reuters &nbsp;·&nbsp; FT &nbsp;·&nbsp; WSJ"
-    f"&nbsp;&nbsp;|&nbsp;&nbsp;Yahoo Finance 15분 지연"
+    f"&nbsp;&nbsp;|&nbsp;&nbsp;{t('footer_delay')}"
     f"&nbsp;&nbsp;|&nbsp;&nbsp;{datetime.now().strftime('%Y-%m-%d %H:%M')}"
     f"</div>", unsafe_allow_html=True)
