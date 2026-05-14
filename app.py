@@ -57,7 +57,7 @@ st.markdown("""
   .badge-new     { background: transparent; color: #c87f00; border: 1px solid #3d2600;
                    border-radius: 2px; padding: 1px 7px; font-size: 0.65rem; font-weight: 600;
                    letter-spacing: 1px; text-transform: uppercase; }
-  .badge-hot     { background: transparent; color: #76b900; border: 1px solid #2a3f00;
+  .badge-seed    { background: transparent; color: #76b900; border: 1px solid #2a3f00;
                    border-radius: 2px; padding: 1px 7px; font-size: 0.65rem; font-weight: 600;
                    letter-spacing: 1px; text-transform: uppercase; }
   .badge-watch   { background: transparent; color: #555; border: 1px solid #222;
@@ -260,7 +260,7 @@ NEW_2026 = [
         "invest_year": 2026,
         "invest_amt_m": 2000.0,
         "invest_date": "2026-03-02",
-        "badge": "hot",
+        "badge": "new",
         "exchange": "NASDAQ",
         "is_new_alert": True,
         "alert_date": "2026-03-02",
@@ -275,7 +275,7 @@ NEW_2026 = [
         "invest_year": 2026,
         "invest_amt_m": 2000.0,
         "invest_date": "2026-03-02",
-        "badge": "hot",
+        "badge": "new",
         "exchange": "NYSE",
         "is_new_alert": True,
         "alert_date": "2026-03-02",
@@ -324,7 +324,7 @@ CURRENT_HOLDINGS = [
         "invest_year": 2025,
         "invest_amt_m": 1000.0,
         "invest_date": "2025-10-28",
-        "badge": "new",
+        "badge": "core",
         "exchange": "NYSE",
         "is_new_alert": True,
         "alert_date": "2025-10-28",
@@ -427,7 +427,7 @@ FILINGS_HISTORY = [
 BADGE_MAP = {
     "core":    '<span class="badge-core">CORE</span>',
     "new":     '<span class="badge-new">NEW</span>',
-    "hot":     '<span class="badge-hot">ACTIVE</span>',
+    "hot":     '<span class="badge-seed">SEED</span>',
     "watch":   '<span class="badge-watch">WATCH</span>',
     "partner": '<span class="badge-partner">PARTNER</span>',
     "exited":  '<span class="badge-exited">EXITED</span>',
@@ -539,6 +539,35 @@ Data: Yahoo Finance (~15분 지연)
         st.rerun()
 
     st.markdown("---")
+
+    with st.expander("태그 가이드"):
+        st.markdown("""
+<style>
+.tag-guide-row { margin: 10px 0; }
+.tag-guide-name { font-size: 0.72rem; font-weight: 700; letter-spacing: 1px; margin-bottom: 3px; }
+.tag-guide-desc { font-size: 0.75rem; color: #686868 !important; line-height: 1.5; }
+</style>
+<div class="tag-guide-row">
+  <div class="tag-guide-name" style="color:#4a90d9">CORE</div>
+  <div class="tag-guide-desc">$1B 이상 직접 지분투자<br>SEC 13F 공시 확인</div>
+</div>
+<div class="tag-guide-row">
+  <div class="tag-guide-name" style="color:#c87f00">NEW</div>
+  <div class="tag-guide-desc">투자 발표 후 12개월 이내<br>신규 진입 종목</div>
+</div>
+<div class="tag-guide-row">
+  <div class="tag-guide-name" style="color:#76b900">SEED</div>
+  <div class="tag-guide-desc">$1B 미만 소규모 전략투자<br>또는 IPO 참여</div>
+</div>
+<div class="tag-guide-row">
+  <div class="tag-guide-name" style="color:#7c5cbf">PARTNER</div>
+  <div class="tag-guide-desc">지분투자 없는<br>공식 전략 파트너십</div>
+</div>
+<div class="tag-guide-row">
+  <div class="tag-guide-name" style="color:#333">EXITED</div>
+  <div class="tag-guide-desc">과거 보유 후<br>완전 청산 완료</div>
+</div>
+""", unsafe_allow_html=True)
     st.markdown("### Feedback")
     with st.form("feedback_form", clear_on_submit=True):
         fb_category = st.selectbox("유형", [
