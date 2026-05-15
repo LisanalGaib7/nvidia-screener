@@ -1029,11 +1029,6 @@ if True:
   </div>
 </div>
 """, unsafe_allow_html=True)
-    st.markdown(
-        f'<p style="color:#383838;font-size:0.75rem;letter-spacing:0.5px;margin-top:2px">'
-        f'{t("last_verified")}'
-        f'</p>', unsafe_allow_html=True
-    )
 
 # ── 요약 지표 ─────────────────────────────────────────────────────────────────
 ytd_vals = [stock_data[c["ticker"]].get("ytd_pct")
