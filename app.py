@@ -845,7 +845,7 @@ with st.sidebar:
         f"- SEC EDGAR 13F\n"
         f"- NVIDIA IR\n"
         f"- {t('sb_media')}\n"
-        f"  Bloomberg · Reuters · CNBC\n"
+        f"  Bloomberg · Reuters · CNBC ·\n"
         f"  FT · WSJ · Economist {'외' if st.session_state.lang=='KOR' else 'etc.'}\n\n"
         f"---\n{t('sb_disclaimer')}\n\n{t('sb_delay')}"
     )
@@ -977,7 +977,7 @@ if True:
   display: flex;
   align-items: center;
   gap: 14px;
-  margin: 4px 0 2px;
+  margin: 4px 0 18px;
 }
 .nv-logo-wrap {
   display: flex;
