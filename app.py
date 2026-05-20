@@ -687,7 +687,7 @@ CURRENT_HOLDINGS = [
         "invest_year": 2026,
         "invest_amt_m": 2100.0,
         "invest_date": "2026-03-11",
-        "badge": "hot",
+        "badge": "core",
         "exchange": "NASDAQ",
         "is_new_alert": True,
         "alert_date": "2026-03-11",
