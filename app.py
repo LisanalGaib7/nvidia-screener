@@ -387,8 +387,25 @@ st.markdown("""
   .pt-detail-body {
     display: none;
     background: #101010; border: 1px solid #242424;
-    border-radius: 4px; padding: 14px 16px; max-width: 340px;
+    border-radius: 4px; padding: 16px 18px;
+    min-width: 300px; max-width: 360px;
   }
+  /* detail body 내부 구조 */
+  .ptd-header {
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 10px; padding-bottom: 10px;
+    border-bottom: 1px solid #1e1e1e;
+  }
+  .ptd-ticker { color: #76b900; font-size: 0.85rem; font-weight: 700; letter-spacing: 0.8px; }
+  .ptd-sector { color: #484848; font-size: 0.68rem; }
+  .ptd-label  { color: #3a3a3a; font-size: 0.58rem; font-weight: 600;
+                letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 4px; }
+  .ptd-amount { color: #c87f00; font-size: 1.05rem; font-weight: 600; margin-bottom: 10px; }
+  .ptd-thesis { color: #b0b0b0; font-size: 0.8rem; line-height: 1.7; margin-bottom: 10px; }
+  .ptd-footer { display: flex; justify-content: space-between; align-items: flex-start;
+                padding-top: 8px; border-top: 1px solid #1e1e1e; gap: 8px; flex-wrap: wrap; }
+  .ptd-date   { color: #505050; font-size: 0.65rem; white-space: nowrap; }
+  .ptd-src    { color: #3a3a3a; font-size: 0.62rem; text-align: right; }
 
   /* ── 데스크탑 전용: hover 팝업 ───────────────────────────── */
   @media screen and (min-width: 769px) {
@@ -1375,11 +1392,12 @@ with tab1:
                 f'<div class="pt-detail">'
                 f'<details><summary>{detail_lbl}</summary></details>'
                 f'<div class="pt-detail-body">'
-                f'<div style="color:#505050;font-size:0.65rem;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:10px">{ticker} &nbsp;·&nbsp; {_date}</div>'
-                f'{amt_big}'
-                f'<div style="color:#a0a0a0;font-size:0.82rem;line-height:1.8;margin-bottom:12px">{_thesis}</div>'
-                f'<div style="color:#383838;font-size:0.7rem;border-top:1px solid #1e1e1e;padding-top:8px">{_src}</div>'
-                f'</div></div>'
+                f'<div class="ptd-header"><span class="ptd-ticker">{ticker}</span><span class="ptd-sector">{_sector}</span></div>'
+                + (f'<div class="ptd-label">NVIDIA INVEST</div><div class="ptd-amount">{amt}</div>' if amt else '')
+                + f'<div class="ptd-label">WHY NVIDIA</div>'
+                + f'<div class="ptd-thesis">{_thesis}</div>'
+                + f'<div class="ptd-footer"><span class="ptd-date">📅 {_date}</span><span class="ptd-src">{_src}</span></div>'
+                + f'</div></div>'
                 f'</div>'
             )
             st.markdown(row_html, unsafe_allow_html=True)
@@ -1415,7 +1433,8 @@ with tab2:
         fig2 = go.Figure(go.Bar(
             x=df_ytd["ytd"], y=df_ytd["ticker"], orientation="h",
             marker_color=["#22c55e" if v>=0 else "#ef4444" for v in df_ytd["ytd"]],
-            text=[f"{v:+.1f}%" for v in df_ytd["ytd"]], textposition="outside",
+            text=[f"{v:+.0f}%" for v in df_ytd["ytd"]], textposition="outside",
+            hovertemplate="%{y}: %{x:+.0f}%<extra></extra>",
         ))
         fig2.update_layout(template="plotly_dark", paper_bgcolor="#111827", plot_bgcolor="#111827",
                             height=max(300,len(df_ytd)*38), xaxis_title="YTD (%)",
