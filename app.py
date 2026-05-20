@@ -353,6 +353,48 @@ st.markdown("""
   ::-webkit-scrollbar-track { background: #080808; }
   ::-webkit-scrollbar-thumb { background: #222; border-radius: 2px; }
 
+  /* ── 포트폴리오 테이블 (데스크탑 그리드) ── */
+  .ptable-header {
+    display: grid;
+    grid-template-columns: 2.8fr 1fr 1.1fr 1.1fr 1.1fr 0.8fr 1.4fr;
+    padding: 0 4px 8px;
+    border-bottom: 1px solid #1e1e1e;
+    gap: 6px;
+  }
+  .ptable-header > span { color: #909090; font-size: 0.8rem; font-weight: 500; }
+  .ptable-row {
+    display: grid;
+    grid-template-columns: 2.8fr 1fr 1.1fr 1.1fr 1.1fr 0.8fr 1.4fr;
+    align-items: center;
+    padding: 10px 4px;
+    border-bottom: 1px solid #141414;
+    gap: 6px;
+  }
+  .ptable-row:hover { background: #0d0d0d; border-radius: 3px; }
+
+  /* detail 펼치기 버튼 */
+  .pt-detail details > summary {
+    color: #505050; font-size: 0.68rem; letter-spacing: 0.8px;
+    text-transform: uppercase; border: 1px solid #2e2e2e;
+    border-radius: 2px; padding: 2px 8px; cursor: pointer;
+    list-style: none; display: inline-block; transition: all 0.15s; user-select: none;
+  }
+  .pt-detail details > summary::-webkit-details-marker { display: none; }
+  .pt-detail details > summary::marker { display: none; }
+  .pt-detail details > summary:hover { border-color: #76b900; color: #76b900; }
+  .pt-detail details[open] > summary { border-color: #76b900; color: #76b900; }
+  .pt-detail-body {
+    margin-top: 8px; background: #101010; border: 1px solid #242424;
+    border-radius: 4px; padding: 14px 16px; max-width: 340px;
+  }
+
+  /* 모바일 전용 요소 — 데스크탑에서 숨김 */
+  .pt-stats, .pt-meta { display: none; }
+  .pt-stat-label {
+    color: #404040; font-size: 0.6rem; letter-spacing: 0.8px;
+    text-transform: uppercase; display: block; margin-bottom: 3px;
+  }
+
   /* ── 모바일 반응형 ─────────────────────────────────────── */
   @media screen and (max-width: 768px) {
     /* 전체 패딩 축소 */
@@ -387,19 +429,48 @@ st.markdown("""
       width: calc(50% - 3px) !important;
     }
 
-    /* 포트폴리오 테이블 — 가로 스크롤 */
-    .main .block-container { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-    [data-testid="stTabsContent"] [data-testid="stHorizontalBlock"] { min-width: 680px; }
-
-    /* 팝오버 — 화면 넘침 방지 */
-    div[data-testid="stPopoverBody"] {
-      min-width: 240px !important;
-      max-width: calc(100vw - 32px) !important;
-    }
-
     /* 뉴스·공시 카드 패딩 축소 */
     .news-card  { padding: 10px 12px; }
     .filing-row { padding: 8px 12px; }
+
+    /* ── 포트폴리오 카드 레이아웃 (모바일) ── */
+    .ptable-header { display: none; }
+    .ptable-row {
+      display: block !important;
+      background: #0e0e0e;
+      border: 1px solid #1e1e1e;
+      border-left: 3px solid var(--accent, #333);
+      border-radius: 4px;
+      padding: 12px 14px;
+      margin-bottom: 8px;
+    }
+    /* 데스크탑 전용 셀 숨김 */
+    .pt-price, .pt-daily, .pt-ytd, .pt-cap, .pt-pe { display: none !important; }
+    /* 모바일 통계 표시 */
+    .pt-stats {
+      display: grid !important;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+      margin: 10px 0 8px;
+    }
+    .pt-meta {
+      display: flex !important;
+      gap: 14px;
+      flex-wrap: wrap;
+      padding-top: 8px;
+      border-top: 1px solid #1a1a1a;
+      margin-bottom: 10px;
+    }
+    /* detail 버튼 — 전체 너비 */
+    .pt-detail { display: block !important; }
+    .pt-detail details > summary {
+      display: block;
+      text-align: center;
+      padding: 6px 8px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .pt-detail-body { max-width: 100% !important; }
   }
 
   @media screen and (max-width: 480px) {
@@ -1180,82 +1251,104 @@ with tab1:
             unsafe_allow_html=True)
         sorted_items = sorted(group_items, key=sort_key, reverse=reverse)
 
-        hcols = st.columns([2.5, 1.2, 1.3, 1.3, 1.2, 1.2, 1.5, 1.2])
-        for h, col in zip([t("col_company"), t("col_price"), t("col_daily"), t("col_ytd"), t("col_cap"), t("col_pe"), t("col_52w"), ""], hcols):
-            col.markdown(
-                f'<span style="color:#c0c0c0;font-size:0.85rem;font-weight:500;'
-                f'letter-spacing:0.3px">{h}</span>',
-                unsafe_allow_html=True)
-        st.markdown('<hr style="margin:4px 0;border-color:#1e1e1e">', unsafe_allow_html=True)
+        lang       = st.session_state.lang
+        detail_lbl = "Detail" if lang == "ENG" else "상세"
+
+        # 테이블 헤더 (데스크탑 전용 — 모바일에서는 CSS로 숨김)
+        st.markdown(
+            f'<div class="ptable-header">'
+            f'<span>{t("col_company")}</span><span>{t("col_price")}</span>'
+            f'<span>{t("col_daily")}</span><span>YTD</span>'
+            f'<span>{t("col_cap")}</span><span>P/E</span><span></span>'
+            f'</div>',
+            unsafe_allow_html=True)
 
         for c in sorted_items:
-            ticker = c["ticker"]
-            sd = stock_data.get(ticker,{})
+            ticker   = c["ticker"]
+            sd       = stock_data.get(ticker, {})
             if "error" in sd:
                 st.warning(f"{ticker}: 데이터 로드 실패")
                 continue
 
-            price = sd.get("price"); currency = sd.get("currency","USD")
+            price    = sd.get("price")
+            currency = sd.get("currency", "USD")
+            amt      = (f"${c['invest_amt_m']/1000:.1f}B"
+                        if (c.get("invest_amt_m") or 0) >= 1000
+                        else f"${c['invest_amt_m']:.0f}M"
+                        if c.get("invest_amt_m") else "")
+
+            # 52W 바 (데스크탑용 전체 / 모바일용 축약)
             w52h = sd.get("week52_high"); w52l = sd.get("week52_low")
             if w52h and w52l and price:
                 pp = max(0, min(100, (price - w52l) / (w52h - w52l) * 100))
-                bar = (
-                    f'<div style="font-size:0.7rem;color:#686868">'
-                    f'{fmt_price(w52l,currency)} <span style="color:#484848">━</span> {fmt_price(w52h,currency)}<br>'
+                bar52_desk = (
+                    f'<div style="font-size:0.68rem;color:#686868">'
+                    f'{fmt_price(w52l,currency)}'
+                    f'<span style="color:#2a2a2a"> – </span>'
+                    f'{fmt_price(w52h,currency)}<br>'
                     f'<div style="background:#1a1a1a;border-radius:2px;height:3px;margin-top:3px">'
                     f'<div style="background:#76b900;width:{pp:.0f}%;height:3px;border-radius:2px"></div>'
-                    f'</div>'
-                    f'<span style="color:#76b900;font-size:0.68rem">{pp:.0f}%</span></div>'
+                    f'</div></div>'
                 )
+                bar52_mob = (f'<span style="color:#76b900;font-size:0.82rem;font-weight:500">'
+                             f'{pp:.0f}%</span>'
+                             f'<span style="color:#383838;font-size:0.62rem"> 52W</span>')
             else:
-                bar = '<span style="color:#2a2a2a">—</span>'
+                bar52_desk = bar52_mob = '<span style="color:#2a2a2a">—</span>'
 
-            cols = st.columns([2.5, 1.2, 1.3, 1.3, 1.2, 1.2, 1.5, 1.2])
-            amt = (f"${c['invest_amt_m']/1000:.1f}B" if (c.get("invest_amt_m") or 0) >= 1000
-                   else f"${c['invest_amt_m']:.0f}M" if c.get("invest_amt_m") else "")
+            _thesis  = ((c.get("nvidia_thesis_eng") or c["nvidia_thesis"])
+                        if lang == "ENG" else c["nvidia_thesis"])
+            price_h  = f'<span style="color:#c0c0c0;font-weight:500">{fmt_price(price,currency)}</span>'
+            daily_h  = fmt_pct(sd.get("change_pct"))
+            ytd_h    = fmt_pct(sd.get("ytd_pct"))
+            cap_h    = f'<span style="color:#a0a0a0">{fmt_cap(sd.get("market_cap"),currency,usdjpy)}</span>'
+            pe_h     = f'<span style="color:#a0a0a0">{fmt_ratio(sd.get("pe_ratio"))}</span>'
+            amt_h    = (f'<span style="color:#c87f00;font-size:0.75rem;font-weight:600">{amt}</span>'
+                        if amt else "")
+            amt_big  = (f'<div style="color:#c87f00;font-size:1rem;font-weight:600;margin-bottom:10px">{amt}</div>'
+                        if amt else "")
 
-            with cols[0]:
-                st.markdown(
-                    f'<span style="color:#e8e8e8;font-weight:500">{c["name"]}</span>'
-                    f'<span style="color:#686868;font-size:0.78rem;margin-left:6px">{ticker}</span><br>'
-                    f'{BADGE_MAP[c["badge"]]}'
-                    f'<span style="color:#686868;font-size:0.72rem;margin-left:6px">{sector_name(c["sector"])}</span>'
-                    + (f'<span style="color:#c87f00;font-size:0.78rem;font-weight:600;margin-left:8px">{amt}</span>' if amt else ""),
-                    unsafe_allow_html=True)
-            with cols[1]:
-                st.markdown(
-                    f'<span style="color:#c0c0c0;font-weight:500">{fmt_price(price, currency)}</span>',
-                    unsafe_allow_html=True)
-            with cols[2]: st.markdown(fmt_pct(sd.get("change_pct")), unsafe_allow_html=True)
-            with cols[3]: st.markdown(fmt_pct(sd.get("ytd_pct")),    unsafe_allow_html=True)
-            with cols[4]:
-                st.markdown(f'<span style="color:#a0a0a0">{fmt_cap(sd.get("market_cap"), sd.get("currency","USD"), usdjpy)}</span>', unsafe_allow_html=True)
-            with cols[5]:
-                st.markdown(f'<span style="color:#a0a0a0">{fmt_ratio(sd.get("pe_ratio"))}</span>', unsafe_allow_html=True)
-            with cols[6]: st.markdown(bar, unsafe_allow_html=True)
-            with cols[7]:
-                with st.popover("Detail"):
-                    st.markdown(
-                        f'<div style="color:#505050;font-size:0.68rem;letter-spacing:1.2px;'
-                        f'text-transform:uppercase;margin-bottom:12px">'
-                        f'{c["ticker"]} &nbsp;·&nbsp; {c.get("invest_date","—")}</div>',
-                        unsafe_allow_html=True)
-                    if amt:
-                        st.markdown(
-                            f'<div style="color:#c87f00;font-size:1.1rem;font-weight:600;margin-bottom:12px">'
-                            f'{amt}</div>',
-                            unsafe_allow_html=True)
-                    _thesis = (c.get("nvidia_thesis_eng") or c["nvidia_thesis"]) if st.session_state.lang == "ENG" else c["nvidia_thesis"]
-                    st.markdown(
-                        f'<div style="color:#a0a0a0;font-size:0.84rem;line-height:1.8;margin-bottom:14px">'
-                        f'{_thesis}</div>',
-                        unsafe_allow_html=True)
-                    st.markdown(
-                        f'<div style="color:#383838;font-size:0.72rem;border-top:1px solid #1e1e1e;'
-                        f'padding-top:10px">{c.get("source","—")}</div>',
-                        unsafe_allow_html=True)
-
-            st.markdown('<hr style="margin:3px 0;border-color:#141414">', unsafe_allow_html=True)
+            st.markdown(f"""<div class="ptable-row" style="--accent:{accent}">
+  <div class="pt-company">
+    <div>
+      <span style="color:#e8e8e8;font-weight:500">{c["name"]}</span>
+      <span style="color:#686868;font-size:0.75rem;margin-left:6px">{ticker}</span>
+    </div>
+    <div style="display:flex;align-items:center;flex-wrap:wrap;gap:5px;margin-top:4px">
+      {BADGE_MAP[c["badge"]]}
+      <span style="color:#686868;font-size:0.7rem">{sector_name(c["sector"])}</span>
+      {amt_h}
+    </div>
+    <div class="pt-stats">
+      <div><span class="pt-stat-label">{t("col_price")}</span>{price_h}</div>
+      <div><span class="pt-stat-label">{t("col_daily")}</span>{daily_h}</div>
+      <div><span class="pt-stat-label">YTD</span>{ytd_h}</div>
+    </div>
+    <div class="pt-meta">
+      <div><span class="pt-stat-label">{t("col_cap")}</span>{cap_h}</div>
+      <div><span class="pt-stat-label">P/E</span>{pe_h}</div>
+      <div><span class="pt-stat-label">52W</span>{bar52_mob}</div>
+    </div>
+  </div>
+  <div class="pt-price">{price_h}</div>
+  <div class="pt-daily">{daily_h}</div>
+  <div class="pt-ytd">{ytd_h}</div>
+  <div class="pt-cap">{cap_h}</div>
+  <div class="pt-pe">{pe_h}</div>
+  <div class="pt-detail">
+    <details>
+      <summary>{detail_lbl}</summary>
+      <div class="pt-detail-body">
+        <div style="color:#505050;font-size:0.65rem;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:10px">
+          {ticker} &nbsp;·&nbsp; {c.get("invest_date","—")}
+        </div>
+        {amt_big}
+        <div style="color:#a0a0a0;font-size:0.82rem;line-height:1.8;margin-bottom:12px">{_thesis}</div>
+        <div style="color:#383838;font-size:0.7rem;border-top:1px solid #1e1e1e;padding-top:8px">{c.get("source","—")}</div>
+      </div>
+    </details>
+  </div>
+</div>""", unsafe_allow_html=True)
 
 # ══ Tab 2 ════════════════════════════════════════════════════════════════════
 with tab2:
