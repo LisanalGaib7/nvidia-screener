@@ -1396,7 +1396,7 @@ with tab1:
                 + (f'<div class="ptd-label">NVIDIA INVEST</div><div class="ptd-amount">{amt}</div>' if amt else '')
                 + f'<div class="ptd-label">WHY NVIDIA</div>'
                 + f'<div class="ptd-thesis">{_thesis}</div>'
-                + f'<div class="ptd-footer"><span class="ptd-date">📅 {_date}</span><span class="ptd-src">{_src}</span></div>'
+                + f'<div class="ptd-footer"><span class="ptd-date">{_date}</span><span class="ptd-src">{_src}</span></div>'
                 + f'</div></div>'
                 f'</div>'
             )
