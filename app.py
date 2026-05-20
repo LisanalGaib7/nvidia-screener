@@ -1255,7 +1255,7 @@ with tab1:
         sorted_items = sorted(group_items, key=sort_key, reverse=reverse)
 
         lang       = st.session_state.lang
-        detail_lbl = "Detail" if lang == "ENG" else "상세"
+        detail_lbl = "Details"
 
         # 테이블 헤더 (데스크탑 전용 — 모바일에서는 CSS로 숨김)
         st.markdown(
@@ -1295,7 +1295,7 @@ with tab1:
                 )
                 bar52_mob = (f'<span style="color:#76b900;font-size:0.82rem;font-weight:500">'
                              f'{pp:.0f}%</span>'
-                             f'<span style="color:#383838;font-size:0.62rem"> 52W</span>')
+                             )
             else:
                 bar52_desk = bar52_mob = '<span style="color:#2a2a2a">—</span>'
 
