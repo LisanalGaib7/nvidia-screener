@@ -1,0 +1,45 @@
+name: 🔍 NVIDIA 13F 공시 감지
+
+on:
+  schedule:
+    # 매주 월·목 09:00 UTC (한국시간 오후 6시) — 13F 제출 시즌 커버
+    - cron: '0 9 * * 1,4'
+  workflow_dispatch:
+
+jobs:
+  monitor-13f:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: SEC 13F 공시 확인
+        id: sec_check
+        run: python scripts/check_13f.py
+
+      - name: Telegram 알림 (새 공시 감지 시)
+        if: failure()
+        run: |
+          ALERT=$(cat 13f_alert.txt 2>/dev/null || echo "상세 정보 없음")
+          NOW=$(date -u '+%Y-%m-%d %H:%M UTC')
+          MSG="🚨 *NVIDIA 새 13F 공시 감지!*
+
+⏰ ${NOW}
+
+${ALERT}
+
+👉 app.py 업데이트 필요
+🔗 [SEC EDGAR 바로가기](https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001045810&type=13F&dateb=&owner=include&count=5)"
+          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
+            -d "chat_id=${{ secrets.TELEGRAM_CHAT_ID }}" \
+            --data-urlencode "text=${MSG}" \
+            -d "parse_mode=Markdown"
