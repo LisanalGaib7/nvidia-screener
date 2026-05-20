@@ -684,17 +684,18 @@ CURRENT_HOLDINGS = [
         "ticker": "NBIS",
         "name": "Nebius Group",
         "sector": "클라우드 GPU",
-        "invest_year": 2024,
-        "invest_amt_m": 100.0,
-        "invest_date": "2024-12-10",
+        "invest_year": 2026,
+        "invest_amt_m": 2100.0,
+        "invest_date": "2026-03-11",
         "badge": "hot",
         "exchange": "NASDAQ",
-        "is_new_alert": False,
-        "nvidia_thesis": "유럽·이스라엘 AI GPU 클라우드 — H100 기반 인프라 구축. $100M 전략적 투자",
-        "nvidia_thesis_eng": "European & Israeli AI GPU cloud — H100-based infrastructure buildout. $100M strategic investment",
-        "note": "$100M 전략적 투자 (2024.12) | 전 Yandex NV",
-        "note_eng": "$100M strategic investment (2024.12) | Formerly Yandex NV",
-        "source": "NVIDIA IR (2024.12.10)",
+        "is_new_alert": True,
+        "alert_date": "2026-03-11",
+        "nvidia_thesis": "풀스택 AI 클라우드 파트너 — NVIDIA 시스템 2030년까지 5GW 배포. $2B 추가 투자 (2026.03) + $100M (2024.12), 누적 $2.1B",
+        "nvidia_thesis_eng": "Full-stack AI cloud partner — 5GW NVIDIA systems deployment by 2030. $2B follow-on (2026.03) + $100M (2024.12), total $2.1B",
+        "note": "$2B 추가 투자 (2026.03.11) + $100M (2024.12) = 누적 $2.1B | 5GW AI 인프라 2030",
+        "note_eng": "$2B follow-on (2026.03.11) + $100M (2024.12) = $2.1B total | 5GW AI infra by 2030",
+        "source": "NVIDIA Newsroom (2026.03.11) · NVIDIA IR (2024.12.10)",
     },
 ]
 
@@ -746,6 +747,7 @@ FILINGS_HISTORY = [
     {"ticker":"INTC", "company":"Intel",             "quarter":"Q4 2025","filed":"2025-12-29","change":"지분 취득 완료 (214.7M주)",           "change_eng":"Stake acquisition closed (214.7M shares)",  "change_type":"increase", "value_m":5000.0},
     {"ticker":"SNPS", "company":"Synopsys",          "quarter":"Q4 2025","filed":"2025-12-01","change":"신규 ($2B 사모)",                    "change_eng":"New ($2B private placement)",               "change_type":"new",      "value_m":2000.0},
     {"ticker":"NOK",  "company":"Nokia",             "quarter":"Q3 2025","filed":"2025-10-28","change":"신규 ($1B, 2.9%)",                   "change_eng":"New ($1B, 2.9% stake)",                     "change_type":"new",      "value_m":1000.0},
+    {"ticker":"NBIS", "company":"Nebius Group",      "quarter":"Q1 2026","filed":"2026-03-11","change":"추가 투자 ($2B, 풀스택 AI 클라우드 파트너십)","change_eng":"Follow-on ($2B, full-stack AI cloud partnership)","change_type":"increase","value_m":2000.0},
     {"ticker":"NBIS", "company":"Nebius Group",      "quarter":"Q4 2024","filed":"2024-12-10","change":"신규 ($100M)",                       "change_eng":"New ($100M)",                               "change_type":"new",      "value_m":100.0},
     {"ticker":"CRWV", "company":"CoreWeave",         "quarter":"Q1 2025","filed":"2025-03-28","change":"IPO 참여·전략 주주",                  "change_eng":"IPO · Strategic Shareholder",               "change_type":"new",      "value_m":None},
     # 청산
@@ -1422,7 +1424,7 @@ with tab2:
 
 # ══ Tab 3 ════════════════════════════════════════════════════════════════════
 with tab3:
-    current_only = CURRENT_HOLDINGS
+    current_only = NEW_2026 + CURRENT_HOLDINGS
     ca, cb = st.columns(2)
     with ca:
         sc_raw = {}
