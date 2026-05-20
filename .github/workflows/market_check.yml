@@ -28,17 +28,15 @@ jobs:
 
       - name: Telegram 알림 (이상 감지 시)
         if: failure()
+        env:
+          BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          REPO: ${{ github.repository }}
         run: |
           RESULT=$(cat check_result.txt 2>/dev/null || echo "상세 오류 파일 없음")
           NOW=$(date -u '+%Y-%m-%d %H:%M UTC')
-          MSG="📊 *NVIDIA Tracker — 데이터 이상 감지*
-
-⏰ ${NOW}
-
-${RESULT}
-
-🔍 [Actions 로그](https://github.com/${{ github.repository }}/actions)"
-          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
-            -d "chat_id=${{ secrets.TELEGRAM_CHAT_ID }}" \
+          MSG="$(printf '📊 *NVIDIA Tracker — 데이터 이상 감지*\n\n⏰ %s\n\n%s\n\n🔍 [Actions 로그](https://github.com/%s/actions)' "$NOW" "$RESULT" "$REPO")"
+          curl -s -X POST "https://api.telegram.org/bot${BOT_TOKEN}/sendMessage" \
+            -d "chat_id=${CHAT_ID}" \
             --data-urlencode "text=${MSG}" \
             -d "parse_mode=Markdown"
