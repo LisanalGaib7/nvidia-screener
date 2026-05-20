@@ -28,7 +28,7 @@ TRANSLATIONS = {
     "tooltip_ytd_rank":     {"KOR": "YTD 수익률 순",                 "ENG": "By YTD Return"},
     # 섹션 헤더
     "group_new":            {"KOR": "2026 신규 투자",                "ENG": "2026 New Investments"},
-    "group_hold":           {"KOR": "기존 보유  ·  Q4 2025",         "ENG": "Current Holdings  ·  Q4 2025"},
+    "group_hold":           {"KOR": "기존 보유  ·  Q1 2026",         "ENG": "Current Holdings  ·  Q1 2026"},
     "group_partner":        {"KOR": "전략 파트너십",                  "ENG": "Strategic Partnership"},
     "group_exited":         {"KOR": "청산 완료",                     "ENG": "Exited"},
     # 테이블 컬럼
@@ -75,7 +75,7 @@ TRANSLATIONS = {
     "perf_ytd_start":       {"KOR": "YTD 시작",                     "ENG": "YTD Start"},
     "perf_yaxis":           {"KOR": "정규화 주가 (100=YTD시작)",      "ENG": "Normalized Price (100=YTD Start)"},
     # 섹터 탭
-    "sector_count":         {"KOR": "현재 보유 — 섹터별 기업 수",     "ENG": "Holdings by Sector"},
+    "sector_count":         {"KOR": "전체 포트폴리오 — 섹터별 기업 수", "ENG": "Full Portfolio — Holdings by Sector"},
     "sector_invest":        {"KOR": "확인된 투자액 비중",              "ENG": "Investment Allocation"},
     # 사이드바 데이터
     "sb_data_sources":      {"KOR": "데이터 출처",                   "ENG": "Data Sources"},
@@ -596,7 +596,7 @@ NEW_2026 = [
         "name": "Coherent Corp",
         "sector": "광학 트랜시버",
         "invest_year": 2026,
-        "invest_amt_m": 2000.0,
+        "invest_amt_m": 1855.0,
         "invest_date": "2026-03-02",
         "badge": "new",
         "exchange": "NYSE",
@@ -1441,7 +1441,8 @@ with tab3:
             names, amts = zip(*invest_data)
             fig4 = go.Figure(go.Pie(labels=list(names), values=list(amts),
                 marker_colors=[SECTOR_COLORS.get(c["sector"],"#6b7280") for c in current_only if c.get("invest_amt_m")],
-                hole=0.4, texttemplate="%{label}<br>$%{value:,.0f}M"))
+                hole=0.4, texttemplate="%{label}<br>$%{customdata:.1f}B",
+                customdata=[a/1000 for a in amts]))
             fig4.update_layout(template="plotly_dark",paper_bgcolor="#111827",
                 title=t("sector_invest"),title_font_color="#f9fafb",height=380,margin=dict(l=0,r=0,t=40,b=0))
             st.plotly_chart(fig4, use_container_width=True)
