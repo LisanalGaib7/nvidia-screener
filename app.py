@@ -383,8 +383,10 @@ st.markdown("""
   .pt-detail details > summary::marker { display: none; }
   .pt-detail details > summary:hover { border-color: #76b900; color: #76b900; }
   .pt-detail details[open] > summary { border-color: #76b900; color: #76b900; }
+  /* pt-detail-body: 기본 숨김 */
   .pt-detail-body {
-    margin-top: 8px; background: #101010; border: 1px solid #242424;
+    display: none;
+    background: #101010; border: 1px solid #242424;
     border-radius: 4px; padding: 14px 16px; max-width: 340px;
   }
 
@@ -393,16 +395,13 @@ st.markdown("""
     .pt-detail { position: relative; }
     /* 클릭 토글 비활성화 */
     .pt-detail details > summary { pointer-events: none; cursor: default; }
-    /* <details open> 상태와 무관하게 body 숨김 */
-    .pt-detail details .pt-detail-body { display: none; }
     /* hover 시 절대위치 팝업 */
     .pt-detail:hover .pt-detail-body {
-      display: block !important;
+      display: block;
       position: absolute;
       z-index: 200;
       right: 0;
       bottom: calc(100% + 6px);
-      margin-top: 0;
       min-width: 280px;
       max-width: 340px;
       box-shadow: 0 8px 24px rgba(0,0,0,0.7);
@@ -492,8 +491,15 @@ st.markdown("""
       padding: 6px 8px;
       width: 100%;
       box-sizing: border-box;
+      pointer-events: auto;
+      cursor: pointer;
     }
-    .pt-detail-body { max-width: 100% !important; }
+    /* 클릭해서 <details open> 되면 형제 body 표시 */
+    .pt-detail details[open] ~ .pt-detail-body {
+      display: block;
+      max-width: 100%;
+      margin-top: 8px;
+    }
   }
 
   @media screen and (max-width: 480px) {
@@ -1361,13 +1367,14 @@ with tab1:
                 f'<div class="pt-ytd">{ytd_h}</div>'
                 f'<div class="pt-cap">{cap_h}</div>'
                 f'<div class="pt-pe">{pe_h}</div>'
-                f'<div class="pt-detail"><details><summary>{detail_lbl}</summary>'
+                f'<div class="pt-detail">'
+                f'<details><summary>{detail_lbl}</summary></details>'
                 f'<div class="pt-detail-body">'
                 f'<div style="color:#505050;font-size:0.65rem;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:10px">{ticker} &nbsp;·&nbsp; {_date}</div>'
                 f'{amt_big}'
                 f'<div style="color:#a0a0a0;font-size:0.82rem;line-height:1.8;margin-bottom:12px">{_thesis}</div>'
                 f'<div style="color:#383838;font-size:0.7rem;border-top:1px solid #1e1e1e;padding-top:8px">{_src}</div>'
-                f'</div></details></div>'
+                f'</div></div>'
                 f'</div>'
             )
             st.markdown(row_html, unsafe_allow_html=True)
