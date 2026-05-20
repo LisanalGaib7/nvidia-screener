@@ -1195,7 +1195,7 @@ for col, label, value, color, extra_html in [
      '<div class="metric-tooltip">'
      f'<div class="tooltip-title">{t("tooltip_13f")}</div>'
      '<div class="tooltip-row"><span class="tooltip-ticker">INTC</span><span class="tooltip-name">Intel</span></div>'
-     '<div class="tooltip-row"><span class="tooltip-ticker">CRWV</span><span class="tooltip-name">CoreWeave +95%</span></div>'
+     '<div class="tooltip-row"><span class="tooltip-ticker">CRWV</span><span class="tooltip-name">CoreWeave</span></div>'
      '<div class="tooltip-row"><span class="tooltip-ticker">SNPS</span><span class="tooltip-name">Synopsys</span></div>'
      '<div class="tooltip-row"><span class="tooltip-ticker">COHR</span><span class="tooltip-name"><span style="color:#c87f00;font-size:0.6rem;font-weight:700;margin-right:5px">NEW</span>Coherent Corp</span></div>'
      '<div class="tooltip-row"><span class="tooltip-ticker">NOK</span><span class="tooltip-name">Nokia</span></div>'
