@@ -684,7 +684,7 @@ CURRENT_HOLDINGS = [
         "ticker": "NBIS",
         "name": "Nebius Group",
         "sector": "클라우드 GPU",
-        "invest_year": 2026,
+        "invest_year": 2024,
         "invest_amt_m": 2100.0,
         "invest_date": "2026-03-11",
         "badge": "core",
