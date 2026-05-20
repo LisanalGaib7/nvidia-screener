@@ -1195,10 +1195,10 @@ for col, label, value, color, extra_html in [
      '<div class="tooltip-row"><span class="tooltip-ticker">INTC</span><span class="tooltip-name">Intel</span></div>'
      '<div class="tooltip-row"><span class="tooltip-ticker">CRWV</span><span class="tooltip-name">CoreWeave +95%</span></div>'
      '<div class="tooltip-row"><span class="tooltip-ticker">SNPS</span><span class="tooltip-name">Synopsys</span></div>'
-     '<div class="tooltip-row"><span class="tooltip-ticker">COHR</span><span class="tooltip-name">Coherent Corp 🆕</span></div>'
+     '<div class="tooltip-row"><span class="tooltip-ticker">COHR</span><span class="tooltip-name"><span style="color:#c87f00;font-size:0.6rem;font-weight:700;margin-right:5px">NEW</span>Coherent Corp</span></div>'
      '<div class="tooltip-row"><span class="tooltip-ticker">NOK</span><span class="tooltip-name">Nokia</span></div>'
      '<div class="tooltip-row"><span class="tooltip-ticker">NBIS</span><span class="tooltip-name">Nebius Group</span></div>'
-     '<div class="tooltip-row"><span class="tooltip-ticker">GENB</span><span class="tooltip-name">Generate Bio 🆕</span></div>'
+     '<div class="tooltip-row"><span class="tooltip-ticker">GENB</span><span class="tooltip-name"><span style="color:#c87f00;font-size:0.6rem;font-weight:700;margin-right:5px">NEW</span>Generate Bio</span></div>'
      '</div>'),
     (m2, t("metric_invested"), invest_str,   "#c87f00",
      '<div class="metric-tooltip" style="border-top-color:#c87f00;min-width:220px">'
