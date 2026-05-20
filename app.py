@@ -1399,7 +1399,7 @@ with tab2:
             x=pct.index, y=pct.values,
             name=f"{c['name']} ({c['ticker']})",
             line=dict(color=SECTOR_COLORS.get(c["sector"],"#76b900"), width=2),
-            hovertemplate=f"<b>{c['name']}</b><br>%{{y:+.1f}}%<extra></extra>",
+            hovertemplate=f"<b>{c['name']}</b><br>%{{y:+.0f}}%<extra></extra>",
         ))
     fig.add_hline(y=0, line_dash="dash", line_color="#6b7280", annotation_text="0%")
     fig.update_layout(template="plotly_dark", paper_bgcolor="#111827", plot_bgcolor="#111827",
