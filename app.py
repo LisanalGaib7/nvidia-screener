@@ -388,6 +388,29 @@ st.markdown("""
     border-radius: 4px; padding: 14px 16px; max-width: 340px;
   }
 
+  /* ── 데스크탑 전용: hover 팝업 ───────────────────────────── */
+  @media screen and (min-width: 769px) {
+    .pt-detail { position: relative; }
+    /* 클릭 토글 비활성화 */
+    .pt-detail details > summary { pointer-events: none; cursor: default; }
+    /* <details open> 상태와 무관하게 body 숨김 */
+    .pt-detail details .pt-detail-body { display: none; }
+    /* hover 시 절대위치 팝업 */
+    .pt-detail:hover .pt-detail-body {
+      display: block !important;
+      position: absolute;
+      z-index: 200;
+      right: 0;
+      bottom: calc(100% + 6px);
+      margin-top: 0;
+      min-width: 280px;
+      max-width: 340px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.7);
+    }
+    /* hover 시 summary 강조 */
+    .pt-detail:hover details > summary { border-color: #76b900; color: #76b900; }
+  }
+
   /* 모바일 전용 요소 — 데스크탑에서 숨김 */
   .pt-stats, .pt-meta { display: none; }
   .pt-stat-label {
