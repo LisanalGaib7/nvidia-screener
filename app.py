@@ -668,7 +668,7 @@ CURRENT_HOLDINGS = [
         "name": "CoreWeave",
         "sector": "클라우드 GPU",
         "invest_year": 2025,
-        "invest_amt_m": None,
+        "invest_amt_m": 3660.0,
         "invest_date": "2025-03-28",
         "badge": "core",
         "exchange": "NASDAQ",
