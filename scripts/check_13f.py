@@ -11,7 +11,7 @@ from datetime import datetime
 LAST_REFLECTED = "2026-05-15"
 
 CIK = "0001045810"  # NVIDIA Corp
-HEADERS = {"User-Agent": "nvidia-screener-monitor noreply@github.com"}
+HEADERS = {"User-Agent": "nvidia-screener-monitor aaaehgus@naver.com", "Accept-Encoding": "gzip, deflate", "Host": "data.sec.gov"}
 
 def get_latest_13f():
     url = f"https://data.sec.gov/submissions/CIK{CIK}.json"
