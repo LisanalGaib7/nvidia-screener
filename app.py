@@ -1209,7 +1209,7 @@ for col, label, value, color, extra_html in [
          f'<div class="tooltip-row">'
          f'<span class="tooltip-ticker">{c["ticker"]}</span>'
          f'<span class="tooltip-name">'
-         f'{"$"+str(int(c["invest_amt_m"]/1000))+"B" if c["invest_amt_m"]>=1000 else "$"+str(int(c["invest_amt_m"]))+"M"}'
+         f'{"$%.1fB" % (c["invest_amt_m"]/1000) if c["invest_amt_m"]>=1000 else "$%.0fM" % c["invest_amt_m"]}'
          f'</span></div>'
          for c in sorted(
              [c for c in all_display if c.get("invest_amt_m") and c["badge"] != "exited"],
