@@ -3,6 +3,7 @@ import yfinance as yf
 import pandas as pd
 import plotly.graph_objects as go
 import plotly.express as px
+import re
 from datetime import datetime, date
 
 st.set_page_config(
@@ -1362,7 +1363,7 @@ with tab1:
             amt_big  = (f'<div style="color:#c87f00;font-size:1rem;font-weight:600;margin-bottom:10px">{amt}</div>'
                         if amt else "")
 
-            _src = c.get("source", "—")
+            _src = re.sub(r'\s*\(\d{4}\.\d{2}(?:\.\d{2})?\)', '', c.get("source", "—")).strip()
             _date = c.get("invest_date", "—")
             _badge = BADGE_MAP[c["badge"]]
             _sector = sector_name(c["sector"])
