@@ -1,10 +1,9 @@
 """
 NVIDIA 13F 공시 감지 스크립트
-SEC EDGAR Atom 피드에서 최신 13F-HR 제출일을 확인하고,
+SEC EDGAR EFTS 검색 API에서 최신 13F-HR 제출일을 확인하고,
 마지막으로 app.py에 반영한 날짜보다 새로우면 알림을 트리거함.
 """
 import requests
-import xml.etree.ElementTree as ET
 import sys
 
 # app.py에 마지막으로 반영한 13F 날짜 — 업데이트 시 함께 수정
@@ -14,30 +13,27 @@ CIK = "0001045810"  # NVIDIA Corp
 HEADERS = {"User-Agent": "nvidia-screener-monitor aaaehgus@naver.com"}
 
 def get_latest_13f():
-    # data.sec.gov JSON API 대신 www.sec.gov Atom 피드 사용 (클라우드 IP 차단 우회)
+    # efts.sec.gov — EDGAR Elasticsearch 검색 인프라 (별도 서버)
     url = (
-        f"https://www.sec.gov/cgi-bin/browse-edgar"
-        f"?action=getcompany&CIK={CIK}&type=13F-HR"
-        f"&dateb=&owner=include&count=5&output=atom"
+        "https://efts.sec.gov/LATEST/search-index"
+        f"?q=%22{CIK}%22&forms=13F-HR"
+        "&dateRange=custom&startdt=2024-01-01"
+        "&_source=file_date,period_of_report,accession_no,entity_name"
+        "&hits.hits.total.relation=eq&hits.hits._source=file_date,accession_no"
     )
     resp = requests.get(url, headers=HEADERS, timeout=15)
     resp.raise_for_status()
+    data = resp.json()
 
-    root = ET.fromstring(resp.content)
-    ns = {"atom": "http://www.w3.org/2005/Atom"}
+    hits = data.get("hits", {}).get("hits", [])
+    if not hits:
+        return None, None
 
-    for entry in root.findall("atom:entry", ns):
-        updated = entry.find("atom:updated", ns)
-        id_elem  = entry.find("atom:id", ns)
-
-        if updated is not None:
-            date   = updated.text[:10]  # YYYY-MM-DD
-            acc_no = ""
-            if id_elem is not None and "accession-number=" in (id_elem.text or ""):
-                acc_no = id_elem.text.split("accession-number=")[-1]
-            return date, acc_no
-
-    return None, None
+    # 가장 최근 공시 (첫 번째 결과)
+    source = hits[0].get("_source", {})
+    file_date = source.get("file_date", "")
+    acc_no = source.get("accession_no", "")
+    return file_date, acc_no
 
 def main():
     print(f"마지막 반영일: {LAST_REFLECTED}")
@@ -51,7 +47,7 @@ def main():
 
     if latest_date > LAST_REFLECTED:
         filing_url = (
-            f"https://www.sec.gov/cgi-bin/browse-edgar"
+            "https://www.sec.gov/cgi-bin/browse-edgar"
             f"?action=getcompany&CIK={CIK}&type=13F&dateb=&owner=include&count=5"
         )
         with open("13f_alert.txt", "w", encoding="utf-8") as f:
