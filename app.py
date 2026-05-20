@@ -17,7 +17,7 @@ if "lang" not in st.session_state:
 
 TRANSLATIONS = {
     # 헤더
-    "last_verified":        {"KOR": "마지막 검증 2026-05-14",       "ENG": "Last verified 2026-05-14"},
+    "last_verified":        {"KOR": "마지막 검증 2026-05-15",       "ENG": "Last verified 2026-05-15"},
     # 메트릭
     "metric_holdings":      {"KOR": "현재 13F 보유",                "ENG": "13F Holdings"},
     "metric_invested":      {"KOR": "확인된 투자액",                 "ENG": "Total Invested"},
@@ -672,11 +672,12 @@ CURRENT_HOLDINGS = [
         "invest_date": "2025-03-28",
         "badge": "core",
         "exchange": "NASDAQ",
-        "is_new_alert": False,
+        "is_new_alert": True,
+        "alert_date": "2026-05-15",
         "nvidia_thesis": "NVIDIA GPU 특화 하이퍼스케일러 — H100/B200 최대 보유 AI 클라우드. Q1 2026 13F: 47.2M주 ($3.66B), +95% 증가",
         "nvidia_thesis_eng": "NVIDIA GPU-specialized hyperscaler — largest H100/B200 AI cloud. Q1 2026 13F: 47.2M shares ($3.66B), +95% increase",
-        "note": "2025.03 IPO | Q1 2026 13F: 47.2M주 $3.66B (+95%) | NVIDIA 전략적 주주·최대 고객",
-        "note_eng": "2025.03 IPO | Q1 2026 13F: 47.2M shares $3.66B (+95%) | NVIDIA strategic shareholder & top customer",
+        "note": "Q1 2026 13F: 47.2M주 $3.66B (+95% 증가) | 2025.03 IPO 참여 | NVIDIA 전략적 주주·최대 고객",
+        "note_eng": "Q1 2026 13F: 47.2M shares $3.66B (+95%) | 2025.03 IPO | NVIDIA strategic shareholder & top customer",
         "source": "CoreWeave IPO Filing (2025.03) · SEC 13F Q1 2026 (2026.05.15)",
     },
     {
@@ -1188,14 +1189,16 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 for col, label, value, color, extra_html in [
-    (m1, t("metric_holdings"), "5개 종목" if st.session_state.lang=="KOR" else "5 stocks", "#76b900",
+    (m1, t("metric_holdings"), "7개 종목" if st.session_state.lang=="KOR" else "7 stocks", "#76b900",
      '<div class="metric-tooltip">'
      f'<div class="tooltip-title">{t("tooltip_13f")}</div>'
      '<div class="tooltip-row"><span class="tooltip-ticker">INTC</span><span class="tooltip-name">Intel</span></div>'
+     '<div class="tooltip-row"><span class="tooltip-ticker">CRWV</span><span class="tooltip-name">CoreWeave +95%</span></div>'
      '<div class="tooltip-row"><span class="tooltip-ticker">SNPS</span><span class="tooltip-name">Synopsys</span></div>'
+     '<div class="tooltip-row"><span class="tooltip-ticker">COHR</span><span class="tooltip-name">Coherent Corp 🆕</span></div>'
      '<div class="tooltip-row"><span class="tooltip-ticker">NOK</span><span class="tooltip-name">Nokia</span></div>'
-     '<div class="tooltip-row"><span class="tooltip-ticker">CRWV</span><span class="tooltip-name">CoreWeave</span></div>'
      '<div class="tooltip-row"><span class="tooltip-ticker">NBIS</span><span class="tooltip-name">Nebius Group</span></div>'
+     '<div class="tooltip-row"><span class="tooltip-ticker">GENB</span><span class="tooltip-name">Generate Bio 🆕</span></div>'
      '</div>'),
     (m2, t("metric_invested"), invest_str,   "#c87f00",
      '<div class="metric-tooltip" style="border-top-color:#c87f00;min-width:220px">'
