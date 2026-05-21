@@ -1,6 +1,6 @@
 """
 NVIDIA 13F 공시 감지 스크립트
-SEC EDGAR EFTS 검색 API에서 최신 13F-HR 제출일을 확인하고,
+data.sec.gov submissions API에서 최신 13F-HR 제출일을 확인하고,
 마지막으로 app.py에 반영한 날짜보다 새로우면 알림을 트리거함.
 """
 import requests
@@ -13,27 +13,21 @@ CIK = "0001045810"  # NVIDIA Corp
 HEADERS = {"User-Agent": "nvidia-screener-monitor aaaehgus@naver.com"}
 
 def get_latest_13f():
-    # efts.sec.gov — EDGAR Elasticsearch 검색 인프라 (별도 서버)
-    url = (
-        "https://efts.sec.gov/LATEST/search-index"
-        f"?q=%22{CIK}%22&forms=13F-HR"
-        "&dateRange=custom&startdt=2024-01-01"
-        "&_source=file_date,period_of_report,accession_no,entity_name"
-        "&hits.hits.total.relation=eq&hits.hits._source=file_date,accession_no"
-    )
+    # data.sec.gov — EDGAR 공식 submissions API
+    url = f"https://data.sec.gov/submissions/CIK{CIK}.json"
     resp = requests.get(url, headers=HEADERS, timeout=15)
     resp.raise_for_status()
     data = resp.json()
 
-    hits = data.get("hits", {}).get("hits", [])
-    if not hits:
-        return None, None
+    forms   = data["filings"]["recent"]["form"]
+    dates   = data["filings"]["recent"]["filingDate"]
+    acc_nos = data["filings"]["recent"]["accessionNumber"]
 
-    # 가장 최근 공시 (첫 번째 결과)
-    source = hits[0].get("_source", {})
-    file_date = source.get("file_date", "")
-    acc_no = source.get("accession_no", "")
-    return file_date, acc_no
+    for i in range(len(forms)):
+        if forms[i] == "13F-HR":
+            return dates[i], acc_nos[i]
+
+    return None, None
 
 def main():
     print(f"마지막 반영일: {LAST_REFLECTED}")
