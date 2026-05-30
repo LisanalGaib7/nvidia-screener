@@ -1034,7 +1034,9 @@ with st.sidebar:
 
     st.markdown("---")
     _md_meta = load_market_data()
-    _asof = f" ({_md_meta['generated_at'][:10]})" if _md_meta and _md_meta.get("generated_at") else ""
+    _asof_date = f" ({_md_meta['generated_at'][:10]})" if _md_meta and _md_meta.get("generated_at") else ""
+    # 소스(고정)와 기준일(자동 갱신)을 2줄로 분리 — 줄바꿈은 마크다운 hard break(공백 2칸)
+    _asof_line = f"  \n{t('sb_asof')}{_asof_date}"
     st.markdown(
         f"{t('sb_data_sources')}\n"
         f"- SEC EDGAR 13F\n"
@@ -1042,7 +1044,7 @@ with st.sidebar:
         f"- {t('sb_media')}\n"
         f"  Bloomberg · Reuters · CNBC ·\n"
         f"  FT · WSJ · Economist {'외' if st.session_state.lang=='KOR' else 'etc.'}\n\n"
-        f"---\n{t('sb_disclaimer')}\n\n{t('sb_delay')}{_asof}"
+        f"---\n{t('sb_disclaimer')}\n\n{t('sb_delay')}{_asof_line}"
     )
     if st.button(t("sb_refresh"), use_container_width=True):
         st.cache_data.clear()
