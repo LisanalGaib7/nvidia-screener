@@ -91,6 +91,7 @@ TRANSLATIONS = {
     "sb_delay":             {"KOR": "Data: Yahoo Finance", "ENG": "Data: Yahoo Finance"},
     "sb_asof":              {"KOR": "전일 종가 기준", "ENG": "Prev. close"},
     "sb_refresh":           {"KOR": "🔄 새로고침",                    "ENG": "🔄 Refresh"},
+    "csv_export":           {"KOR": "⬇ CSV 내보내기",                 "ENG": "⬇ Export CSV"},
     # 피드백
     "fb_type":              {"KOR": "유형",                          "ENG": "Type"},
     "fb_rating":            {"KOR": "만족도",                        "ENG": "Rating"},
@@ -930,16 +931,19 @@ def load_market_data():
             raw = json.load(f)
     except Exception:
         return None
-    quotes = {}
-    for tk, q in raw.get("quotes", {}).items():
-        if "error" in q:
-            quotes[tk] = q
-            continue
-        q = dict(q)
-        q["hist"] = _revive_hist(q.get("hist") or [])
-        quotes[tk] = q
+    def _revive_dict(d):
+        out = {}
+        for tk, q in d.items():
+            if "error" in q:
+                out[tk] = q
+                continue
+            q = dict(q)
+            q["hist"] = _revive_hist(q.get("hist") or [])
+            out[tk] = q
+        return out
     return {
-        "quotes": quotes,
+        "quotes": _revive_dict(raw.get("quotes", {})),
+        "benchmarks": _revive_dict(raw.get("benchmarks", {})),
         "usdjpy": raw.get("usdjpy", 150.0),
         "generated_at": raw.get("generated_at", ""),
     }
@@ -1149,9 +1153,11 @@ with st.spinner(t("loading")):
     if _snapshot and _snapshot.get("quotes"):
         stock_data = {tk: _snapshot["quotes"].get(tk, {"error": "no data"}) for tk in tickers}
         usdjpy = _snapshot.get("usdjpy", 150.0)
+        benchmarks = _snapshot.get("benchmarks", {})
     else:
         stock_data = fetch_stock_data(tickers)
         usdjpy = fetch_usdjpy()
+        benchmarks = {}
 
 # ── 🚨 신규 투자 알림 배너 — 최근 5건 ────────────────────────────────────────
 all_investments = NEW_2026 + CURRENT_HOLDINGS + PARTNERSHIPS
@@ -1387,6 +1393,27 @@ with tab1:
         if sort_by == t("sb_sort_date"):   return c.get("invest_date","")
         return 0
 
+    # CSV 내보내기 — 현재 표시 중인 포트폴리오 스냅샷
+    _csv_rows = []
+    for c in all_display:
+        sd = stock_data.get(c["ticker"], {})
+        _csv_rows.append({
+            "name": c["name"], "ticker": c["ticker"],
+            "sector": sector_name(c["sector"]), "badge": c["badge"],
+            "price": sd.get("price"), "currency": sd.get("currency", "USD"),
+            "daily_pct": sd.get("change_pct"), "ytd_pct": sd.get("ytd_pct"),
+            "market_cap": sd.get("market_cap"), "pe_ratio": sd.get("pe_ratio"),
+            "invest_amt_m": c.get("invest_amt_m"), "invest_date": c.get("invest_date", ""),
+        })
+    if _csv_rows:
+        _csv = pd.DataFrame(_csv_rows).to_csv(index=False).encode("utf-8-sig")
+        _asof = (_snapshot.get("generated_at", "")[:10] if _snapshot else "") or date.today().isoformat()
+        _cL, _cR = st.columns([3, 1])
+        with _cR:
+            st.download_button(t("csv_export"), _csv,
+                               file_name=f"nvidia_portfolio_{_asof}.csv",
+                               mime="text/csv", use_container_width=True)
+
     groups = [
         (t("group_new"),    [c for c in all_display if c.get("invest_year")==2026],            True),
         (t("group_hold"),   [c for c in all_display if c["badge"] not in ["partner","exited"] and c.get("invest_year")!=2026], True),
@@ -1523,6 +1550,27 @@ with tab2:
             name=f"{c['name']} ({c['ticker']})",
             line=dict(color=SECTOR_COLORS.get(c["sector"],"#76b900"), width=2),
             hovertemplate=f"<b>{c['name']}</b><br>%{{y:+.0f}}%<extra></extra>",
+        ))
+    # 벤치마크 비교선 (NVDA 본주 · SOXX 반도체 ETF) — 점선으로 구분
+    _bench_style = {
+        "NVDA": ("NVDA", "#76b900"),
+        "SOXX": ("SOXX 반도체 ETF" if st.session_state.lang=="KOR" else "SOXX (Semis ETF)", "#888888"),
+    }
+    for _btk, (_blabel, _bcolor) in _bench_style.items():
+        _bq = benchmarks.get(_btk)
+        if not _bq or "error" in _bq:
+            continue
+        _bhist = _bq.get("hist")
+        if _bhist is None or _bhist.empty:
+            continue
+        _bytd = _bhist[_bhist.index >= f"{date.today().year}-01-01"]["Close"]
+        if _bytd.empty:
+            continue
+        _bpct = (_bytd / _bytd.iloc[0] - 1) * 100
+        fig.add_trace(go.Scatter(
+            x=_bpct.index, y=_bpct.values, name=_blabel,
+            line=dict(color=_bcolor, width=2, dash="dot"),
+            hovertemplate=f"<b>{_blabel}</b><br>%{{y:+.0f}}%<extra></extra>",
         ))
     fig.add_hline(y=0, line_dash="dash", line_color="#6b7280", annotation_text="0%")
     fig.update_layout(template="plotly_dark", paper_bgcolor="#111827", plot_bgcolor="#111827",

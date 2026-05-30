@@ -24,6 +24,12 @@ TICKERS = [
     "RXRX", "ARM", "APLD", "WRD", "SOUN", "SERV", "NNOX",  # EXITED
 ]
 
+# 벤치마크 — 포트폴리오 카드/카운트엔 안 섞이고 YTD 차트 비교선으로만 사용
+BENCHMARKS = [
+    "NVDA",   # NVIDIA 본주
+    "SOXX",   # iShares 반도체 ETF
+]
+
 
 def fetch_one(ticker):
     last_err = "unknown"
@@ -89,6 +95,15 @@ def main():
             print(f"ERR {tk}: {q['error'][:60]}")
         time.sleep(0.4)  # gentle pacing — 러너 IP 보호
 
+    # 벤치마크 (차트 비교선용 — 본 종목 ok 집계엔 미포함)
+    benchmarks = {}
+    for tk in BENCHMARKS:
+        q = fetch_one(tk)
+        benchmarks[tk] = q
+        print(f"{'OK ' if 'error' not in q else 'ERR'} [bench] {tk}: "
+              f"{q.get('price', q.get('error', ''))}")
+        time.sleep(0.4)
+
     usdjpy = fetch_usdjpy()
     print(f"\n{ok}/{len(TICKERS)} ok  usdjpy={usdjpy}")
 
@@ -101,6 +116,7 @@ def main():
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "usdjpy": usdjpy,
         "quotes": quotes,
+        "benchmarks": benchmarks,
     }
     data_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data")
     os.makedirs(data_dir, exist_ok=True)
