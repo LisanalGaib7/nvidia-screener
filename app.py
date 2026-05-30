@@ -1054,6 +1054,9 @@ with st.sidebar:
         st.cache_data.clear()
         st.rerun()
 
+    # CSV 내보내기 placeholder — 데이터 로드 후 채움 (공유하기 섹션 위)
+    _csv_slot = st.container()
+
     st.markdown(f"### {t('sb_share')}")
     _url = "https%3A%2F%2Fnvidiascreener.streamlit.app%2F"
     _text = "엔비디아가+직접+투자한+기업을+실시간으로+트래킹하는+포트폴리오+트래커"
@@ -1158,6 +1161,27 @@ with st.spinner(t("loading")):
         stock_data = fetch_stock_data(tickers)
         usdjpy = fetch_usdjpy()
         benchmarks = {}
+
+# ── CSV 내보내기 (사이드바 placeholder 채우기 — 공유하기 섹션 위) ──────────────
+_csv_rows = []
+for c in all_display:
+    sd = stock_data.get(c["ticker"], {})
+    _csv_rows.append({
+        "name": c["name"], "ticker": c["ticker"],
+        "sector": sector_name(c["sector"]), "badge": c["badge"],
+        "price": sd.get("price"), "currency": sd.get("currency", "USD"),
+        "daily_pct": sd.get("change_pct"), "ytd_pct": sd.get("ytd_pct"),
+        "market_cap": sd.get("market_cap"), "pe_ratio": sd.get("pe_ratio"),
+        "invest_amt_m": c.get("invest_amt_m"), "invest_date": c.get("invest_date", ""),
+    })
+if _csv_rows:
+    _csv = pd.DataFrame(_csv_rows).to_csv(index=False).encode("utf-8-sig")
+    _csv_asof = (_snapshot.get("generated_at", "")[:10] if _snapshot else "") or date.today().isoformat()
+    with _csv_slot:
+        st.download_button(t("csv_export"), _csv,
+                           file_name=f"nvidia_portfolio_{_csv_asof}.csv",
+                           mime="text/csv", use_container_width=True)
+        st.markdown("---")
 
 # ── 🚨 신규 투자 알림 배너 — 최근 5건 ────────────────────────────────────────
 all_investments = NEW_2026 + CURRENT_HOLDINGS + PARTNERSHIPS
@@ -1393,27 +1417,6 @@ with tab1:
         if sort_by == t("sb_sort_date"):   return c.get("invest_date","")
         return 0
 
-    # CSV 내보내기 — 현재 표시 중인 포트폴리오 스냅샷
-    _csv_rows = []
-    for c in all_display:
-        sd = stock_data.get(c["ticker"], {})
-        _csv_rows.append({
-            "name": c["name"], "ticker": c["ticker"],
-            "sector": sector_name(c["sector"]), "badge": c["badge"],
-            "price": sd.get("price"), "currency": sd.get("currency", "USD"),
-            "daily_pct": sd.get("change_pct"), "ytd_pct": sd.get("ytd_pct"),
-            "market_cap": sd.get("market_cap"), "pe_ratio": sd.get("pe_ratio"),
-            "invest_amt_m": c.get("invest_amt_m"), "invest_date": c.get("invest_date", ""),
-        })
-    if _csv_rows:
-        _csv = pd.DataFrame(_csv_rows).to_csv(index=False).encode("utf-8-sig")
-        _asof = (_snapshot.get("generated_at", "")[:10] if _snapshot else "") or date.today().isoformat()
-        _cL, _cR = st.columns([3, 1])
-        with _cR:
-            st.download_button(t("csv_export"), _csv,
-                               file_name=f"nvidia_portfolio_{_asof}.csv",
-                               mime="text/csv", use_container_width=True)
-
     groups = [
         (t("group_new"),    [c for c in all_display if c.get("invest_year")==2026],            True),
         (t("group_hold"),   [c for c in all_display if c["badge"] not in ["partner","exited"] and c.get("invest_year")!=2026], True),
@@ -1544,7 +1547,7 @@ with tab2:
         if hist is None or hist.empty: continue
         ytd_h = hist[hist.index >= f"{date.today().year}-01-01"]["Close"]
         if ytd_h.empty: continue
-        pct = (ytd_h / ytd_h.iloc[0] - 1) * 100
+        pct = ((ytd_h / ytd_h.iloc[0] - 1) * 100).round(0)
         fig.add_trace(go.Scatter(
             x=pct.index, y=pct.values,
             name=f"{c['name']} ({c['ticker']})",
@@ -1566,7 +1569,7 @@ with tab2:
         _bytd = _bhist[_bhist.index >= f"{date.today().year}-01-01"]["Close"]
         if _bytd.empty:
             continue
-        _bpct = (_bytd / _bytd.iloc[0] - 1) * 100
+        _bpct = ((_bytd / _bytd.iloc[0] - 1) * 100).round(0)
         fig.add_trace(go.Scatter(
             x=_bpct.index, y=_bpct.values, name=_blabel,
             line=dict(color=_bcolor, width=2, dash="dot"),
