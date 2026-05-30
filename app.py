@@ -5,6 +5,7 @@ import plotly.graph_objects as go
 import plotly.express as px
 import re
 from datetime import datetime, date
+from concurrent.futures import ThreadPoolExecutor
 
 st.set_page_config(
     page_title="NVIDIA Portfolio Tracker",
@@ -16,9 +17,13 @@ st.set_page_config(
 if "lang" not in st.session_state:
     st.session_state.lang = "KOR"
 
+# 마지막 13F 검증일 — 분기 업데이트 시 여기 한 곳만 수정 (앱 표시용 단일 소스)
+# ⚠️ scripts/check_13f.py 의 LAST_REFLECTED 는 별도 프로세스 — 함께 갱신 필요
+LAST_VERIFIED = "2026-05-15"
+
 TRANSLATIONS = {
     # 헤더
-    "last_verified":        {"KOR": "마지막 검증 2026-05-15",       "ENG": "Last verified 2026-05-15"},
+    "last_verified":        {"KOR": f"마지막 검증 {LAST_VERIFIED}",  "ENG": f"Last verified {LAST_VERIFIED}"},
     # 메트릭
     "metric_holdings":      {"KOR": "현재 13F 보유",                "ENG": "13F Holdings"},
     "metric_invested":      {"KOR": "확인된 투자액",                 "ENG": "Total Invested"},
@@ -738,6 +743,20 @@ PARTNERSHIPS = [
     },
 ]
 
+# ── 현재 13F 보유 (메트릭 카운트 + 툴팁 단일 소스) ────────────────────────────
+# 분기 업데이트 시 이 목록만 수정하면 "N개 종목" 카운트와 13F 툴팁이 자동 반영됨.
+# 주의: 워런트/우선주(IREN·GLW·MRVL·LITE)는 13F 미포함이라 제외. GENB는 비상장이라
+# 시세 카드는 없지만 13F 지분 보유분이라 포함.
+THIRTEEN_F = [
+    {"ticker": "INTC", "name": "Intel",              "is_new": False},
+    {"ticker": "CRWV", "name": "CoreWeave",          "is_new": False},
+    {"ticker": "SNPS", "name": "Synopsys",           "is_new": False},
+    {"ticker": "COHR", "name": "Coherent Corp",      "is_new": True},
+    {"ticker": "NOK",  "name": "Nokia",              "is_new": False},
+    {"ticker": "NBIS", "name": "Nebius Group",       "is_new": False},
+    {"ticker": "GENB", "name": "Generate Bio",       "is_new": True},
+]
+
 # ── 청산 완료 (과거 13F 보유 후 매도) ────────────────────────────────────────
 EXITED = [
     {"ticker":"RXRX","name":"Recursion Pharma",   "sector":"AI 신약개발",  "invest_date":"2023-07-01","exit_date":"2025-Q4","invest_amt_m":50.0,  "note":"$50M 전략투자 → 2025 Q4 13F 청산"},
@@ -845,35 +864,40 @@ def fetch_usdjpy():
     except:
         return 150.0
 
+def _fetch_one(ticker):
+    try:
+        t = yf.Ticker(ticker)
+        info = t.info
+        hist = t.history(period="1y")
+        price = (info.get("currentPrice") or info.get("regularMarketPrice")
+                 or (hist["Close"].iloc[-1] if not hist.empty else None))
+        prev  = info.get("regularMarketPreviousClose") or (
+            hist["Close"].iloc[-2] if len(hist) > 1 else price)
+        change_pct = ((price - prev) / prev * 100) if price and prev else None
+        ytd_h = hist[hist.index >= f"{date.today().year}-01-01"]["Close"]
+        ytd_pct = ((price - ytd_h.iloc[0]) / ytd_h.iloc[0] * 100
+                   if not ytd_h.empty and price else None)
+        return {
+            "price": price, "change_pct": change_pct,
+            "market_cap": info.get("marketCap"),
+            "pe_ratio": info.get("trailingPE"),
+            "ps_ratio": info.get("priceToSalesTrailing12Months"),
+            "week52_high": info.get("fiftyTwoWeekHigh"),
+            "week52_low":  info.get("fiftyTwoWeekLow"),
+            "ytd_pct": ytd_pct, "hist": hist,
+            "currency": info.get("currency","USD"),
+        }
+    except Exception as e:
+        return {"error": str(e)}
+
 @st.cache_data(ttl=300)
 def fetch_stock_data(tickers):
-    result = {}
-    for ticker in tickers:
-        try:
-            t = yf.Ticker(ticker)
-            info = t.info
-            hist = t.history(period="1y")
-            price = (info.get("currentPrice") or info.get("regularMarketPrice")
-                     or (hist["Close"].iloc[-1] if not hist.empty else None))
-            prev  = info.get("regularMarketPreviousClose") or (
-                hist["Close"].iloc[-2] if len(hist) > 1 else price)
-            change_pct = ((price - prev) / prev * 100) if price and prev else None
-            ytd_h = hist[hist.index >= f"{date.today().year}-01-01"]["Close"]
-            ytd_pct = ((price - ytd_h.iloc[0]) / ytd_h.iloc[0] * 100
-                       if not ytd_h.empty and price else None)
-            result[ticker] = {
-                "price": price, "change_pct": change_pct,
-                "market_cap": info.get("marketCap"),
-                "pe_ratio": info.get("trailingPE"),
-                "ps_ratio": info.get("priceToSalesTrailing12Months"),
-                "week52_high": info.get("fiftyTwoWeekHigh"),
-                "week52_low":  info.get("fiftyTwoWeekLow"),
-                "ytd_pct": ytd_pct, "hist": hist,
-                "currency": info.get("currency","USD"),
-            }
-        except Exception as e:
-            result[ticker] = {"error": str(e)}
-    return result
+    # 종목별 yfinance 호출을 병렬화 — 콜드 로드 20~40s → ~5s
+    # max_workers는 yfinance rate-limit 완화를 위해 6으로 제한
+    tickers = list(tickers)
+    with ThreadPoolExecutor(max_workers=6) as ex:
+        results = list(ex.map(_fetch_one, tickers))
+    return dict(zip(tickers, results))
 
 @st.cache_data(ttl=600)
 def fetch_news(ticker):
@@ -1021,17 +1045,40 @@ with st.sidebar:
                     "text": fb_text.strip(),
                     "name": fb_name.strip() or "익명",
                 }
-                path = "feedback.json"
-                data = []
-                if os.path.exists(path):
-                    try:
+                # 1) 로컬 파일 저장 (best-effort — 어드민 뷰 호환용, Cloud 재부팅 시 휘발)
+                try:
+                    path = "feedback.json"
+                    data = []
+                    if os.path.exists(path):
                         with open(path, "r", encoding="utf-8") as f:
                             data = json.load(f)
-                    except:
-                        data = []
-                data.append(entry)
-                with open(path, "w", encoding="utf-8") as f:
-                    json.dump(data, f, ensure_ascii=False, indent=2)
+                    data.append(entry)
+                    with open(path, "w", encoding="utf-8") as f:
+                        json.dump(data, f, ensure_ascii=False, indent=2)
+                except Exception:
+                    pass
+                # 2) Telegram 전송 (durable — 유실 방지). 토큰 미설정 시 조용히 스킵.
+                try:
+                    import requests, html
+                    _tg = st.secrets.get("telegram", {})
+                    _tok, _chat = _tg.get("bot_token"), _tg.get("chat_id")
+                    if _tok and _chat:
+                        _stars = "⭐" * entry["rating"]
+                        _msg = (
+                            "📮 <b>트래커 피드백</b>\n\n"
+                            f"<b>유형</b>: {html.escape(entry['category'])}\n"
+                            f"<b>만족도</b>: {_stars}\n"
+                            f"<b>작성자</b>: {html.escape(entry['name'])}\n"
+                            f"<b>시각</b>: {entry['time']}\n\n"
+                            f"{html.escape(entry['text'])}"
+                        )
+                        requests.post(
+                            f"https://api.telegram.org/bot{_tok}/sendMessage",
+                            data={"chat_id": _chat, "text": _msg, "parse_mode": "HTML"},
+                            timeout=8,
+                        )
+                except Exception:
+                    pass
                 st.success(t("fb_ok"))
             else:
                 st.warning(t("fb_empty"))
@@ -1209,17 +1256,18 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 for col, label, value, color, extra_html in [
-    (m1, t("metric_holdings"), "7개 종목" if st.session_state.lang=="KOR" else "7 stocks", "#76b900",
+    (m1, t("metric_holdings"),
+     (f"{len(THIRTEEN_F)}개 종목" if st.session_state.lang=="KOR" else f"{len(THIRTEEN_F)} stocks"), "#76b900",
      '<div class="metric-tooltip">'
      f'<div class="tooltip-title">{t("tooltip_13f")}</div>'
-     '<div class="tooltip-row"><span class="tooltip-ticker">INTC</span><span class="tooltip-name">Intel</span></div>'
-     '<div class="tooltip-row"><span class="tooltip-ticker">CRWV</span><span class="tooltip-name">CoreWeave</span></div>'
-     '<div class="tooltip-row"><span class="tooltip-ticker">SNPS</span><span class="tooltip-name">Synopsys</span></div>'
-     '<div class="tooltip-row"><span class="tooltip-ticker">COHR</span><span class="tooltip-name"><span style="color:#c87f00;font-size:0.6rem;font-weight:700;margin-right:5px">NEW</span>Coherent Corp</span></div>'
-     '<div class="tooltip-row"><span class="tooltip-ticker">NOK</span><span class="tooltip-name">Nokia</span></div>'
-     '<div class="tooltip-row"><span class="tooltip-ticker">NBIS</span><span class="tooltip-name">Nebius Group</span></div>'
-     '<div class="tooltip-row"><span class="tooltip-ticker">GENB</span><span class="tooltip-name"><span style="color:#c87f00;font-size:0.6rem;font-weight:700;margin-right:5px">NEW</span>Generate Bio</span></div>'
-     '</div>'),
+     + "".join(
+         f'<div class="tooltip-row"><span class="tooltip-ticker">{h["ticker"]}</span>'
+         f'<span class="tooltip-name">'
+         + ('<span style="color:#c87f00;font-size:0.6rem;font-weight:700;margin-right:5px">NEW</span>' if h["is_new"] else '')
+         + f'{h["name"]}</span></div>'
+         for h in THIRTEEN_F
+       )
+     + '</div>'),
     (m2, t("metric_invested"), invest_str,   "#c87f00",
      '<div class="metric-tooltip" style="border-top-color:#c87f00;min-width:220px">'
      f'<div class="tooltip-title" style="color:#c87f00">{t("tooltip_invest_rank")}</div>'
