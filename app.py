@@ -4,6 +4,7 @@ import pandas as pd
 import plotly.graph_objects as go
 import plotly.express as px
 import re
+import time
 from datetime import datetime, date
 from concurrent.futures import ThreadPoolExecutor
 
@@ -865,37 +866,45 @@ def fetch_usdjpy():
         return 150.0
 
 def _fetch_one(ticker):
-    try:
-        t = yf.Ticker(ticker)
-        info = t.info
-        hist = t.history(period="1y")
-        price = (info.get("currentPrice") or info.get("regularMarketPrice")
-                 or (hist["Close"].iloc[-1] if not hist.empty else None))
-        prev  = info.get("regularMarketPreviousClose") or (
-            hist["Close"].iloc[-2] if len(hist) > 1 else price)
-        change_pct = ((price - prev) / prev * 100) if price and prev else None
-        ytd_h = hist[hist.index >= f"{date.today().year}-01-01"]["Close"]
-        ytd_pct = ((price - ytd_h.iloc[0]) / ytd_h.iloc[0] * 100
-                   if not ytd_h.empty and price else None)
-        return {
-            "price": price, "change_pct": change_pct,
-            "market_cap": info.get("marketCap"),
-            "pe_ratio": info.get("trailingPE"),
-            "ps_ratio": info.get("priceToSalesTrailing12Months"),
-            "week52_high": info.get("fiftyTwoWeekHigh"),
-            "week52_low":  info.get("fiftyTwoWeekLow"),
-            "ytd_pct": ytd_pct, "hist": hist,
-            "currency": info.get("currency","USD"),
-        }
-    except Exception as e:
-        return {"error": str(e)}
+    # Yahoo rate-limit(특히 클라우드 IP) 대응 — 실패 시 백오프 후 재시도
+    last_err = "unknown"
+    for attempt in range(3):
+        try:
+            t = yf.Ticker(ticker)
+            info = t.info
+            hist = t.history(period="1y")
+            price = (info.get("currentPrice") or info.get("regularMarketPrice")
+                     or (hist["Close"].iloc[-1] if not hist.empty else None))
+            if price is None and (hist is None or hist.empty):
+                raise ValueError("empty response (rate-limit?)")
+            prev  = info.get("regularMarketPreviousClose") or (
+                hist["Close"].iloc[-2] if len(hist) > 1 else price)
+            change_pct = ((price - prev) / prev * 100) if price and prev else None
+            ytd_h = hist[hist.index >= f"{date.today().year}-01-01"]["Close"]
+            ytd_pct = ((price - ytd_h.iloc[0]) / ytd_h.iloc[0] * 100
+                       if not ytd_h.empty and price else None)
+            return {
+                "price": price, "change_pct": change_pct,
+                "market_cap": info.get("marketCap"),
+                "pe_ratio": info.get("trailingPE"),
+                "ps_ratio": info.get("priceToSalesTrailing12Months"),
+                "week52_high": info.get("fiftyTwoWeekHigh"),
+                "week52_low":  info.get("fiftyTwoWeekLow"),
+                "ytd_pct": ytd_pct, "hist": hist,
+                "currency": info.get("currency","USD"),
+            }
+        except Exception as e:
+            last_err = str(e)
+            if attempt < 2:
+                time.sleep(1.2 * (attempt + 1))  # 1.2s, 2.4s 백오프
+    return {"error": last_err}
 
 @st.cache_data(ttl=300)
 def fetch_stock_data(tickers):
-    # 종목별 yfinance 호출을 병렬화 — 콜드 로드 20~40s → ~5s
-    # max_workers는 yfinance rate-limit 완화를 위해 6으로 제한
+    # 종목별 yfinance 호출을 병렬화 — 콜드 로드 20~40s → ~6s
+    # max_workers는 Yahoo rate-limit(클라우드 IP burst 차단) 완화를 위해 3으로 제한
     tickers = list(tickers)
-    with ThreadPoolExecutor(max_workers=6) as ex:
+    with ThreadPoolExecutor(max_workers=3) as ex:
         results = list(ex.map(_fetch_one, tickers))
     return dict(zip(tickers, results))
 
@@ -1370,7 +1379,8 @@ with tab1:
             ticker   = c["ticker"]
             sd       = stock_data.get(ticker, {})
             if "error" in sd:
-                st.warning(f"{ticker}: 데이터 로드 실패")
+                _err = str(sd.get("error", ""))[:70]
+                st.warning(f"{ticker}: 데이터 로드 실패  ({_err})")
                 continue
 
             price    = sd.get("price")
