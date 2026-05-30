@@ -1575,7 +1575,7 @@ with tab2:
     fig.add_hline(y=0, line_dash="dash", line_color="#6b7280", annotation_text="0%")
     fig.update_layout(template="plotly_dark", paper_bgcolor="#111827", plot_bgcolor="#111827",
                       height=500, yaxis_title="YTD Return (%)" if st.session_state.lang=="ENG" else "YTD 수익률 (%)",
-                      yaxis_ticksuffix="%",
+                      yaxis_ticksuffix="%", yaxis_hoverformat="+.0f",
                       legend=dict(bgcolor="#1f2937"), margin=dict(l=0,r=0,t=20,b=0))
     st.plotly_chart(fig, use_container_width=True)
 
@@ -1591,6 +1591,7 @@ with tab2:
         ))
         fig2.update_layout(template="plotly_dark", paper_bgcolor="#111827", plot_bgcolor="#111827",
                             height=max(300,len(df_ytd)*38), xaxis_title="YTD (%)",
+                            xaxis_hoverformat="+.0f",
                             margin=dict(l=0,r=80,t=10,b=0))
         st.plotly_chart(fig2, use_container_width=True)
 
