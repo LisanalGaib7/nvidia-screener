@@ -88,7 +88,7 @@ TRANSLATIONS = {
     "sb_data_sources":      {"KOR": "데이터 출처",                   "ENG": "Data Sources"},
     "sb_media":             {"KOR": "글로벌 주요 언론 교차검증",       "ENG": "Global Media Cross-verification"},
     "sb_disclaimer":        {"KOR": "⚠️ 투자 조언 아님",              "ENG": "⚠️ Not Financial Advice"},
-    "sb_delay":             {"KOR": "Data: Yahoo Finance (~15분 지연)", "ENG": "Data: Yahoo Finance (~15min delay)"},
+    "sb_delay":             {"KOR": "Data: Yahoo Finance · 전일 종가 기준", "ENG": "Data: Yahoo Finance · Prev. close"},
     "sb_refresh":           {"KOR": "🔄 새로고침",                    "ENG": "🔄 Refresh"},
     # 피드백
     "fb_type":              {"KOR": "유형",                          "ENG": "Type"},
@@ -129,7 +129,7 @@ TRANSLATIONS = {
                              "ENG": "Fully liquidated<br>from prior holdings"},
     # 기타
     "no_news":              {"KOR": "최근 뉴스가 없습니다.",           "ENG": "No recent news found."},
-    "footer_delay":         {"KOR": "Yahoo Finance 15분 지연",        "ENG": "Yahoo Finance ~15min delay"},
+    "footer_delay":         {"KOR": "Yahoo Finance · 전일 종가 기준",   "ENG": "Yahoo Finance · Prev. close"},
     "detail_basis":         {"KOR": "투자 근거",                      "ENG": "Investment Basis"},
 }
 
@@ -908,6 +908,41 @@ def fetch_stock_data(tickers):
         results = list(ex.map(_fetch_one, tickers))
     return dict(zip(tickers, results))
 
+def _revive_hist(closes):
+    # JSON 의 [["YYYY-MM-DD", close], ...] → 기존 코드가 기대하는 DataFrame 으로 복원
+    # (hist.index / hist["Close"] / hist.empty 그대로 동작)
+    if not closes:
+        return pd.DataFrame()
+    idx = pd.to_datetime([d for d, _ in closes])
+    return pd.DataFrame({"Close": [c for _, c in closes]}, index=idx)
+
+@st.cache_data(ttl=300)
+def load_market_data():
+    # data/market_data.json 스냅샷을 읽음 (GitHub Actions 가 매일 갱신 — 전일 종가 기준).
+    # Streamlit Cloud 공유 IP 의 Yahoo rate-limit("Too Many Requests") 회피:
+    # 앱은 Yahoo 를 직접 호출하지 않고 이 파일만 읽음.
+    # 파일이 없거나 깨졌으면 None 반환 → 호출부에서 live fetch 로 fallback.
+    import json, os
+    path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "market_data.json")
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            raw = json.load(f)
+    except Exception:
+        return None
+    quotes = {}
+    for tk, q in raw.get("quotes", {}).items():
+        if "error" in q:
+            quotes[tk] = q
+            continue
+        q = dict(q)
+        q["hist"] = _revive_hist(q.get("hist") or [])
+        quotes[tk] = q
+    return {
+        "quotes": quotes,
+        "usdjpy": raw.get("usdjpy", 150.0),
+        "generated_at": raw.get("generated_at", ""),
+    }
+
 @st.cache_data(ttl=600)
 def fetch_news(ticker):
     try:
@@ -997,6 +1032,8 @@ with st.sidebar:
 """, unsafe_allow_html=True)
 
     st.markdown("---")
+    _md_meta = load_market_data()
+    _asof = f" ({_md_meta['generated_at'][:10]})" if _md_meta and _md_meta.get("generated_at") else ""
     st.markdown(
         f"{t('sb_data_sources')}\n"
         f"- SEC EDGAR 13F\n"
@@ -1004,7 +1041,7 @@ with st.sidebar:
         f"- {t('sb_media')}\n"
         f"  Bloomberg · Reuters · CNBC ·\n"
         f"  FT · WSJ · Economist {'외' if st.session_state.lang=='KOR' else 'etc.'}\n\n"
-        f"---\n{t('sb_disclaimer')}\n\n{t('sb_delay')}"
+        f"---\n{t('sb_disclaimer')}\n\n{t('sb_delay')}{_asof}"
     )
     if st.button(t("sb_refresh"), use_container_width=True):
         st.cache_data.clear()
@@ -1104,8 +1141,14 @@ if show_exited:  all_display += [
 
 tickers = [c["ticker"] for c in all_display]
 with st.spinner(t("loading")):
-    stock_data = fetch_stock_data(tickers)
-    usdjpy = fetch_usdjpy()
+    # 1순위: 일일 스냅샷(JSON) — Yahoo rate-limit 회피. 없으면 live fetch 로 fallback.
+    _snapshot = load_market_data()
+    if _snapshot and _snapshot.get("quotes"):
+        stock_data = {tk: _snapshot["quotes"].get(tk, {"error": "no data"}) for tk in tickers}
+        usdjpy = _snapshot.get("usdjpy", 150.0)
+    else:
+        stock_data = fetch_stock_data(tickers)
+        usdjpy = fetch_usdjpy()
 
 # ── 🚨 신규 투자 알림 배너 — 최근 5건 ────────────────────────────────────────
 all_investments = NEW_2026 + CURRENT_HOLDINGS + PARTNERSHIPS
