@@ -90,7 +90,7 @@ TRANSLATIONS = {
     "sb_disclaimer":        {"KOR": "⚠️ 투자 조언 아님",              "ENG": "⚠️ Not Financial Advice"},
     "sb_delay":             {"KOR": "Data: Yahoo Finance", "ENG": "Data: Yahoo Finance"},
     "sb_asof":              {"KOR": "전일 종가 기준", "ENG": "Prev. close"},
-    "sb_refresh":           {"KOR": "🔄 새로고침",                    "ENG": "🔄 Refresh"},
+    "sb_refresh":           {"KOR": "↻ 새로고침",                    "ENG": "↻ Refresh"},
     "csv_export":           {"KOR": "⬇ CSV 내보내기",                 "ENG": "⬇ Export CSV"},
     # 피드백
     "fb_type":              {"KOR": "유형",                          "ENG": "Type"},
@@ -302,11 +302,13 @@ st.markdown("""
   .stSidebar li { color: #909090 !important; }
   .stSidebar .stSelectbox label, .stSidebar .stMultiSelect label { color: #909090 !important; font-size:0.72rem !important; letter-spacing:0.8px; text-transform:uppercase; }
 
-  /* ── 버튼 ── */
-  .stButton > button { background: transparent !important; border: 1px solid #242424 !important;
+  /* ── 버튼 (일반 + 다운로드 통일) ── */
+  .stButton > button, .stDownloadButton > button {
+                       background: transparent !important; border: 1px solid #242424 !important;
                        color: #505050 !important; border-radius: 3px !important; font-size: 0.75rem !important;
-                       letter-spacing: 0.5px; transition: all 0.2s; }
-  .stButton > button:hover { border-color: #76b900 !important; color: #76b900 !important; }
+                       letter-spacing: 0.5px; transition: all 0.2s; font-weight: 400 !important; }
+  .stButton > button:hover, .stDownloadButton > button:hover {
+                       border-color: #76b900 !important; color: #76b900 !important; }
 
   /* ── 언어 토글 st.pills — 선택 = 오렌지 ── */
   [data-testid="stSidebar"] [data-testid="stPills"] {
