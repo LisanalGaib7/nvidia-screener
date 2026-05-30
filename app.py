@@ -88,7 +88,8 @@ TRANSLATIONS = {
     "sb_data_sources":      {"KOR": "데이터 출처",                   "ENG": "Data Sources"},
     "sb_media":             {"KOR": "글로벌 주요 언론 교차검증",       "ENG": "Global Media Cross-verification"},
     "sb_disclaimer":        {"KOR": "⚠️ 투자 조언 아님",              "ENG": "⚠️ Not Financial Advice"},
-    "sb_delay":             {"KOR": "Data: Yahoo Finance · 전일 종가 기준", "ENG": "Data: Yahoo Finance · Prev. close"},
+    "sb_delay":             {"KOR": "Data: Yahoo Finance", "ENG": "Data: Yahoo Finance"},
+    "sb_asof":              {"KOR": "전일 종가 기준", "ENG": "Prev. close"},
     "sb_refresh":           {"KOR": "🔄 새로고침",                    "ENG": "🔄 Refresh"},
     # 피드백
     "fb_type":              {"KOR": "유형",                          "ENG": "Type"},
