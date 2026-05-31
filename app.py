@@ -730,6 +730,23 @@ CURRENT_HOLDINGS = [
 # ── 전략 파트너십 (지분투자 아님) ────────────────────────────────────────────
 PARTNERSHIPS = [
     {
+        "ticker": "PLTR",
+        "name": "Palantir",
+        "sector": "AI 소프트웨어",
+        "invest_year": 2025,
+        "invest_amt_m": None,
+        "invest_date": "2025-10-01",
+        "badge": "partner",
+        "exchange": "NYSE",
+        "is_new_alert": False,
+        "alert_date": "2025-10-01",
+        "nvidia_thesis": "Sovereign AI OS — NVIDIA Blackwell Ultra 하드웨어 + Palantir AIP·Ontology 풀스택. Jensen: \"세계에서 가장 중요한 엔터프라이즈 스택\"",
+        "nvidia_thesis_eng": "Sovereign AI OS — NVIDIA Blackwell Ultra hardware + Palantir AIP·Ontology full-stack. Jensen: \"The single most important enterprise stack in the world\"",
+        "note": "⚠️ 지분투자 아님 | Sovereign AI OS 공동 제품 (온프레미스·에어갭 AI 배포) | NVIDIA 모델 → AIP 제공",
+        "note_eng": "⚠️ No equity investment | Sovereign AI OS joint product (on-prem & air-gapped AI deployment) | NVIDIA models via AIP",
+        "source": "NVIDIA Newsroom, Palantir IR",
+    },
+    {
         "ticker": "6954.T",
         "name": "FANUC",
         "sector": "산업 로봇",

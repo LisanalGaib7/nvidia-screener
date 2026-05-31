@@ -20,7 +20,7 @@ from datetime import date, datetime, timezone
 TICKERS = [
     "IREN", "GLW", "MRVL", "LITE", "COHR",            # NEW_2026
     "INTC", "SNPS", "NOK", "CRWV", "NBIS",            # CURRENT_HOLDINGS
-    "6954.T",                                          # PARTNERSHIPS (FANUC)
+    "PLTR", "6954.T",                                  # PARTNERSHIPS (Palantir, FANUC)
     "RXRX", "ARM", "APLD", "WRD", "SOUN", "SERV", "NNOX",  # EXITED
 ]
 
