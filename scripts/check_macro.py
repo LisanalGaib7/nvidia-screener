@@ -101,6 +101,26 @@ def send_telegram(msg):
 
 
 def main():
+    test_mode = os.environ.get("TEST_MODE", "").lower() == "true"
+    if test_mode:
+        print("🧪 TEST MODE — sending mock alerts")
+        send_telegram(
+            f"🧪 <b>[테스트] 매크로 위험 알림 포맷 미리보기</b>\n\n"
+            f"🚨 <b>10년물 국채금리 5.0% 돌파</b>\n"
+            f"현재: <b>5.03%</b>\n\n"
+            f"AI 사이클 자본공급 위험 시그널 #1\n"
+            f"출처: Yahoo Finance (^TNX)"
+        )
+        send_telegram(
+            f"🧪 <b>[테스트] 매크로 위험 알림 포맷 미리보기</b>\n\n"
+            f"🚨 <b>Core Sticky CPI 3.3% 돌파</b>\n"
+            f"현재: <b>3.4%</b>  (2026-04-01)\n\n"
+            f"AI 사이클 자본공급 위험 시그널 #2\n"
+            f"출처: FRED · Atlanta Fed ({CPI_SERIES})"
+        )
+        print("test messages sent")
+        return
+
     state  = load_state()
     alerts = []
 

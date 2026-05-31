@@ -4,6 +4,11 @@ on:
   schedule:
     - cron: '0 23 * * 1-5'   # 평일 23:00 UTC = 08:00 KST
   workflow_dispatch:
+    inputs:
+      test_mode:
+        description: 'Send test alert to preview message format'
+        type: boolean
+        default: false
 
 jobs:
   monitor:
@@ -26,6 +31,7 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID:   ${{ secrets.TELEGRAM_CHAT_ID }}
           FRED_API_KEY:       ${{ secrets.FRED_API_KEY }}
+          TEST_MODE:          ${{ inputs.test_mode }}
         run: python scripts/check_macro.py
 
       - name: Commit state
