@@ -1306,9 +1306,11 @@ if True:
 """, unsafe_allow_html=True)
 
 # ── 요약 지표 ─────────────────────────────────────────────────────────────────
+# 파트너십(지분 없음)은 수익률 집계에서 제외 — NVIDIA 실제 보유분 성과만 반영
 ytd_vals = [stock_data[c["ticker"]].get("ytd_pct")
             for c in all_display
-            if stock_data.get(c["ticker"],{}).get("ytd_pct") is not None]
+            if c["badge"] != "partner"
+            and stock_data.get(c["ticker"],{}).get("ytd_pct") is not None]
 avg_ytd = sum(ytd_vals)/len(ytd_vals) if ytd_vals else None
 total_invest = sum(c["invest_amt_m"] for c in all_display if c.get("invest_amt_m"))
 
@@ -1399,7 +1401,7 @@ for col, label, value, color, extra_html in [
              [(c, stock_data[c["ticker"]].get("ytd_pct"))
               for c in all_display
               if stock_data.get(c["ticker"],{}).get("ytd_pct") is not None
-              and c["badge"] != "exited"],
+              and c["badge"] not in ("exited", "partner")],
              key=lambda x: x[1], reverse=True
          )
      )
@@ -1559,7 +1561,10 @@ with tab1:
 # ══ Tab 2 ════════════════════════════════════════════════════════════════════
 with tab2:
     st.markdown(f"### {t('perf_title')}")
-    chart_items = [c for c in all_display if "error" not in stock_data.get(c["ticker"],{})]
+    # 파트너십(지분 없음)은 수익률 차트에서 제외 — NVIDIA 실제 보유분만
+    chart_items = [c for c in all_display
+                   if c["badge"] != "partner"
+                   and "error" not in stock_data.get(c["ticker"],{})]
     fig = go.Figure()
     for c in chart_items:
         hist = stock_data[c["ticker"]].get("hist")
@@ -1602,7 +1607,9 @@ with tab2:
     st.plotly_chart(fig, use_container_width=True)
 
     ytd_data = [{"ticker":c["ticker"],"name":c["name"],"ytd":stock_data.get(c["ticker"],{}).get("ytd_pct")}
-                for c in all_display if stock_data.get(c["ticker"],{}).get("ytd_pct") is not None]
+                for c in all_display
+                if c["badge"] != "partner"
+                and stock_data.get(c["ticker"],{}).get("ytd_pct") is not None]
     if ytd_data:
         df_ytd = pd.DataFrame(ytd_data).sort_values("ytd", ascending=True)
         fig2 = go.Figure(go.Bar(
