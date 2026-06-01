@@ -29,10 +29,11 @@ TRANSLATIONS = {
     "metric_holdings":      {"KOR": "현재 13F 보유",                "ENG": "13F Holdings"},
     "metric_invested":      {"KOR": "확인된 투자액",                 "ENG": "Total Invested"},
     "metric_avg_ytd":       {"KOR": "평균 YTD",                     "ENG": "Avg YTD"},
-    "metric_ytd_plus":      {"KOR": "YTD 플러스",                   "ENG": "YTD Positive"},
+    "metric_near_high":     {"KOR": "52주 신고가 근접",             "ENG": "Near 52W High"},
     "tooltip_13f":          {"KOR": "SEC 13F 공시 확인",             "ENG": "SEC 13F Confirmed"},
     "tooltip_invest_rank":  {"KOR": "투자금액 순",                   "ENG": "By Investment Size"},
     "tooltip_ytd_rank":     {"KOR": "YTD 수익률 순",                 "ENG": "By YTD Return"},
+    "tooltip_near_high":    {"KOR": "52주 고가 대비 (5% 이내 강조)",  "ENG": "vs 52W High (≤5% highlighted)"},
     # 섹션 헤더
     "group_new":            {"KOR": "2026 신규 투자",                "ENG": "2026 New Investments"},
     "group_hold":           {"KOR": "기존 보유  ·  Q1 2026",         "ENG": "Current Holdings  ·  Q1 2026"},
@@ -1315,9 +1316,20 @@ avg_ytd = sum(ytd_vals)/len(ytd_vals) if ytd_vals else None
 total_invest = sum(c["invest_amt_m"] for c in all_display if c.get("invest_amt_m"))
 
 avg_ytd_str   = f"{avg_ytd:+.1f}%" if avg_ytd else "—"
-_ytd_plus_cnt = sum(1 for v in ytd_vals if v>0)
-ytd_plus_str  = f"{_ytd_plus_cnt}/{len(ytd_vals)}" + ("개" if st.session_state.lang == "KOR" else "")
 invest_str    = f"${total_invest/1000:.1f}B+"
+
+# 52주 신고가 근접 — 보유분 모멘텀 (파트너·청산 제외, gap = 고가 대비 하락폭 %)
+_near_high = []
+for c in all_display:
+    if c["badge"] in ("partner", "exited"):
+        continue
+    _sd = stock_data.get(c["ticker"], {})
+    _price, _hi = _sd.get("price"), _sd.get("week52_high")
+    if _price and _hi and _hi > 0:
+        _near_high.append((c, (_hi - _price) / _hi * 100))
+_near_high.sort(key=lambda x: x[1])  # 고가에 가까운 순
+_near5_cnt    = sum(1 for _, g in _near_high if g <= 5)
+near_high_str = f"{_near5_cnt}/{len(_near_high)}" + ("개" if st.session_state.lang == "KOR" else "")
 
 m1,m2,m3,m4 = st.columns(4)
 
@@ -1406,7 +1418,17 @@ for col, label, value, color, extra_html in [
          )
      )
      + '</div>'),
-    (m4, t("metric_ytd_plus"), ytd_plus_str, "#76b900", ""),
+    (m4, t("metric_near_high"), near_high_str, "#76b900",
+     '<div class="metric-tooltip" style="min-width:230px;left:auto;right:0">'
+     f'<div class="tooltip-title">{t("tooltip_near_high")}</div>'
+     + "".join(
+         f'<div class="tooltip-row">'
+         f'<span class="tooltip-ticker">{c["ticker"]}</span>'
+         f'<span class="tooltip-name" style="color:{"#76b900" if gap<=5 else "#686868"}">'
+         f'{"신고가" if gap<0.05 else f"-{gap:.1f}%"}</span></div>'
+         for c, gap in _near_high
+       )
+     + '</div>'),
 ]:
     col.markdown(
         f'<div class="metric-box" style="background:#0e0e0e;border:1px solid #2a2a2a;border-top:2px solid {color};'
