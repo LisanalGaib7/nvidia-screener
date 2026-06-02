@@ -187,6 +187,12 @@ st.markdown("""
     50%      { box-shadow: 0 0 0 8px rgba(118,185,0,0); }
   }
 
+  /* ── 상단 툴바: Share(라벨)만 남기고 아이콘 액션(편집·GitHub·⋮ 등) 숨김 ── */
+  /* Share는 stToolbarActionButtonLabel, 나머지는 stToolbarActionButtonIcon 보유 → :has로 구분 */
+  [data-testid="stToolbarActionButton"]:has([data-testid="stToolbarActionButtonIcon"]) {
+    display: none !important;
+  }
+
   /* ── 타이포그래피 ── */
   html, body, [class*="css"] { font-family: 'Inter', 'SF Pro Display', system-ui, sans-serif; }
   h1 { color: #f0f0f0 !important; font-size: 1.7rem !important; font-weight: 600 !important; letter-spacing: -0.5px !important; }
@@ -487,9 +493,6 @@ st.markdown("""
 
   /* ── 모바일 반응형 ─────────────────────────────────────── */
   @media screen and (max-width: 768px) {
-    /* 상단 툴바 액션(Share·Fork·GitHub·⋮) 숨김 — 사이드바 펼침 ☰ 토글은 별도라 유지됨 */
-    [data-testid="stToolbarActions"] { display: none !important; }
-
     /* 전체 패딩 축소 */
     .main .block-container { padding: 1rem 0.8rem !important; }
 
