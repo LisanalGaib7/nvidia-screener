@@ -12,7 +12,7 @@ st.set_page_config(
     page_title="NVIDIA Portfolio Tracker",
     page_icon="🟢",
     layout="wide",
-    initial_sidebar_state="expanded",
+    initial_sidebar_state="auto",  # 데스크탑 펼침 / 모바일 접힘 (자동)
 )
 
 if "lang" not in st.session_state:
@@ -147,6 +147,31 @@ st.markdown("""
     background-color: #080808;
   }
   section[data-testid="stSidebar"] { background-color: #0c0c0c; border-right: 1px solid #1a1a1a; }
+
+  /* ── 사이드바 펼침 토글 (접힘 상태에서만 노출 = 주로 모바일) ── */
+  [data-testid="stSidebarCollapsedControl"] button,
+  [data-testid="collapsedControl"] button {
+    width: 40px !important;
+    height: 40px !important;
+    border-radius: 9px !important;
+    background: #0e0e0e !important;
+    border: 1.5px solid #76b900 !important;
+    animation: sb-pulse 1.6s ease-in-out infinite;
+  }
+  /* 기본 화살표 아이콘 숨기고 ☰ 햄버거로 교체 */
+  [data-testid="stSidebarCollapsedControl"] button svg,
+  [data-testid="collapsedControl"] button svg { display: none !important; }
+  [data-testid="stSidebarCollapsedControl"] button::after,
+  [data-testid="collapsedControl"] button::after {
+    content: "\2630";          /* ☰ */
+    color: #76b900;
+    font-size: 20px;
+    line-height: 1;
+  }
+  @keyframes sb-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(118,185,0,0.5); }
+    50%      { box-shadow: 0 0 0 8px rgba(118,185,0,0); }
+  }
 
   /* ── 타이포그래피 ── */
   html, body, [class*="css"] { font-family: 'Inter', 'SF Pro Display', system-ui, sans-serif; }
