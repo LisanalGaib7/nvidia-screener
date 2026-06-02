@@ -149,6 +149,9 @@ st.markdown("""
   section[data-testid="stSidebar"] { background-color: #0c0c0c; border-right: 1px solid #1a1a1a; }
 
   /* ── 사이드바 펼침 토글 (접힘 상태에서만 노출 = 주로 모바일) ── */
+  /* Streamlit 1.57: 컨트롤은 button[data-testid="stExpandSidebarButton"] 자체,
+     아이콘은 머티리얼 폰트(stIconMaterial). 구버전 testid도 함께 커버. */
+  button[data-testid="stExpandSidebarButton"],
   [data-testid="stSidebarCollapsedControl"] button,
   [data-testid="collapsedControl"] button {
     width: 40px !important;
@@ -158,17 +161,17 @@ st.markdown("""
     border: 1.5px solid #76b900 !important;
     animation: sb-pulse 1.6s ease-in-out infinite;
     position: relative !important;
-    color: transparent !important;       /* 폰트 기반 아이콘 글자색 숨김 */
     overflow: hidden;
   }
-  /* 기본 화살표 아이콘(svg / 머티리얼 폰트 span) 모두 숨김 */
-  [data-testid="stSidebarCollapsedControl"] button svg,
-  [data-testid="collapsedControl"] button svg,
+  /* 기본 화살표 아이콘(머티리얼 폰트 / svg) 숨김 */
+  button[data-testid="stExpandSidebarButton"] [data-testid="stIconMaterial"],
+  button[data-testid="stExpandSidebarButton"] svg,
   [data-testid="stSidebarCollapsedControl"] button [data-testid="stIconMaterial"],
   [data-testid="collapsedControl"] button [data-testid="stIconMaterial"],
-  [data-testid="stSidebarCollapsedControl"] button span,
-  [data-testid="collapsedControl"] button span { display: none !important; }
+  [data-testid="stSidebarCollapsedControl"] button svg,
+  [data-testid="collapsedControl"] button svg { display: none !important; }
   /* ☰ 햄버거로 교체 */
+  button[data-testid="stExpandSidebarButton"]::after,
   [data-testid="stSidebarCollapsedControl"] button::after,
   [data-testid="collapsedControl"] button::after {
     content: "\2630";          /* ☰ */
