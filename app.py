@@ -157,14 +157,25 @@ st.markdown("""
     background: #0e0e0e !important;
     border: 1.5px solid #76b900 !important;
     animation: sb-pulse 1.6s ease-in-out infinite;
+    position: relative !important;
+    color: transparent !important;       /* 폰트 기반 아이콘 글자색 숨김 */
+    overflow: hidden;
   }
-  /* 기본 화살표 아이콘 숨기고 ☰ 햄버거로 교체 */
+  /* 기본 화살표 아이콘(svg / 머티리얼 폰트 span) 모두 숨김 */
   [data-testid="stSidebarCollapsedControl"] button svg,
-  [data-testid="collapsedControl"] button svg { display: none !important; }
+  [data-testid="collapsedControl"] button svg,
+  [data-testid="stSidebarCollapsedControl"] button [data-testid="stIconMaterial"],
+  [data-testid="collapsedControl"] button [data-testid="stIconMaterial"],
+  [data-testid="stSidebarCollapsedControl"] button span,
+  [data-testid="collapsedControl"] button span { display: none !important; }
+  /* ☰ 햄버거로 교체 */
   [data-testid="stSidebarCollapsedControl"] button::after,
   [data-testid="collapsedControl"] button::after {
     content: "\2630";          /* ☰ */
-    color: #76b900;
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    color: #76b900 !important;
     font-size: 20px;
     line-height: 1;
   }
