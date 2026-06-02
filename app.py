@@ -493,6 +493,10 @@ st.markdown("""
 
   /* ── 모바일 반응형 ─────────────────────────────────────── */
   @media screen and (max-width: 768px) {
+    /* 모바일: 상단 툴바 액션 전부 숨김 (viewer의 Fork·GitHub·⋮ 포함).
+       모바일에서 공유는 사이드바 '공유하기' 섹션으로. ☰ 토글은 별도라 유지됨 */
+    [data-testid="stToolbarActions"] { display: none !important; }
+
     /* 전체 패딩 축소 */
     .main .block-container { padding: 1rem 0.8rem !important; }
 
