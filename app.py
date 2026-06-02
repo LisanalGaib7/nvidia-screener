@@ -174,7 +174,7 @@ st.markdown("""
   button[data-testid="stExpandSidebarButton"]::after,
   [data-testid="stSidebarCollapsedControl"] button::after,
   [data-testid="collapsedControl"] button::after {
-    content: "\2630";          /* ☰ */
+    content: "☰";
     position: absolute;
     top: 50%; left: 50%;
     transform: translate(-50%, -50%);
