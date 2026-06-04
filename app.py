@@ -140,15 +140,15 @@ def t(key):
     lang = st.session_state.get("lang", "KOR")
     return TRANSLATIONS.get(key, {}).get(lang, key)
 
-# ── Google Tag Manager ────────────────────────────────────────────────────────
+# ── Google Analytics 4 (직접 삽입 — GTM은 Streamlit Cloud CSP로 외부 JS 차단됨) ──
 st.markdown("""
-<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','GTM-KHGZZ3DL');</script>
-<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KHGZZ3DL"
-height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-BEQNGDCDKC"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-BEQNGDCDKC');
+</script>
 """, unsafe_allow_html=True)
 
 st.markdown("""
