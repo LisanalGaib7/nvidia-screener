@@ -140,8 +140,10 @@ def t(key):
     lang = st.session_state.get("lang", "KOR")
     return TRANSLATIONS.get(key, {}).get(lang, key)
 
-# ── Google Analytics 4 (직접 삽입 — GTM은 Streamlit Cloud CSP로 외부 JS 차단됨) ──
-st.markdown("""
+# ── Google Analytics 4 ───────────────────────────────────────────────────────
+# st.markdown()은 <script>를 DOM에만 넣고 실행 안 함 → components.html로 실행
+import streamlit.components.v1 as components
+components.html("""
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-BEQNGDCDKC"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
@@ -149,7 +151,7 @@ st.markdown("""
   gtag('js', new Date());
   gtag('config', 'G-BEQNGDCDKC');
 </script>
-""", unsafe_allow_html=True)
+""", height=0)
 
 st.markdown("""
 <style>
