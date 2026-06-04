@@ -141,15 +141,27 @@ def t(key):
     return TRANSLATIONS.get(key, {}).get(lang, key)
 
 # ── Google Analytics 4 ───────────────────────────────────────────────────────
-# st.markdown()은 <script>를 DOM에만 넣고 실행 안 함 → components.html로 실행
+# components.html srcdoc iframe은 null-origin → GA4 히트가 Google에 안 나감.
+# window.parent(앱 iframe, same-origin)에 스크립트를 직접 주입.
 import streamlit.components.v1 as components
 components.html("""
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-BEQNGDCDKC"></script>
 <script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-BEQNGDCDKC');
+(function() {
+  var p = window.parent;
+  if (!p || p.gaInjected) return;
+  p.gaInjected = true;
+  var s = p.document.createElement('script');
+  s.async = true;
+  s.src = 'https://www.googletagmanager.com/gtag/js?id=G-BEQNGDCDKC';
+  p.document.head.appendChild(s);
+  p.dataLayer = p.dataLayer || [];
+  p.gtag = function(){ p.dataLayer.push(arguments); };
+  p.gtag('js', new Date());
+  p.gtag('config', 'G-BEQNGDCDKC', {
+    'page_location': 'https://nvidiascreener.streamlit.app/',
+    'page_title': 'NVIDIA Portfolio Tracker'
+  });
+})();
 </script>
 """, height=0)
 
