@@ -1,4 +1,4 @@
-name: 📰 NVIDIA 투자 뉴스 감지
+name: 🟢 NVIDIA 투자 뉴스 감지
 
 on:
   schedule:
