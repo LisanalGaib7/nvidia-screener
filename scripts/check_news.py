@@ -149,7 +149,7 @@ def main():
         return
 
     kst = (now + timedelta(hours=9)).strftime("%Y-%m-%d")
-    lines = ["📰 <b>NVIDIA 투자 뉴스 감지</b>", "", f"⏰ {kst} KST", ""]
+    lines = ["🟢 <b>NVIDIA 투자 뉴스 감지</b>", "", f"⏰ {kst} KST", ""]
     for m in matches:
         h = html.escape(m["headline"])
         link = html.escape(m["link"], quote=True)
