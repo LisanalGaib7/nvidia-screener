@@ -11,18 +11,41 @@ GitHub Actions(러너마다 새 IP, 하루 1회 소량 요청)에서 실행 → 
 import yfinance as yf
 import json
 import os
+import re
 import time
 import sys
 from datetime import date, datetime, timezone
 
-# 추적 종목 — app.py 의 NEW_2026 / CURRENT_HOLDINGS / PARTNERSHIPS / EXITED 와 동기화 유지.
-# (GENB 는 비상장이라 시세 없음 → 제외)
-TICKERS = [
-    "IREN", "GLW", "MRVL", "LITE", "COHR",            # NEW_2026
-    "INTC", "SNPS", "NOK", "CRWV", "NBIS",            # CURRENT_HOLDINGS
-    "PLTR", "6954.T",                                  # PARTNERSHIPS (Palantir, FANUC)
-    "RXRX", "ARM", "APLD", "WRD", "SOUN", "SERV", "NNOX",  # EXITED
-]
+# 비상장 종목 — app.py 에 등장하지만 시세가 없어 스냅샷에서 제외.
+UNLISTED = {"GENB"}
+
+
+def load_tickers():
+    """app.py 종목 데이터에서 티커를 직접 추출 = 단일 진실 원천(SSOT).
+
+    예전엔 이 목록을 손으로 app.py 와 동기화해야 했고, 빠뜨리면 신규 종목이
+    '데이터 안 뜸'으로 나타났음(PLTR 사고). 이제 app.py 에 종목을 추가하면
+    fetch 가 자동 반영 → 수동 동기화 footgun 제거.
+    중복은 첫 등장 순서로 정리, 비상장(UNLISTED)은 제외.
+    """
+    app_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "app.py")
+    with open(app_path, encoding="utf-8") as f:
+        src = f.read()
+    seen, tickers = set(), []
+    for m in re.finditer(r'"ticker"\s*:\s*"([^"]+)"', src):
+        tk = m.group(1)
+        if tk in UNLISTED or tk in seen:
+            continue
+        seen.add(tk)
+        tickers.append(tk)
+    if not tickers:
+        # app.py 포맷이 바뀌어 추출 실패 → 빈 스냅샷 방지 위해 즉시 중단
+        raise RuntimeError("app.py 에서 티커를 추출하지 못함 — 데이터 포맷 변경 의심")
+    return tickers
+
+
+# 추적 종목 — app.py 에서 자동 추출(SSOT). 종목 추가/삭제는 app.py 한 곳만 수정.
+TICKERS = load_tickers()
 
 # 벤치마크 — 포트폴리오 카드/카운트엔 안 섞이고 YTD 차트 비교선으로만 사용
 BENCHMARKS = [
