@@ -958,7 +958,7 @@ def fetch_usdjpy():
         info = t.info
         rate = info.get("regularMarketPrice") or info.get("currentPrice")
         return rate if rate else 150.0
-    except:
+    except Exception:
         return 150.0
 
 def _fetch_one(ticker):
@@ -1046,7 +1046,7 @@ def load_market_data():
 def fetch_news(ticker):
     try:
         return yf.Ticker(ticker).news or []
-    except:
+    except Exception:
         return []
 
 def fmt_cap(v, currency="USD", usdjpy=150.0):
@@ -1075,7 +1075,7 @@ def fmt_ratio(v): return f"{v:.1f}x" if v else "—"
 
 def ts_to_str(ts):
     try: return datetime.fromtimestamp(ts).strftime("%Y-%m-%d")
-    except: return ""
+    except Exception: return ""
 
 # ── 사이드바 ──────────────────────────────────────────────────────────────────
 with st.sidebar:
@@ -1873,66 +1873,73 @@ with tab5:
     st.plotly_chart(fig6, use_container_width=True)
 
 # ── 어드민 피드백 뷰 (비밀번호 보호) ─────────────────────────────────────────
-import json, os
+import json, os, html
 
 st.markdown("---")
 with st.expander("Admin", expanded=False):
-    ADMIN_PW = st.secrets.get("admin", {}).get("password", "엔비디아레츠고")
-    if "admin_auth" not in st.session_state:
-        st.session_state.admin_auth = False
+    # secret 미설정 시 어드민 비활성화 — 공개 레포에 fallback 비번을 두지 않음
+    ADMIN_PW = st.secrets.get("admin", {}).get("password")
+    if not ADMIN_PW:
+        st.caption("관리자 기능이 비활성화되어 있습니다.")
+    else:
+        if "admin_auth" not in st.session_state:
+            st.session_state.admin_auth = False
 
-    if not st.session_state.admin_auth:
-        with st.form("admin_login_form"):
-            pw = st.text_input("비밀번호", type="password")
-            submitted = st.form_submit_button("로그인")
-            if submitted:
-                if pw == ADMIN_PW:
-                    st.session_state.admin_auth = True
-                    st.rerun()
-                else:
-                    st.error("비밀번호가 틀렸습니다.")
+        if not st.session_state.admin_auth:
+            with st.form("admin_login_form"):
+                pw = st.text_input("비밀번호", type="password")
+                submitted = st.form_submit_button("로그인")
+                if submitted:
+                    if pw == ADMIN_PW:
+                        st.session_state.admin_auth = True
+                        st.rerun()
+                    else:
+                        st.error("비밀번호가 틀렸습니다.")
 
-    if st.session_state.admin_auth:
-        path = "feedback.json"
-        data = []
-        if os.path.exists(path):
-            try:
-                with open(path, "r", encoding="utf-8") as f:
-                    data = json.load(f)
-            except:
-                data = []
+        if st.session_state.admin_auth:
+            path = "feedback.json"
+            data = []
+            if os.path.exists(path):
+                try:
+                    with open(path, "r", encoding="utf-8") as f:
+                        data = json.load(f)
+                except Exception:
+                    data = []
 
-        if not data:
-            st.info("아직 접수된 피드백이 없습니다.")
-        else:
-            total = len(data)
-            avg_rating = sum(d["rating"] for d in data) / total
-            category_counts = {}
-            for d in data:
-                category_counts[d["category"]] = category_counts.get(d["category"], 0) + 1
+            if not data:
+                st.info("아직 접수된 피드백이 없습니다.")
+            else:
+                total = len(data)
+                avg_rating = sum(d["rating"] for d in data) / total
+                category_counts = {}
+                for d in data:
+                    category_counts[d["category"]] = category_counts.get(d["category"], 0) + 1
 
-            m1, m2, m3 = st.columns(3)
-            with m1: st.metric("총 피드백", f"{total}건")
-            with m2: st.metric("평균 만족도", f"{avg_rating:.1f} / 5.0")
-            with m3: st.metric("가장 많은 유형", max(category_counts, key=category_counts.get).split(" ",1)[-1])
+                m1, m2, m3 = st.columns(3)
+                with m1: st.metric("총 피드백", f"{total}건")
+                with m2: st.metric("평균 만족도", f"{avg_rating:.1f} / 5.0")
+                with m3: st.metric("가장 많은 유형", max(category_counts, key=category_counts.get).split(" ",1)[-1])
 
-            st.markdown("---")
-            sel_cat = st.selectbox("유형 필터", ["전체"] + list(category_counts.keys()), key="admin_cat")
-            filtered_fb = data if sel_cat == "전체" else [d for d in data if d["category"] == sel_cat]
+                st.markdown("---")
+                sel_cat = st.selectbox("유형 필터", ["전체"] + list(category_counts.keys()), key="admin_cat")
+                filtered_fb = data if sel_cat == "전체" else [d for d in data if d["category"] == sel_cat]
 
-            for d in reversed(filtered_fb):
-                stars = "⭐" * d["rating"]
-                st.markdown(f"""
-                <div class="news-card">
-                  <div style="display:flex;justify-content:space-between">
-                    <span style="color:#f9fafb;font-weight:600">{d['category']}</span>
-                    <span style="color:#9ca3af;font-size:0.78rem">{d['time']} · {d['name']}</span>
-                  </div>
-                  <div style="color:#fbbf24;font-size:0.85rem;margin:4px 0">{stars}</div>
-                  <div style="color:#d1d5db;font-size:0.88rem">{d['text']}</div>
-                </div>""", unsafe_allow_html=True)
-    elif pw:
-        st.error("비밀번호가 틀렸습니다.")
+                # 피드백은 익명 사용자 입력 → 저장형 XSS 방지 위해 모든 필드 이스케이프 후 렌더
+                for d in reversed(filtered_fb):
+                    stars = "⭐" * d["rating"]
+                    _cat = html.escape(str(d.get("category", "")))
+                    _time = html.escape(str(d.get("time", "")))
+                    _name = html.escape(str(d.get("name", "")))
+                    _text = html.escape(str(d.get("text", "")))
+                    st.markdown(f"""
+                    <div class="news-card">
+                      <div style="display:flex;justify-content:space-between">
+                        <span style="color:#f9fafb;font-weight:600">{_cat}</span>
+                        <span style="color:#9ca3af;font-size:0.78rem">{_time} · {_name}</span>
+                      </div>
+                      <div style="color:#fbbf24;font-size:0.85rem;margin:4px 0">{stars}</div>
+                      <div style="color:#d1d5db;font-size:0.88rem">{_text}</div>
+                    </div>""", unsafe_allow_html=True)
 
 # ── 푸터 ─────────────────────────────────────────────────────────────────────
 st.markdown("---")
