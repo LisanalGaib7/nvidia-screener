@@ -228,10 +228,10 @@ st.markdown("""
 
   /* ── 강조 텍스트 ── */
   .txt-primary   { color: #e8e8e8; }
-  .txt-secondary { color: #686868; }
+  .txt-secondary { color: #9aa3b0; }
   .txt-accent    { color: #76b900; font-weight: 600; }
   .txt-gold      { color: #c87f00; font-weight: 600; }
-  .txt-dim       { color: #383838; font-size: 0.75rem; letter-spacing: 0.3px; }
+  .txt-dim       { color: #6b7280; font-size: 0.75rem; letter-spacing: 0.3px; }
 
   /* ── 신규 투자 알림 배너 ── */
   @keyframes banner-snap {
@@ -347,7 +347,7 @@ st.markdown("""
     background: transparent !important;
   }
   button[data-baseweb="tab"] {
-    color: #383838 !important;
+    color: #6b7280 !important;
     font-size: 0.72rem !important;
     font-weight: 600 !important;
     letter-spacing: 1.6px !important;
@@ -378,7 +378,7 @@ st.markdown("""
   div[data-testid="stButtonGroup"] > div[data-baseweb="button-group"]::-webkit-scrollbar { display: none !important; }
   button[data-testid="stBaseButton-segmented_control"],
   button[data-testid="stBaseButton-segmented_controlActive"] {
-    color: #383838 !important;
+    color: #6b7280 !important;
     font-size: 0.72rem !important; font-weight: 600 !important;
     letter-spacing: 1.6px !important; text-transform: uppercase !important;
     padding: 9px 18px !important;
@@ -516,7 +516,7 @@ st.markdown("""
     border-bottom: 1px solid #1e1e1e;
   }
   .ptd-ticker { color: #76b900; font-size: 0.85rem; font-weight: 700; letter-spacing: 0.8px; }
-  .ptd-sector { color: #484848; font-size: 0.68rem; }
+  .ptd-sector { color: #8b949e; font-size: 0.68rem; }
   .ptd-label  { color: #3a3a3a; font-size: 0.58rem; font-weight: 600;
                 letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 4px; }
   .ptd-amount { color: #c87f00; font-size: 1.05rem; font-weight: 600; margin-bottom: 10px; }
@@ -1143,7 +1143,7 @@ with st.sidebar:
 <style>
 .tag-guide-row {{ margin: 10px 0; }}
 .tag-guide-name {{ font-size: 0.72rem; font-weight: 700; letter-spacing: 1px; margin-bottom: 3px; }}
-.tag-guide-desc {{ font-size: 0.75rem; color: #686868 !important; line-height: 1.5; }}
+.tag-guide-desc {{ font-size: 0.75rem; color: #9aa3b0 !important; line-height: 1.5; }}
 </style>
 <div class="tag-guide-row">
   <div class="tag-guide-name" style="color:#4a90d9">CORE</div>
@@ -1547,7 +1547,7 @@ st.markdown("""
 }
 .metric-box:hover .metric-tooltip { display: block; }
 .tooltip-title {
-  color: #484848;
+  color: #8b949e;
   font-size: 0.65rem;
   font-weight: 600;
   letter-spacing: 1.4px;
@@ -1563,7 +1563,7 @@ st.markdown("""
 }
 .tooltip-row:last-child { border-bottom: none; }
 .tooltip-ticker { color: #76b900; font-size: 0.8rem; font-weight: 600; letter-spacing: 0.5px; }
-.tooltip-name   { color: #686868; font-size: 0.75rem; }
+.tooltip-name   { color: #9aa3b0; font-size: 0.75rem; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -1618,7 +1618,7 @@ for col, label, value, color, extra_html in [
      + "".join(
          f'<div class="tooltip-row">'
          f'<span class="tooltip-ticker">{c["ticker"]}</span>'
-         f'<span class="tooltip-name" style="color:{"#76b900" if gap<=5 else "#686868"}">'
+         f'<span class="tooltip-name" style="color:{"#76b900" if gap<=5 else "#9aa3b0"}">'
          f'{"신고가" if gap<0.05 else f"-{gap:.1f}%"}</span></div>'
          for c, gap in _near_high
        )
@@ -1627,7 +1627,7 @@ for col, label, value, color, extra_html in [
     col.markdown(
         f'<div class="metric-box" style="background:#0e0e0e;border:1px solid #2a2a2a;border-top:2px solid {color};'
         f'border-radius:4px;padding:18px 20px;margin-bottom:4px">'
-        f'<div style="color:#484848;font-size:0.72rem;font-weight:500;letter-spacing:1.2px;'
+        f'<div style="color:#8b949e;font-size:0.72rem;font-weight:500;letter-spacing:1.2px;'
         f'text-transform:uppercase;margin-bottom:8px">{label}</div>'
         f'<div style="color:{color};font-size:1.6rem;font-weight:600;letter-spacing:-0.5px;line-height:1">'
         f'{value}</div>'
@@ -1675,7 +1675,7 @@ if active_tab == "Portfolio":
         if not group_items: continue
         if group_title == t("group_new"):     accent = "#76b900"
         elif group_title == t("group_partner"): accent = "#c87f00"
-        elif group_title == t("group_exited"):  accent = "#484848"
+        elif group_title == t("group_exited"):  accent = "#3a3a3a"
         else:                                   accent = "#4a90d9"
         st.markdown(
             f'<div style="display:flex;align-items:center;gap:14px;margin:32px 0 18px">'
@@ -1718,7 +1718,7 @@ if active_tab == "Portfolio":
             if w52h and w52l and price:
                 pp = max(0, min(100, (price - w52l) / (w52h - w52l) * 100))
                 bar52_desk = (
-                    f'<div style="font-size:0.68rem;color:#686868">'
+                    f'<div style="font-size:0.68rem;color:#9aa3b0">'
                     f'{fmt_price(w52l,currency)}'
                     f'<span style="color:#2a2a2a"> – </span>'
                     f'{fmt_price(w52h,currency)}<br>'
@@ -1753,9 +1753,9 @@ if active_tab == "Portfolio":
                 f'<div class="ptable-row" style="--accent:{accent}">'
                 f'<div class="pt-company">'
                 f'<div><span style="color:#e8e8e8;font-weight:500">{c["name"]}</span>'
-                f'<span style="color:#686868;font-size:0.75rem;margin-left:6px">{ticker}</span></div>'
+                f'<span style="color:#9aa3b0;font-size:0.75rem;margin-left:6px">{ticker}</span></div>'
                 f'<div style="display:flex;align-items:center;flex-wrap:wrap;gap:5px;margin-top:4px">'
-                f'{_badge}<span style="color:#686868;font-size:0.7rem">{_sector}</span>{amt_h}</div>'
+                f'{_badge}<span style="color:#9aa3b0;font-size:0.7rem">{_sector}</span>{amt_h}</div>'
                 f'<div class="pt-stats">'
                 f'<div><span class="pt-stat-label">{_col_price}</span>{price_h}</div>'
                 f'<div><span class="pt-stat-label">{_col_daily}</span>{daily_h}</div>'
@@ -1911,7 +1911,7 @@ elif active_tab == "News":
             st.markdown(
                 f'<div style="background:#0e0e0e;border:1px solid #2a2a2a;border-top:2px solid #76b900;'
                 f'border-radius:4px;padding:16px 20px">'
-                f'<div style="color:#484848;font-size:0.7rem;font-weight:600;letter-spacing:1.2px;'
+                f'<div style="color:#8b949e;font-size:0.7rem;font-weight:600;letter-spacing:1.2px;'
                 f'text-transform:uppercase;margin-bottom:8px">{t("news_price")}</div>'
                 f'<div style="color:#e8e8e8;font-size:1.8rem;font-weight:600;letter-spacing:-0.5px;line-height:1">'
                 f'{fmt_price(sd.get("price"), sd.get("currency","USD"))}</div>'
@@ -1920,7 +1920,7 @@ elif active_tab == "News":
         with n2:
             st.markdown(
                 f'<div style="padding:16px 4px">'
-                f'<div style="color:#484848;font-size:0.7rem;font-weight:600;letter-spacing:1.2px;'
+                f'<div style="color:#8b949e;font-size:0.7rem;font-weight:600;letter-spacing:1.2px;'
                 f'text-transform:uppercase;margin-bottom:8px">{t("news_daily")}</div>'
                 f'<div style="font-size:1.3rem;font-weight:600">{fmt_pct(sd.get("change_pct"))}</div>'
                 f'</div>',
@@ -1928,7 +1928,7 @@ elif active_tab == "News":
         with n3:
             st.markdown(
                 f'<div style="padding:16px 4px">'
-                f'<div style="color:#484848;font-size:0.7rem;font-weight:600;letter-spacing:1.2px;'
+                f'<div style="color:#8b949e;font-size:0.7rem;font-weight:600;letter-spacing:1.2px;'
                 f'text-transform:uppercase;margin-bottom:8px">YTD</div>'
                 f'<div style="font-size:1.3rem;font-weight:600">{fmt_pct(sd.get("ytd_pct"))}</div>'
                 f'</div>',
