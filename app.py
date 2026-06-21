@@ -1122,6 +1122,35 @@ def sector_name(s):
     lang = st.session_state.get("lang", "KOR")
     return SECTOR_NAMES.get(s, {}).get(lang, s)
 
+# ── 섹터 → 상위 카테고리 통합 (파이 그래프용; 세부 섹터는 카드 호버에 그대로 유지) ──
+SECTOR_GROUP = {
+    "클라우드 GPU": "AI 인프라·클라우드", "AI 데이터센터": "AI 인프라·클라우드",
+    "광학 소재/제조": "광학·광연결", "광학 부품": "광학·광연결",
+    "광학 트랜시버": "광학·광연결", "반도체/광연결": "광학·광연결",
+    "반도체/파운드리": "반도체·설계", "EDA/칩 설계": "반도체·설계", "반도체 IP": "반도체·설계",
+    "통신 인프라": "통신", "AI 소프트웨어": "AI 소프트웨어",
+    "산업 로봇": "로봇·피지컬AI", "자율주행": "로봇·피지컬AI", "자율주행 로봇": "로봇·피지컬AI",
+    "AI 신약개발": "헬스·바이오 AI", "AI 의료영상": "헬스·바이오 AI", "AI/음성인식": "기타 AI",
+}
+CAT_COLORS = {
+    "AI 인프라·클라우드": "#3b82f6", "광학·광연결": "#f59e0b", "반도체·설계": "#8b5cf6",
+    "통신": "#06b6d4", "AI 소프트웨어": "#ec4899", "로봇·피지컬AI": "#22c55e",
+    "헬스·바이오 AI": "#14b8a6", "기타 AI": "#a855f7",
+}
+CAT_NAMES = {
+    "AI 인프라·클라우드": {"KOR": "AI 인프라·클라우드", "ENG": "AI Infra·Cloud"},
+    "광학·광연결":       {"KOR": "광학·광연결",        "ENG": "Optics·Interconnect"},
+    "반도체·설계":       {"KOR": "반도체·설계",        "ENG": "Semiconductor·Design"},
+    "통신":             {"KOR": "통신",              "ENG": "Telecom"},
+    "AI 소프트웨어":     {"KOR": "AI 소프트웨어",      "ENG": "AI Software"},
+    "로봇·피지컬AI":     {"KOR": "로봇·피지컬AI",      "ENG": "Robotics·Physical AI"},
+    "헬스·바이오 AI":    {"KOR": "헬스·바이오 AI",     "ENG": "Health·Bio AI"},
+    "기타 AI":          {"KOR": "기타 AI",           "ENG": "Other AI"},
+}
+def cat_name(g):
+    lang = st.session_state.get("lang", "KOR")
+    return CAT_NAMES.get(g, {}).get(lang, g)
+
 def get_change_style():
     return {
         "new":      ("filing-new",      "🟢 " + t("change_new")),
@@ -2034,10 +2063,12 @@ elif active_tab == "Sectors":
     ca, cb = st.columns(2)
     with ca:
         sc_raw = {}
-        for c in current_only: sc_raw[c["sector"]] = sc_raw.get(c["sector"],0)+1
-        sc_labels = [sector_name(s) for s in sc_raw]
+        for c in current_only:
+            grp = SECTOR_GROUP.get(c["sector"], c["sector"])
+            sc_raw[grp] = sc_raw.get(grp, 0) + 1
+        sc_labels = [cat_name(g) for g in sc_raw]
         fig3 = go.Figure(go.Pie(labels=sc_labels, values=list(sc_raw.values()),
-            marker_colors=[SECTOR_COLORS.get(s,"#6b7280") for s in sc_raw], hole=0.4,
+            marker_colors=[CAT_COLORS.get(g,"#6b7280") for g in sc_raw], hole=0.4,
             textposition="inside", textinfo="percent"))
         fig3.update_layout(template="plotly_dark",paper_bgcolor="#111827",
             title=t("sector_count"),title_font_color="#f9fafb",height=420, dragmode=False,
@@ -2049,7 +2080,7 @@ elif active_tab == "Sectors":
         if invest_data:
             names, amts = zip(*invest_data)
             fig4 = go.Figure(go.Pie(labels=list(names), values=list(amts),
-                marker_colors=[SECTOR_COLORS.get(c["sector"],"#6b7280") for c in current_only if c.get("invest_amt_m")],
+                marker_colors=px.colors.qualitative.Light24,  # 종목별 고유색(ⓑ) — 조각마다 구분
                 hole=0.4, textposition="inside", textinfo="percent",
                 customdata=[a/1000 for a in amts],
                 hovertemplate="%{label}<br>$%{customdata:.1f}B<extra></extra>"))
