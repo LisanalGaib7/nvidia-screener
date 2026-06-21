@@ -968,6 +968,70 @@ THESIS_KO = {
     ),
 }
 
+# 영어판 — 동일 3섹션 구조 (In a nutshell / Why NVIDIA invested / Deal structure)
+THESIS_EN = {
+    "IREN": (
+        "A company building a 5GW AI data center powered by NVIDIA GPUs",
+        "NVIDIA needed a large data-center partner to handle surging AI compute demand, and IREN provides that infrastructure — paired with a 5-year GPU cloud services agreement.",
+        "Warrant-based up to $2.1B (30M shares @$70) · 5-yr $3.4B GPU cloud deal",
+    ),
+    "GLW": (
+        "Makes the optical fiber for NVIDIA AI data centers, manufactured in the US",
+        "Data-center optical interconnect demand is exploding, and Corning handles US production — 3 new factories (NC·TX) lift US optical output 10x.",
+        "$500M upfront warrants (strike $180) · up to $3.2B · 3,000 jobs",
+    ),
+    "MRVL": (
+        "Makes custom AI chips that link to NVIDIA GPUs at ultra-high speed in the same rack",
+        "Co-develops 'NVLink Fusion' — binding Marvell's XPU with NVIDIA's next-gen Rubin GPU & Vera CPU in one rack at 1.8TB/s. Also co-developing silicon photonics (moving data with light).",
+        "$2B investment · NVLink Fusion partnership · silicon photonics & 5G/6G co-R&D",
+    ),
+    "LITE": (
+        "Makes the laser & photonics components used in AI data-center optical networking",
+        "Lumentum is the exclusive supplier of the high-end laser components central to optical interconnects, and is building a new US fab.",
+        "$2B preferred-stock placement (2,876,415 shares @$695.31) · multi-billion purchase commitment",
+    ),
+    "COHR": (
+        "Makes the high-speed optical transceivers that send/receive signals in AI data centers",
+        "As data-center optical links jump to 800G·1.6T, Coherent supplies those transceivers and is expanding US manufacturing.",
+        "$2B investment · optical networking purchase commitment included",
+    ),
+    "INTC": (
+        "Co-develops products that fuse NVIDIA GPUs with Intel CPUs on a single chip",
+        "Pairs Intel x86 CPUs with NVIDIA GPUs as 'chiplets' for integrated AI data-center & PC chips. One of the rare cases where NVIDIA took a direct 4% stake.",
+        "$5B direct equity stake (4%, 214.7M shares @$23.28)",
+    ),
+    "SNPS": (
+        "Makes the software (EDA) that automates chip design",
+        "Automates chip design with AI and accelerates it on the cloud — key to designing NVIDIA's own chips faster.",
+        "$2B private placement (@$414.79/share)",
+    ),
+    "NOK": (
+        "Puts NVIDIA GPUs into telecom base stations to build AI mobile networks",
+        "Integrates NVIDIA GPUs into Nokia's 5G/6G base stations (RAN) to develop AI-driven next-gen telecom infrastructure.",
+        "$1B investment · 2.9% stake (@$6.01/share)",
+    ),
+    "CRWV": (
+        "The AI-dedicated cloud holding the most of NVIDIA's latest GPUs",
+        "An AI cloud running NVIDIA H100·B200 at massive scale — NVIDIA's strategic shareholder and top customer.",
+        "Q1 2026 13F: 47.2M shares $3.66B (+95%) · joined 2025.03 IPO",
+    ),
+    "NBIS": (
+        "A full-stack AI cloud deploying NVIDIA systems at scale",
+        "Committed to deploying 5GW of NVIDIA systems by 2030. A core partner NVIDIA has invested in twice since 2024.",
+        "$2B follow-on (2026.03) + $100M (2024.12) = $2.1B total",
+    ),
+    "PLTR": (
+        "Co-builds a 'Sovereign AI operating system' for enterprises & governments with NVIDIA",
+        "Stacks Palantir AIP·Ontology on NVIDIA Blackwell Ultra hardware to deliver fully self-contained (on-prem & air-gapped) AI. Jensen Huang called it 'the single most important enterprise stack in the world.'",
+        "⚠️ Not an equity investment · joint product partnership (NVIDIA models via AIP)",
+    ),
+    "6954.T": (
+        "A Japanese robotics company putting NVIDIA AI into industrial robots",
+        "Trains robots virtually with NVIDIA Isaac Sim (digital twin) and embeds Jetson on-robot computers to realize 'Physical AI.' FANUC stock jumped +9.4% on the announcement.",
+        "⚠️ Not an equity investment · Physical AI partnership · Isaac Sim + Jetson integration",
+    ),
+}
+
 # ── 13F 공시 히스토리 (검증된 것만) ─────────────────────────────────────────
 FILINGS_HISTORY = [
     # 2026 Q2 신규
@@ -1813,14 +1877,16 @@ if active_tab == "Portfolio":
             _thesis  = ((c.get("nvidia_thesis_eng") or c["nvidia_thesis"])
                         if lang == "ENG" else c["nvidia_thesis"])
             # 한국어 + 재작성된 종목이면 3섹션 구조, 아니면 기존 한 덩어리 fallback
-            _tk3 = THESIS_KO.get(ticker) if lang != "ENG" else None
+            _tk3 = (THESIS_EN.get(ticker) if lang == "ENG" else THESIS_KO.get(ticker))
             if _tk3:
+                _L = (("In a nutshell", "Why NVIDIA invested", "Deal structure") if lang == "ENG"
+                      else ("한 줄 요약", "왜 NVIDIA가 투자했나", "투자 구조"))
                 _thesis_html = (
-                    '<div class="ptd-label">한 줄 요약</div>'
+                    f'<div class="ptd-label">{_L[0]}</div>'
                     f'<div class="ptd-summary">{_tk3[0]}</div>'
-                    '<div class="ptd-label">왜 NVIDIA가 투자했나</div>'
+                    f'<div class="ptd-label">{_L[1]}</div>'
                     f'<div class="ptd-thesis">{_tk3[1]}</div>'
-                    '<div class="ptd-label">투자 구조</div>'
+                    f'<div class="ptd-label">{_L[2]}</div>'
                     f'<div class="ptd-thesis">{_tk3[2]}</div>'
                 )
             else:
