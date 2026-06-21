@@ -1918,33 +1918,25 @@ elif active_tab == "News":
     sel_c = next((c for c in all_display if c["ticker"]==sel_t), None)
     if sel_c:
         sd = stock_data.get(sel_t,{})
-        n1,n2,n3 = st.columns([1.2, 1, 1])
+        _chg = sd.get("change_pct"); _ytd = sd.get("ytd_pct")
+        _chg_c = "#22c55e" if (_chg or 0) >= 0 else "#ef4444"
+        _ytd_c = "#22c55e" if (_ytd or 0) >= 0 else "#ef4444"
+        def _metric_card(label, value_html, top_color):
+            return (f'<div style="background:#0e0e0e;border:1px solid #2a2a2a;border-top:2px solid {top_color};'
+                    f'border-radius:4px;padding:16px 20px;height:100%">'
+                    f'<div style="color:#8b949e;font-size:0.7rem;font-weight:600;letter-spacing:1.2px;'
+                    f'text-transform:uppercase;margin-bottom:8px">{label}</div>'
+                    f'<div style="font-size:1.7rem;font-weight:600;letter-spacing:-0.5px;line-height:1">{value_html}</div>'
+                    f'</div>')
+        n1,n2,n3 = st.columns(3)
         with n1:
-            st.markdown(
-                f'<div style="background:#0e0e0e;border:1px solid #2a2a2a;border-top:2px solid #76b900;'
-                f'border-radius:4px;padding:16px 20px">'
-                f'<div style="color:#8b949e;font-size:0.7rem;font-weight:600;letter-spacing:1.2px;'
-                f'text-transform:uppercase;margin-bottom:8px">{t("news_price")}</div>'
-                f'<div style="color:#e8e8e8;font-size:1.8rem;font-weight:600;letter-spacing:-0.5px;line-height:1">'
-                f'{fmt_price(sd.get("price"), sd.get("currency","USD"))}</div>'
-                f'</div>',
-                unsafe_allow_html=True)
+            st.markdown(_metric_card(t("news_price"),
+                f'<span style="color:#e8e8e8">{fmt_price(sd.get("price"), sd.get("currency","USD"))}</span>',
+                "#76b900"), unsafe_allow_html=True)
         with n2:
-            st.markdown(
-                f'<div style="padding:16px 4px">'
-                f'<div style="color:#8b949e;font-size:0.7rem;font-weight:600;letter-spacing:1.2px;'
-                f'text-transform:uppercase;margin-bottom:8px">{t("news_daily")}</div>'
-                f'<div style="font-size:1.3rem;font-weight:600">{fmt_pct(sd.get("change_pct"))}</div>'
-                f'</div>',
-                unsafe_allow_html=True)
+            st.markdown(_metric_card(t("news_daily"), fmt_pct(_chg), _chg_c), unsafe_allow_html=True)
         with n3:
-            st.markdown(
-                f'<div style="padding:16px 4px">'
-                f'<div style="color:#8b949e;font-size:0.7rem;font-weight:600;letter-spacing:1.2px;'
-                f'text-transform:uppercase;margin-bottom:8px">YTD</div>'
-                f'<div style="font-size:1.3rem;font-weight:600">{fmt_pct(sd.get("ytd_pct"))}</div>'
-                f'</div>',
-                unsafe_allow_html=True)
+            st.markdown(_metric_card("YTD", fmt_pct(_ytd), _ytd_c), unsafe_allow_html=True)
         st.markdown("---")
         with st.spinner(t("news_loading")):
             news_items = fetch_news(sel_t)
