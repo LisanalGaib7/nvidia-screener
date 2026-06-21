@@ -1787,11 +1787,12 @@ if active_tab == "Portfolio":
 # ══ Tab 2 ════════════════════════════════════════════════════════════════════
 elif active_tab == "Performance":
     st.markdown(f"### {t('perf_title')}")
-    st.caption(
-        "💡 범례에서 종목을 탭하면 켜고 끌 수 있고, 더블클릭(더블탭)하면 그 종목만 볼 수 있어요."
-        if st.session_state.lang == "KOR"
-        else "💡 Tap a legend item to show/hide it; double-click to view only that one."
-    )
+    _hint = ("💡 범례에서 종목을 탭하면 켜고 끌 수 있고, 더블클릭(더블탭)하면 그 종목만 볼 수 있어요."
+             if st.session_state.lang == "KOR"
+             else "💡 Tap a legend item to show/hide it; double-click to view only that one.")
+    st.markdown(
+        f'<div style="color:#e5e7eb;font-size:0.85rem;margin:-6px 0 10px">{_hint}</div>',
+        unsafe_allow_html=True)
     # 파트너십(지분 없음)은 수익률 차트에서 제외 — NVIDIA 실제 보유분만
     chart_items = [c for c in all_display
                    if c["badge"] != "partner"
