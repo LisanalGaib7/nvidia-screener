@@ -250,9 +250,11 @@ st.markdown("""
   }
   .alert-title { color: #c87f00; font-size: 0.7rem; font-weight: 600;
                  letter-spacing: 1.8px; text-transform: uppercase; margin: 0 0 10px; }
-  .alert-item  { color: #a0a0a0; font-size: 0.84rem; margin: 5px 0; line-height: 1.5; }
-  .alert-item b { color: #e0e0e0; font-weight: 500; }
-  .alert-date  { color: #444; font-size: 0.75rem; }
+  .alert-item  { display: flex; align-items: baseline; gap: 10px; padding: 7px 0; font-size: 0.84rem; line-height: 1.5; }
+  .alert-item + .alert-item { border-top: 1px solid #1c1c1c; }
+  .alert-date  { color: #7a8290; font-size: 0.72rem; min-width: 82px; flex-shrink: 0; font-variant-numeric: tabular-nums; }
+  .alert-co    { color: #e0e0e0; font-weight: 600; }
+  .alert-desc  { color: #9aa3b0; }
 
   /* ── 배지 ── */
   .badge-core    { background: transparent; color: #4a90d9; border: 1px solid #1e3a5f;
@@ -571,8 +573,8 @@ st.markdown("""
     /* 알림 배너 — 더 촘촘하게 */
     .alert-banner { padding: 10px 12px; margin-bottom: 14px; }
     .alert-title  { font-size: 0.62rem; }
-    .alert-item   { font-size: 0.76rem; }
-    .alert-date   { font-size: 0.65rem; }
+    .alert-item   { font-size: 0.76rem; gap: 8px; }
+    .alert-date   { font-size: 0.65rem; min-width: 66px; }
 
     /* 탭 레이블 — 좁은 화면에 맞게 */
     button[data-baseweb="tab"] {
@@ -1467,14 +1469,18 @@ _cur_lang = st.session_state.lang
 
 if recent_5:
     latest_year = recent_5[0].get("alert_date","")[:4]
-    items_html = "".join([
-        f'<div class="alert-item">'
-        f'<span class="alert-date">{c.get("alert_date","")}&nbsp;&nbsp;</span>'
-        f'<b>{c["name"]} ({c["ticker"]})</b>'
-        f'&nbsp;—&nbsp;{(c.get("note_eng") or c["note"]).split("|")[0].strip() if _cur_lang=="ENG" else c["note"].split("|")[0].strip()}'
-        f'</div>'
-        for c in recent_5
-    ])
+    _alert_items = []
+    for c in recent_5:
+        _raw = (c.get("note_eng") or c["note"]) if _cur_lang == "ENG" else c["note"]
+        # note 첫 조각에서 날짜 든 괄호 통째 제거 (비날짜 괄호 '(+95% 증가)'는 유지)
+        _desc = re.sub(r'\s*\([^)]*20\d{2}[.\-]\d[^)]*\)', '', _raw.split("|")[0].strip()).strip()
+        _alert_items.append(
+            f'<div class="alert-item">'
+            f'<span class="alert-date">{c.get("alert_date","")}</span>'
+            f'<span><b class="alert-co">{c["name"]} ({c["ticker"]})</b>&nbsp; '
+            f'<span class="alert-desc">{_desc}</span></span>'
+            f'</div>')
+    items_html = "".join(_alert_items)
     st.markdown(
         f'<div class="alert-banner">'
         f'<div class="alert-title">{"Recent Investments" if _cur_lang=="ENG" else "최신 투자 알림"}&nbsp;·&nbsp;{latest_year}</div>'
