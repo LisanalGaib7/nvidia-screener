@@ -1436,11 +1436,14 @@ components.html("""
       el.appendChild(s);
       return s;
     });
-    var settleAt = chars.map(function(_, i) { return Math.abs(i - mid) * 115 + 180; });
+    var isMobile = (p.innerWidth <= 640);
+    // 모바일은 재생 시간 단축(1.5s→~0.8s) — 버벅이는 구간 자체를 절반으로
+    var perChar = isMobile ? 60 : 115, base = isMobile ? 100 : 180;
+    var settleAt = chars.map(function(_, i) { return Math.abs(i - mid) * perChar + base; });
     var settled = new Array(chars.length).fill(false);  // ③ 정착 글자 재기록 방지
     var start = p.performance.now();
     // ④ 랜덤 교체 throttle → 모바일은 더 길게(교체 횟수 ↓ = 페인트 부담 ↓)
-    var lastSwap = 0, SWAP_MS = (p.innerWidth <= 640) ? 65 : 45;
+    var lastSwap = 0, SWAP_MS = isMobile ? 65 : 45;
     function tick(now) {
       var t = now - start, done = true;
       var swap = (now - lastSwap) >= SWAP_MS;
