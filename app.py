@@ -83,8 +83,8 @@ TRANSLATIONS = {
     "perf_ytd_start":       {"KOR": "YTD 시작",                     "ENG": "YTD Start"},
     "perf_yaxis":           {"KOR": "정규화 주가 (100=YTD시작)",      "ENG": "Normalized Price (100=YTD Start)"},
     # 섹터 탭
-    "sector_count":         {"KOR": "전체 포트폴리오 — 섹터별 기업 수", "ENG": "Full Portfolio — Holdings by Sector"},
-    "sector_invest":        {"KOR": "확인된 투자액 비중",              "ENG": "Investment Allocation"},
+    "sector_count":         {"KOR": "섹터별 투자액 비중", "ENG": "Investment by Sector"},
+    "sector_invest":        {"KOR": "종목별 투자액 비중", "ENG": "Investment by Holding"},
     # 사이드바 데이터
     "sb_data_sources":      {"KOR": "데이터 출처",                   "ENG": "Data Sources"},
     "sb_media":             {"KOR": "글로벌 주요 언론 교차검증",       "ENG": "Global Media Cross-verification"},
@@ -2006,14 +2006,19 @@ elif active_tab == "Sectors":
     current_only = NEW_2026 + CURRENT_HOLDINGS
     ca, cb = st.columns(2)
     with ca:
-        sc_raw = {}
+        sc_raw = {}; sc_cnt = {}  # 카테고리별 투자액 합 + 종목 수
         for c in current_only:
+            if not c.get("invest_amt_m"): continue
             grp = SECTOR_GROUP.get(c["sector"], c["sector"])
-            sc_raw[grp] = sc_raw.get(grp, 0) + 1
-        sc_labels = [cat_name(g) for g in sc_raw]
-        fig3 = go.Figure(go.Pie(labels=sc_labels, values=list(sc_raw.values()),
-            marker_colors=[CAT_COLORS.get(g,"#6b7280") for g in sc_raw], hole=0.4,
-            textposition="inside", textinfo="percent"))
+            sc_raw[grp] = sc_raw.get(grp, 0) + c["invest_amt_m"]
+            sc_cnt[grp] = sc_cnt.get(grp, 0) + 1
+        grps = list(sc_raw.keys())
+        sc_labels = [cat_name(g) for g in grps]
+        fig3 = go.Figure(go.Pie(labels=sc_labels, values=[sc_raw[g] for g in grps],
+            marker_colors=[CAT_COLORS.get(g,"#6b7280") for g in grps], hole=0.4,
+            textposition="inside", textinfo="percent",
+            customdata=[[sc_raw[g]/1000, sc_cnt[g]] for g in grps],
+            hovertemplate="%{label}<br>$%{customdata[0]:.1f}B · %{customdata[1]}개 종목<extra></extra>"))
         fig3.update_layout(template="plotly_dark",paper_bgcolor="#111827",
             title=t("sector_count"),title_font_color="#f9fafb",height=420, dragmode=False,
             legend=dict(orientation="h",y=-0.05,x=0.5,xanchor="center",font=dict(size=10)),
