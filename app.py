@@ -525,10 +525,10 @@ st.markdown("""
     /* 전체 패딩 축소 */
     .main .block-container { padding: 1rem 0.8rem !important; }
 
-    /* 헤더 축소 */
-    .nv-title  { font-size: 0.68rem !important; letter-spacing: 0.5px !important; }
-    .nv-cursor { font-size: 0.68rem !important; }
-    .nv-logo   { font-size: 0.95rem !important; top: -5px !important; }
+    /* 헤더 — vw 비례(기종 무관 동일 비율로 채움, 한 줄 유지) */
+    .nv-title  { font-size: 3.1vw !important; letter-spacing: 0.5px !important; }
+    .nv-cursor { font-size: 3.1vw !important; }
+    .nv-logo   { font-size: 4.3vw !important; top: -5px !important; }
 
     /* 알림 배너 — 더 촘촘하게 */
     .alert-banner { padding: 10px 12px; margin-bottom: 14px; }
@@ -606,7 +606,7 @@ st.markdown("""
   }
 
   @media screen and (max-width: 480px) {
-    .nv-title, .nv-cursor { font-size: 0.55rem !important; }
+    .nv-title, .nv-cursor { font-size: 3.1vw !important; }
     button[data-baseweb="tab"] {
       font-size: 0.5rem !important;
       padding: 9px 7px !important;
@@ -1371,12 +1371,6 @@ if True:
   color: #76b900;
   animation: cursor-blink 1s step-end infinite;
   margin-left: 2px;
-}
-/* 모바일: vw 비례로 헤더 확대 — 어느 기종이든 같은 비율로 채워 한 줄 유지(오버플로 안전) */
-@media (max-width: 640px) {
-  .nv-logo   { font-size: 5.4vw; }
-  .nv-title  { font-size: 4.6vw; letter-spacing: 0.5px; }
-  .nv-cursor { font-size: 4.6vw; }
 }
 </style>
 <div class="nv-header">
