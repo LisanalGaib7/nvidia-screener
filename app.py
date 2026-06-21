@@ -1786,6 +1786,8 @@ elif active_tab == "Performance":
                    if c["badge"] != "partner"
                    and "error" not in stock_data.get(c["ticker"],{})]
     fig = go.Figure()
+    _palette = px.colors.qualitative.Light24  # 종목별 고유색 → 라인 구분성 ↑(섹터색 중복 해소)
+    _ci = 0
     for c in chart_items:
         hist = stock_data[c["ticker"]].get("hist")
         if hist is None or hist.empty: continue
@@ -1794,10 +1796,11 @@ elif active_tab == "Performance":
         pct = ((ytd_h / ytd_h.iloc[0] - 1) * 100).round(0)
         fig.add_trace(go.Scatter(
             x=pct.index, y=pct.values,
-            name=f"{c['name']} ({c['ticker']})",
-            line=dict(color=SECTOR_COLORS.get(c["sector"],"#76b900"), width=2),
+            name=c["ticker"],  # 범례는 티커만(컴팩트) — 풀네임은 hover로
+            line=dict(color=_palette[_ci % len(_palette)], width=2),
             hovertemplate=f"<b>{c['name']}</b><br>%{{y:+.0f}}%<extra></extra>",
         ))
+        _ci += 1
     # 벤치마크 비교선 (NVDA 본주 · SOXX 반도체 ETF) — 점선으로 구분
     _bench_style = {
         "NVDA": ("NVDA", "#76b900"),
