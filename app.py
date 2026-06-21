@@ -1666,8 +1666,10 @@ st.markdown("""
   box-sizing: border-box;
   box-shadow: 0 8px 24px rgba(0,0,0,0.6);
 }
-.metric-box:hover .metric-tooltip,
-.metric-box.active .metric-tooltip { display: block; }
+.metric-box.active .metric-tooltip { display: block; }  /* 모바일·공통: 탭 토글 */
+@media (hover: hover) {  /* 데스크톱(마우스)만 hover — 모바일 iOS sticky hover 방지 */
+  .metric-box:hover .metric-tooltip { display: block; }
+}
 .tooltip-title {
   color: #8b949e;
   font-size: 0.65rem;
