@@ -1384,6 +1384,7 @@ if True:
 # st.markdown은 <script> 미실행 + components.html(srcdoc)은 null-origin이라
 # window.parent(앱 iframe, same-origin)의 #nv-title에 직접 주입 (GA4와 동일 패턴).
 # __nvScrambled 가드 → Streamlit 재렌더 시 재실행 안 함(세션 1회만).
+# 로딩 출렁임에 안 섞이도록: 로딩 중엔 타이틀 숨김 → 페이지 완료+폰트+텀 후 등장.
 components.html("""
 <script>
 (function() {
@@ -1391,6 +1392,7 @@ components.html("""
   if (!p || p.__nvScrambled) return;
   var TEXT = 'NVIDIA Portfolio Tracker';
   var GLYPHS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#%&*';
+  var INTRO_DELAY = 800;  // 페이지 로딩 완료 후 텀 (사람이 화면 인지할 시간)
   function rand() { return GLYPHS[Math.floor(Math.random() * GLYPHS.length)]; }
   var tries = 0;
   function waitEl() {
@@ -1398,12 +1400,19 @@ components.html("""
     if (!el) { if (tries++ < 40) p.setTimeout(waitEl, 50); return; }  // DOM 미생성 시 재시도
     if (p.__nvScrambled) return;
     p.__nvScrambled = true;
-    // ① 폰트 로드 대기 후 시작 → 폰트 늦게 떨어질 때의 reflow 버벅임 제거
-    var fonts = p.document.fonts;
-    if (fonts && fonts.ready) { fonts.ready.then(function(){ run(el); }); }
-    else { run(el); }
+    el.style.opacity = '0';  // 로딩 중 숨김(폭/레이아웃은 유지) → 출렁임에 안 끼어듦
+    whenReady(function(){ p.setTimeout(function(){ run(el); }, INTRO_DELAY); });
+  }
+  // 페이지 load 완료 + 폰트 로드 완료를 모두 기다림
+  function whenReady(cb) {
+    var d = p.document;
+    var fontsReady = (d.fonts && d.fonts.ready) ? d.fonts.ready : Promise.resolve();
+    function afterLoad() { fontsReady.then(cb); }
+    if (d.readyState === 'complete') afterLoad();
+    else p.addEventListener('load', afterLoad, { once: true });
   }
   function run(el) {
+    el.style.opacity = '1';  // 깨끗한 화면에서 등장
     var chars = TEXT.split('');
     var mid = (chars.length - 1) / 2;
     el.textContent = '';
