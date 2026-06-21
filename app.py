@@ -367,25 +367,24 @@ st.markdown("""
     background: transparent !important;
   }
 
-  /* segmented_control(lazy 탭)을 원래 밑줄 탭 무드로 — 외곽 박스 제거 + 하단 밑줄 */
-  div[data-testid="stSegmentedControl"] { border: none !important; background: transparent !important; }
-  div[data-testid="stSegmentedControl"] > div {
-    border: none !important; background: transparent !important;
+  /* segmented_control(lazy 탭)을 원래 밑줄 탭 무드로 — 실제 DOM: stButtonGroup + stBaseButton-segmented_control(Active) */
+  div[data-testid="stButtonGroup"] > div[data-baseweb="button-group"] {
+    border: none !important; border-radius: 0 !important; background: transparent !important;
     gap: 0 !important; border-bottom: 1px solid #1e1e1e !important;
   }
-  div[data-testid="stSegmentedControl"] button {
+  button[data-testid="stBaseButton-segmented_control"],
+  button[data-testid="stBaseButton-segmented_controlActive"] {
     color: #383838 !important;
     font-size: 0.72rem !important; font-weight: 600 !important;
     letter-spacing: 1.6px !important; text-transform: uppercase !important;
     padding: 12px 24px !important;
     background: transparent !important; border: none !important;
     border-bottom: 2px solid transparent !important; border-radius: 0 !important;
+    box-shadow: none !important;
     transition: color 0.2s ease, border-color 0.2s ease !important;
   }
-  div[data-testid="stSegmentedControl"] button:hover { color: #909090 !important; background: transparent !important; }
-  div[data-testid="stSegmentedControl"] button[aria-checked="true"],
-  div[data-testid="stSegmentedControl"] button[kind="segmented_controlActive"],
-  div[data-testid="stSegmentedControl"] button[data-testid="stBaseButton-segmented_controlActive"] {
+  button[data-testid="stBaseButton-segmented_control"]:hover { color: #909090 !important; background: transparent !important; }
+  button[data-testid="stBaseButton-segmented_controlActive"] {
     color: #e8e8e8 !important;
     border-bottom: 2px solid #76b900 !important;
     background: transparent !important;
