@@ -342,32 +342,6 @@ st.markdown("""
     max-width: 400px !important;
   }
 
-  /* ── 탭 ── */
-  div[data-baseweb="tab-list"] {
-    border-bottom: 1px solid #1e1e1e !important;
-    gap: 0px;
-    background: transparent !important;
-  }
-  button[data-baseweb="tab"] {
-    color: #6b7280 !important;
-    font-size: 0.72rem !important;
-    font-weight: 600 !important;
-    letter-spacing: 1.6px !important;
-    text-transform: uppercase !important;
-    padding: 12px 24px !important;
-    border-bottom: 2px solid transparent !important;
-    background: transparent !important;
-    transition: color 0.2s ease, border-color 0.2s ease !important;
-  }
-  button[data-baseweb="tab"]:hover {
-    color: #909090 !important;
-    background: transparent !important;
-  }
-  button[data-baseweb="tab"][aria-selected="true"] {
-    color: #e8e8e8 !important;
-    border-bottom: 2px solid #76b900 !important;
-    background: transparent !important;
-  }
 
   /* segmented_control(lazy 탭) — 선택탭 '채운 박스' + 모바일 1줄 가로 스크롤. 실제 DOM: stButtonGroup + stBaseButton-segmented_control(Active) */
   div[data-testid="stButtonGroup"] { position: relative !important; }
@@ -576,12 +550,6 @@ st.markdown("""
     .alert-item   { font-size: 0.76rem; gap: 8px; }
     .alert-date   { font-size: 0.65rem; min-width: 66px; }
 
-    /* 탭 레이블 — 좁은 화면에 맞게 */
-    button[data-baseweb="tab"] {
-      font-size: 0.56rem !important;
-      padding: 10px 9px !important;
-      letter-spacing: 0.5px !important;
-    }
 
     /* 메트릭 카드 4개 → 2×2 */
     [data-testid="stHorizontalBlock"]:has(.metric-box) {
@@ -647,10 +615,6 @@ st.markdown("""
 
   @media screen and (max-width: 480px) {
     .nv-title, .nv-cursor { font-size: 3.1vw !important; }
-    button[data-baseweb="tab"] {
-      font-size: 0.5rem !important;
-      padding: 9px 7px !important;
-    }
     [data-testid="stHorizontalBlock"]:has(.metric-box) > [data-testid="stColumn"] {
       flex: 0 0 calc(50% - 3px) !important;
       min-width: calc(50% - 3px) !important;
@@ -1077,26 +1041,6 @@ BADGE_MAP = {
     "watch":   '<span class="badge-watch">WATCH</span>',
     "partner": '<span class="badge-partner">PARTNER</span>',
     "exited":  '<span class="badge-exited">EXITED</span>',
-}
-
-# 색상환 균등 분포 — 16개 섹터 모두 고유 유채색(회색 없음, 인접 섹터도 구분)
-SECTOR_COLORS = {
-    "클라우드 GPU":   "#3b82f6",  # blue
-    "AI 데이터센터":  "#0ea5e9",  # sky
-    "통신 인프라":    "#06b6d4",  # cyan
-    "자율주행 로봇":  "#14b8a6",  # teal
-    "AI 의료영상":    "#10b981",  # emerald
-    "EDA/칩 설계":    "#22c55e",  # green
-    "AI/음성인식":    "#84cc16",  # lime
-    "산업 로봇":      "#eab308",  # yellow
-    "광학 소재/제조": "#f59e0b",  # amber
-    "광학 부품":      "#f97316",  # orange
-    "자율주행":       "#ef4444",  # red
-    "광학 트랜시버":  "#ec4899",  # pink
-    "AI 신약개발":    "#d946ef",  # fuchsia
-    "반도체 IP":      "#a855f7",  # purple
-    "반도체/파운드리":"#8b5cf6",  # violet
-    "반도체/광연결":  "#6366f1",  # indigo
 }
 
 SECTOR_NAMES = {
