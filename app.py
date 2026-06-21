@@ -396,9 +396,11 @@ st.markdown("""
   /* 모바일: 탭 가로 스크롤 시 우측 그라데이션으로 '더 있음' 암시 */
   @media (max-width: 640px) {
     div[data-testid="stButtonGroup"]::after {
-      content: ""; position: absolute; top: 0; right: 0; bottom: 8px;
-      width: 44px; pointer-events: none; z-index: 1;
-      background: linear-gradient(to right, rgba(8,8,8,0), #080808 78%) !important;
+      content: "\\203A"; position: absolute; top: 0; right: 0; bottom: 8px;
+      width: 46px; pointer-events: none; z-index: 1;
+      display: flex; align-items: center; justify-content: flex-end; padding-right: 8px;
+      color: #76b900; font-size: 22px; font-weight: 700; line-height: 1;
+      background: linear-gradient(to right, rgba(8,8,8,0), #080808 70%) !important;
     }
   }
 
@@ -1643,6 +1645,8 @@ active_tab = st.segmented_control(
     "탭", TAB_LABELS, default="Portfolio", label_visibility="collapsed"
 ) or "Portfolio"  # None(선택 해제) 가드 → 항상 한 탭 활성
 
+PLOTLY_CFG = {"displayModeBar": False}  # plotly 떠다니는 툴바 숨김(모바일 가독성)
+
 # ══ Tab 1 ════════════════════════════════════════════════════════════════════
 if active_tab == "Portfolio":
     def sort_key(c):
@@ -1817,10 +1821,12 @@ elif active_tab == "Performance":
         ))
     fig.add_hline(y=0, line_dash="dash", line_color="#6b7280", annotation_text="0%")
     fig.update_layout(template="plotly_dark", paper_bgcolor="#111827", plot_bgcolor="#111827",
-                      height=500, yaxis_title="YTD Return (%)" if st.session_state.lang=="ENG" else "YTD 수익률 (%)",
+                      height=520, yaxis_title="YTD Return (%)" if st.session_state.lang=="ENG" else "YTD 수익률 (%)",
                       yaxis_ticksuffix="%", yaxis_hoverformat="+.0f",
-                      legend=dict(bgcolor="#1f2937"), margin=dict(l=0,r=0,t=20,b=0))
-    st.plotly_chart(fig, use_container_width=True)
+                      legend=dict(bgcolor="rgba(31,41,55,0.5)", orientation="h",
+                                  yanchor="top", y=-0.12, x=0, font=dict(size=10)),
+                      margin=dict(l=0,r=0,t=20,b=0))
+    st.plotly_chart(fig, use_container_width=True, config=PLOTLY_CFG)
 
     ytd_data = [{"ticker":c["ticker"],"name":c["name"],"ytd":stock_data.get(c["ticker"],{}).get("ytd_pct")}
                 for c in all_display
@@ -1831,14 +1837,14 @@ elif active_tab == "Performance":
         fig2 = go.Figure(go.Bar(
             x=df_ytd["ytd"], y=df_ytd["ticker"], orientation="h",
             marker_color=["#22c55e" if v>=0 else "#ef4444" for v in df_ytd["ytd"]],
-            text=[f"{v:+.0f}%" for v in df_ytd["ytd"]], textposition="outside",
+            text=[f"{v:+.0f}%" for v in df_ytd["ytd"]], textposition="auto", cliponaxis=False,
             hovertemplate="%{y}: %{x:+.0f}%<extra></extra>",
         ))
         fig2.update_layout(template="plotly_dark", paper_bgcolor="#111827", plot_bgcolor="#111827",
                             height=max(300,len(df_ytd)*38), xaxis_title="YTD (%)",
                             xaxis_hoverformat="+.0f",
-                            margin=dict(l=0,r=80,t=10,b=0))
-        st.plotly_chart(fig2, use_container_width=True)
+                            margin=dict(l=0,r=44,t=10,b=0))
+        st.plotly_chart(fig2, use_container_width=True, config=PLOTLY_CFG)
 
 # ══ Tab 3 ════════════════════════════════════════════════════════════════════
 elif active_tab == "Sectors":
@@ -1849,21 +1855,27 @@ elif active_tab == "Sectors":
         for c in current_only: sc_raw[c["sector"]] = sc_raw.get(c["sector"],0)+1
         sc_labels = [sector_name(s) for s in sc_raw]
         fig3 = go.Figure(go.Pie(labels=sc_labels, values=list(sc_raw.values()),
-            marker_colors=[SECTOR_COLORS.get(s,"#6b7280") for s in sc_raw], hole=0.4))
+            marker_colors=[SECTOR_COLORS.get(s,"#6b7280") for s in sc_raw], hole=0.4,
+            textposition="inside", textinfo="percent"))
         fig3.update_layout(template="plotly_dark",paper_bgcolor="#111827",
-            title=t("sector_count"),title_font_color="#f9fafb",height=380,margin=dict(l=0,r=0,t=40,b=0))
-        st.plotly_chart(fig3, use_container_width=True)
+            title=t("sector_count"),title_font_color="#f9fafb",height=420,
+            legend=dict(orientation="h",y=-0.05,x=0.5,xanchor="center",font=dict(size=10)),
+            margin=dict(l=0,r=0,t=40,b=0))
+        st.plotly_chart(fig3, use_container_width=True, config=PLOTLY_CFG)
     with cb:
         invest_data = [(c["name"], c["invest_amt_m"]) for c in current_only if c.get("invest_amt_m")]
         if invest_data:
             names, amts = zip(*invest_data)
             fig4 = go.Figure(go.Pie(labels=list(names), values=list(amts),
                 marker_colors=[SECTOR_COLORS.get(c["sector"],"#6b7280") for c in current_only if c.get("invest_amt_m")],
-                hole=0.4, texttemplate="%{label}<br>$%{customdata:.1f}B",
-                customdata=[a/1000 for a in amts]))
+                hole=0.4, textposition="inside", textinfo="percent",
+                customdata=[a/1000 for a in amts],
+                hovertemplate="%{label}<br>$%{customdata:.1f}B<extra></extra>"))
             fig4.update_layout(template="plotly_dark",paper_bgcolor="#111827",
-                title=t("sector_invest"),title_font_color="#f9fafb",height=380,margin=dict(l=0,r=0,t=40,b=0))
-            st.plotly_chart(fig4, use_container_width=True)
+                title=t("sector_invest"),title_font_color="#f9fafb",height=420,
+                legend=dict(orientation="h",y=-0.05,x=0.5,xanchor="center",font=dict(size=10)),
+                margin=dict(l=0,r=0,t=40,b=0))
+            st.plotly_chart(fig4, use_container_width=True, config=PLOTLY_CFG)
 
 # ══ Tab 4: 뉴스 ══════════════════════════════════════════════════════════════
 elif active_tab == "News":
@@ -1990,7 +2002,7 @@ elif active_tab == "13F History":
                     itemsizing="constant", traceorder="normal"),
         margin=dict(l=0, r=0, t=40, b=0),
     )
-    st.plotly_chart(fig6, use_container_width=True)
+    st.plotly_chart(fig6, use_container_width=True, config=PLOTLY_CFG)
 
 # ── 어드민 피드백 뷰 (비밀번호 보호) ─────────────────────────────────────────
 import json, os, html
