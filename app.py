@@ -367,27 +367,29 @@ st.markdown("""
     background: transparent !important;
   }
 
-  /* segmented_control(lazy 탭)을 원래 밑줄 탭 무드로 — 실제 DOM: stButtonGroup + stBaseButton-segmented_control(Active) */
+  /* segmented_control(lazy 탭) — 선택탭 '채운 박스' + 모바일 1줄 가로 스크롤. 실제 DOM: stButtonGroup + stBaseButton-segmented_control(Active) */
   div[data-testid="stButtonGroup"] > div[data-baseweb="button-group"] {
     border: none !important; border-radius: 0 !important; background: transparent !important;
-    gap: 0 !important; border-bottom: 1px solid #1e1e1e !important;
+    gap: 6px !important; border-bottom: 1px solid #1e1e1e !important;
+    flex-wrap: nowrap !important; overflow-x: auto !important; padding-bottom: 6px !important;
+    scrollbar-width: none !important;
   }
+  div[data-testid="stButtonGroup"] > div[data-baseweb="button-group"]::-webkit-scrollbar { display: none !important; }
   button[data-testid="stBaseButton-segmented_control"],
   button[data-testid="stBaseButton-segmented_controlActive"] {
     color: #383838 !important;
     font-size: 0.72rem !important; font-weight: 600 !important;
     letter-spacing: 1.6px !important; text-transform: uppercase !important;
-    padding: 12px 24px !important;
-    background: transparent !important; border: none !important;
-    border-bottom: 2px solid transparent !important; border-radius: 0 !important;
-    box-shadow: none !important;
-    transition: color 0.2s ease, border-color 0.2s ease !important;
+    padding: 9px 18px !important;
+    background: transparent !important; border: 1px solid transparent !important;
+    border-radius: 6px !important; box-shadow: none !important; white-space: nowrap !important;
+    transition: color 0.2s ease, background 0.2s ease, border-color 0.2s ease !important;
   }
   button[data-testid="stBaseButton-segmented_control"]:hover { color: #909090 !important; background: transparent !important; }
   button[data-testid="stBaseButton-segmented_controlActive"] {
-    color: #e8e8e8 !important;
-    border-bottom: 2px solid #76b900 !important;
-    background: transparent !important;
+    color: #cfe99a !important;
+    background: rgba(118,185,0,0.14) !important;
+    border: 1px solid #76b900 !important;
   }
 
   /* ── 사이드바 텍스트 ── */
