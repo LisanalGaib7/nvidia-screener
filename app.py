@@ -2012,7 +2012,7 @@ elif active_tab == "Performance":
                       height=520, yaxis_title="YTD Return (%)" if st.session_state.lang=="ENG" else "YTD 수익률 (%)",
                       yaxis_ticksuffix="%", yaxis_hoverformat="+.0f",
                       legend=_legend, dragmode=False,
-                      margin=dict(l=0, r=(0 if is_mobile else 12), t=20, b=0))
+                      margin=dict(l=0, r=(16 if is_mobile else 12), t=20, b=0))
     st.plotly_chart(fig, use_container_width=True, config=PLOTLY_CFG)
 
     ytd_data = [{"ticker":c["ticker"],"name":c["name"],"ytd":stock_data.get(c["ticker"],{}).get("ytd_pct")}
