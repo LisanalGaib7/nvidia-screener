@@ -1374,11 +1374,56 @@ if True:
   </div>
   <div>
     <div class="nv-title-wrap">
-      <span class="nv-title">NVIDIA Portfolio Tracker</span><span class="nv-cursor">_</span>
+      <span class="nv-title" id="nv-title">NVIDIA Portfolio Tracker</span><span class="nv-cursor">_</span>
     </div>
   </div>
 </div>
 """, unsafe_allow_html=True)
+
+# 헤더 타이틀 scramble 효과 (가운데→바깥 stagger, 약 1.5초).
+# st.markdown은 <script> 미실행 + components.html(srcdoc)은 null-origin이라
+# window.parent(앱 iframe, same-origin)의 #nv-title에 직접 주입 (GA4와 동일 패턴).
+# __nvScrambled 가드 → Streamlit 재렌더 시 재실행 안 함(세션 1회만).
+components.html("""
+<script>
+(function() {
+  var p = window.parent;
+  if (!p || p.__nvScrambled) return;
+  var TEXT = 'NVIDIA Portfolio Tracker';
+  var GLYPHS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#%&*';
+  function rand() { return GLYPHS[Math.floor(Math.random() * GLYPHS.length)]; }
+  var tries = 0;
+  function init() {
+    var el = p.document.getElementById('nv-title');
+    if (!el) { if (tries++ < 40) p.setTimeout(init, 50); return; }  // DOM 미생성 시 재시도
+    if (p.__nvScrambled) return;
+    p.__nvScrambled = true;
+    var chars = TEXT.split('');
+    var mid = (chars.length - 1) / 2;
+    el.textContent = '';
+    var spans = chars.map(function(c) {
+      var s = p.document.createElement('span');
+      s.textContent = (c === ' ') ? '\\u00A0' : rand();
+      el.appendChild(s);
+      return s;
+    });
+    var settleAt = chars.map(function(_, i) { return Math.abs(i - mid) * 115 + 180; });
+    var start = p.performance.now();
+    function tick(now) {
+      var t = now - start, done = true;
+      for (var i = 0; i < chars.length; i++) {
+        if (chars[i] === ' ') continue;
+        if (t >= settleAt[i]) { spans[i].textContent = chars[i]; }
+        else { spans[i].textContent = rand(); done = false; }
+      }
+      if (!done) p.requestAnimationFrame(tick);
+    }
+    p.requestAnimationFrame(tick);
+  }
+  init();
+})();
+</script>
+""", height=0)
 
 # ── 요약 지표 ─────────────────────────────────────────────────────────────────
 # 파트너십(지분 없음)은 수익률 집계에서 제외 — NVIDIA 실제 보유분 성과만 반영
