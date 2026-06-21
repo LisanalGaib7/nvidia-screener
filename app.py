@@ -1968,7 +1968,16 @@ elif active_tab == "13F History":
     cf1, cf2 = st.columns([1,3])
     with cf1:
         all_cos = sorted({f["company"] for f in FILINGS_HISTORY})
-        sel_cos = st.multiselect(t("filings_company"), all_cos, default=all_cos)
+        if "f13_cos" not in st.session_state:
+            st.session_state.f13_cos = all_cos
+        _kor = st.session_state.lang == "KOR"
+        _ba, _bn = st.columns(2)
+        if _ba.button("전체 선택" if _kor else "Select all", use_container_width=True):
+            st.session_state.f13_cos = all_cos; st.rerun()
+        if _bn.button("전체 해제" if _kor else "Clear all", use_container_width=True):
+            st.session_state.f13_cos = []; st.rerun()
+        # multiselect는 타이핑으로 기업 검색 가능. 전체 해제 후 원하는 기업만 골라 타임라인 보기.
+        sel_cos = st.multiselect(t("filings_company"), all_cos, key="f13_cos")
         ct_map = {
             "new":      "🟢 " + t("change_new"),
             "increase": "📈 " + t("change_increase"),
