@@ -521,6 +521,7 @@ st.markdown("""
                 letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 4px; }
   .ptd-amount { color: #c87f00; font-size: 1.05rem; font-weight: 600; margin-bottom: 10px; }
   .ptd-thesis { color: #b0b0b0; font-size: 0.8rem; line-height: 1.7; margin-bottom: 10px; }
+  .ptd-summary { color: #e8e8e8; font-size: 0.85rem; font-weight: 500; line-height: 1.6; margin-bottom: 12px; }
   .ptd-footer { display: flex; justify-content: space-between; align-items: flex-start;
                 padding-top: 8px; border-top: 1px solid #1e1e1e; gap: 8px; flex-wrap: wrap; }
   .ptd-date   { color: #505050; font-size: 0.65rem; white-space: nowrap; }
@@ -901,6 +902,71 @@ EXITED = [
     {"ticker":"SERV","name":"Serve Robotics",      "sector":"자율주행 로봇","invest_date":"2024-Q1",  "exit_date":"2024-Q4","invest_amt_m":None,  "note":"2024 Q1 13F 신규 → 2024 Q4 완전 청산"},
     {"ticker":"NNOX","name":"Nano-X Imaging",      "sector":"AI 의료영상", "invest_date":"2023-Q4",  "exit_date":"2024-Q4","invest_amt_m":None,  "note":"2023 Q4 13F 신규 → 2024 Q4 완전 청산"},
 ]
+
+# ── 포트폴리오 호버 설명(한국어) — 3섹션 구조: (한 줄 요약, 왜 투자했나, 투자 구조) ──
+# 수치는 데이터(nvidia_thesis)와 동일, 표현만 쉽게 재작성. 없는 종목은 기존 thesis fallback.
+THESIS_KO = {
+    "IREN": (
+        "엔비디아 GPU로 돌아가는 5GW급 AI 데이터센터를 짓는 회사",
+        "늘어나는 AI 연산 수요를 감당할 대형 데이터센터 파트너가 필요했고, IREN이 그 인프라를 맡습니다. GPU 클라우드 서비스도 5년간 함께 제공합니다.",
+        "워런트 방식 최대 $2.1B (30M주 @$70) · 5년 $3.4B GPU 클라우드 계약 병행",
+    ),
+    "GLW": (
+        "엔비디아 AI 데이터센터에 들어가는 광섬유를 미국에서 생산하는 회사",
+        "데이터센터 간 광연결 수요가 폭증하는데, 코닝이 미국 내 생산을 책임집니다. 새 공장 3곳(노스캐롤라이나·텍사스)으로 미국 광학 생산을 10배 늘립니다.",
+        "$500M 선불 워런트 (행사가 $180) · 최대 $3.2B · 일자리 3,000개",
+    ),
+    "MRVL": (
+        "엔비디아 GPU와 한 랙에서 초고속으로 연결되는 맞춤형 AI 칩을 만드는 회사",
+        "엔비디아 차세대 GPU(Rubin)·CPU(Vera)와 마벨 칩을 같은 랙에서 1.8TB/s로 묶는 'NVLink Fusion' 기술을 함께 만듭니다. 빛으로 데이터를 나르는 실리콘 포토닉스도 공동 개발합니다.",
+        "$2B 투자 · NVLink Fusion 파트너십 · 실리콘 포토닉스·5G/6G 공동 R&D",
+    ),
+    "LITE": (
+        "AI 데이터센터 광통신에 쓰는 레이저·포토닉스 부품을 만드는 회사",
+        "광연결의 핵심인 고급 레이저 부품을 루멘텀이 독점 공급합니다. 미국 내 새 생산시설(fab)도 짓습니다.",
+        "$2B 우선주 사모 (2,876,415주 @$695.31) · 멀티빌리언 구매 약정 포함",
+    ),
+    "COHR": (
+        "AI 데이터센터의 초고속 광신호 송수신 장치(트랜시버)를 만드는 회사",
+        "데이터센터 광연결 속도가 800G·1.6T로 빨라지는데, 코히런트가 그 트랜시버를 공급합니다. 미국 내 제조도 늘립니다.",
+        "$2B 투자 · 광학 네트워킹 제품 구매 약정 포함",
+    ),
+    "INTC": (
+        "엔비디아 GPU와 인텔 CPU를 한 칩에 합친 제품을 함께 만드는 회사",
+        "인텔 x86 CPU와 엔비디아 GPU를 '칩렛'으로 묶어 AI 데이터센터·PC용 통합 칩을 개발합니다. 엔비디아가 직접 지분 4%를 사들인 몇 안 되는 사례입니다.",
+        "$5B 직접 지분투자 (4%, 214.7M주 @$23.28)",
+    ),
+    "SNPS": (
+        "반도체 설계를 자동화하는 소프트웨어(EDA)를 만드는 회사",
+        "칩 설계 과정을 AI로 자동화하고 클라우드로 가속합니다. 엔비디아 칩을 더 빠르게 설계하는 데 핵심입니다.",
+        "$2B 사모 발행 (@$414.79/주)",
+    ),
+    "NOK": (
+        "엔비디아 GPU를 통신 기지국에 넣어 AI 이동통신망을 만드는 회사",
+        "노키아 5G/6G 기지국(RAN)에 엔비디아 GPU를 통합해, AI가 돌아가는 차세대 통신 인프라를 개발합니다.",
+        "$1B 투자 · 2.9% 지분 (@$6.01/주)",
+    ),
+    "CRWV": (
+        "엔비디아 최신 GPU를 가장 많이 보유한 AI 전용 클라우드 회사",
+        "엔비디아 H100·B200을 대규모로 굴리는 AI 클라우드로, 엔비디아의 전략적 주주이자 최대 고객입니다.",
+        "Q1 2026 13F: 47.2M주 $3.66B (+95% 증가) · 2025.03 IPO 참여",
+    ),
+    "NBIS": (
+        "엔비디아 시스템을 대규모로 배포하는 풀스택 AI 클라우드 회사",
+        "2030년까지 5GW 규모의 엔비디아 시스템을 깔기로 했습니다. 엔비디아가 2024년부터 두 차례 투자한 핵심 파트너입니다.",
+        "$2B 추가 투자 (2026.03) + $100M (2024.12) = 누적 $2.1B",
+    ),
+    "PLTR": (
+        "기업·정부용 'Sovereign AI 운영체제'를 엔비디아와 함께 만드는 회사",
+        "엔비디아 Blackwell Ultra 하드웨어 위에 팔란티어 AIP·온톨로지를 얹어, 외부망과 분리된(온프레미스·에어갭) AI를 통째로 제공합니다. 젠슨 황이 '세계에서 가장 중요한 엔터프라이즈 스택'이라 부른 협력입니다.",
+        "⚠️ 지분투자 아님 · 공동 제품 파트너십 (엔비디아 모델 → AIP 제공)",
+    ),
+    "6954.T": (
+        "엔비디아 AI를 산업용 로봇에 넣는 일본 로봇 회사",
+        "엔비디아 Isaac Sim으로 로봇을 가상에서 훈련(디지털 트윈)하고, Jetson 컴퓨터를 로봇에 탑재해 'Physical AI'를 구현합니다. 발표 당일 주가가 +9.4% 뛰었습니다.",
+        "⚠️ 지분투자 아님 · Physical AI 파트너십 · Isaac Sim + Jetson 통합",
+    ),
+}
 
 # ── 13F 공시 히스토리 (검증된 것만) ─────────────────────────────────────────
 FILINGS_HISTORY = [
@@ -1746,6 +1812,20 @@ if active_tab == "Portfolio":
 
             _thesis  = ((c.get("nvidia_thesis_eng") or c["nvidia_thesis"])
                         if lang == "ENG" else c["nvidia_thesis"])
+            # 한국어 + 재작성된 종목이면 3섹션 구조, 아니면 기존 한 덩어리 fallback
+            _tk3 = THESIS_KO.get(ticker) if lang != "ENG" else None
+            if _tk3:
+                _thesis_html = (
+                    '<div class="ptd-label">한 줄 요약</div>'
+                    f'<div class="ptd-summary">{_tk3[0]}</div>'
+                    '<div class="ptd-label">왜 NVIDIA가 투자했나</div>'
+                    f'<div class="ptd-thesis">{_tk3[1]}</div>'
+                    '<div class="ptd-label">투자 구조</div>'
+                    f'<div class="ptd-thesis">{_tk3[2]}</div>'
+                )
+            else:
+                _thesis_html = ('<div class="ptd-label">WHY NVIDIA</div>'
+                                f'<div class="ptd-thesis">{_thesis}</div>')
             price_h  = f'<span style="color:#c0c0c0;font-weight:500">{fmt_price(price,currency)}</span>'
             daily_h  = fmt_pct(sd.get("change_pct"))
             ytd_h    = fmt_pct(sd.get("ytd_pct"))
@@ -1788,8 +1868,7 @@ if active_tab == "Portfolio":
                 f'<div class="pt-detail-body">'
                 f'<div class="ptd-header"><span class="ptd-ticker">{ticker}</span><span class="ptd-sector">{_sector}</span></div>'
                 + (f'<div class="ptd-label">NVIDIA INVEST</div><div class="ptd-amount">{amt}</div>' if amt else '')
-                + f'<div class="ptd-label">WHY NVIDIA</div>'
-                + f'<div class="ptd-thesis">{_thesis}</div>'
+                + _thesis_html
                 + f'<div class="ptd-footer"><span class="ptd-date">{_date}</span><span class="ptd-src">{_src}</span></div>'
                 + f'</div></div>'
                 f'</div>'
