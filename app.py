@@ -1945,9 +1945,12 @@ if active_tab == "Portfolio":
 # ══ Tab 2 ════════════════════════════════════════════════════════════════════
 elif active_tab == "Performance":
     st.markdown(f"### {t('perf_title')}")
-    _hint = ("💡 범례에서 종목을 탭하면 켜고 끌 수 있고, 더블클릭(더블탭)하면 그 종목만 볼 수 있어요."
-             if st.session_state.lang == "KOR"
-             else "💡 Tap a legend item to show/hide it; double-click to view only that one.")
+    if st.session_state.lang == "KOR":
+        _hint = ("💡 주요 종목만 표시 중 — 범례에서 종목을 탭해 추가/제거, 더블탭하면 그 종목만 볼 수 있어요." if is_mobile
+                 else "💡 범례에서 종목을 탭하면 켜고 끌 수 있고, 더블클릭하면 그 종목만 볼 수 있어요.")
+    else:
+        _hint = ("💡 Showing key holdings — tap a legend item to add/remove; double-tap to isolate one." if is_mobile
+                 else "💡 Tap a legend item to show/hide it; double-click to view only that one.")
     st.markdown(
         f'<div style="color:#e5e7eb;font-size:0.85rem;margin:-6px 0 10px">{_hint}</div>',
         unsafe_allow_html=True)
@@ -1957,6 +1960,13 @@ elif active_tab == "Performance":
                    and "error" not in stock_data.get(c["ticker"],{})]
     fig = go.Figure()
     _palette = px.colors.qualitative.Light24  # 종목별 고유색 → 라인 구분성 ↑(섹터색 중복 해소)
+    # 모바일: 14개 스파게티 완화 — 기본은 YTD 상위 3종목만 표시, 나머지는 legendonly(범례 탭하면 추가)
+    _top_tk = set()
+    if is_mobile:
+        _ranked = sorted(chart_items,
+                         key=lambda c: stock_data.get(c["ticker"], {}).get("ytd_pct") or -9999,
+                         reverse=True)
+        _top_tk = {c["ticker"] for c in _ranked[:3]}
     _ci = 0
     for c in chart_items:
         hist = stock_data[c["ticker"]].get("hist")
@@ -1968,6 +1978,7 @@ elif active_tab == "Performance":
             x=pct.index, y=pct.values,
             name=c["ticker"],  # 범례는 티커만(컴팩트) — 풀네임은 hover로
             line=dict(color=_palette[_ci % len(_palette)], width=2),
+            visible=(True if (not is_mobile or c["ticker"] in _top_tk) else "legendonly"),
             hovertemplate=f"<b>{c['name']}</b><br>%{{y:+.0f}}%<extra></extra>",
         ))
         _ci += 1
