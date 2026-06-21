@@ -1418,6 +1418,10 @@ components.html("""
   }
   function run(el) {
     el.style.opacity = '1';  // 깨끗한 화면에서 등장
+    // scramble 중엔 glow(text-shadow blur) 끔 → 모바일 GPU의 매 프레임 재페인트 부담 제거.
+    // 정착 후 transition으로 부드럽게 켬.
+    el.style.transition = 'text-shadow 0.35s ease';
+    el.style.textShadow = 'none';
     var chars = TEXT.split('');
     var mid = (chars.length - 1) / 2;
     el.textContent = '';
@@ -1435,7 +1439,8 @@ components.html("""
     var settleAt = chars.map(function(_, i) { return Math.abs(i - mid) * 115 + 180; });
     var settled = new Array(chars.length).fill(false);  // ③ 정착 글자 재기록 방지
     var start = p.performance.now();
-    var lastSwap = 0, SWAP_MS = 45;  // ④ 랜덤 교체 throttle → glow 재페인트 부담 ↓
+    // ④ 랜덤 교체 throttle → 모바일은 더 길게(교체 횟수 ↓ = 페인트 부담 ↓)
+    var lastSwap = 0, SWAP_MS = (p.innerWidth <= 640) ? 65 : 45;
     function tick(now) {
       var t = now - start, done = true;
       var swap = (now - lastSwap) >= SWAP_MS;
@@ -1445,7 +1450,8 @@ components.html("""
         else { if (swap) spans[i].textContent = rand(); done = false; }
       }
       if (swap) lastSwap = now;
-      if (!done) p.requestAnimationFrame(tick);
+      if (!done) { p.requestAnimationFrame(tick); }
+      else { el.style.textShadow = ''; }  // 정착 완료 → CSS glow 복원(transition으로 페이드인)
     }
     p.requestAnimationFrame(tick);
   }
