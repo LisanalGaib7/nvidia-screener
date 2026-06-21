@@ -1335,8 +1335,11 @@ if True:
   animation: nvlogo-spin 3.2s ease-in-out infinite;
   transform-style: preserve-3d;
 }
+.nv-header {
+  max-width: 100%;
+}
 .nv-logo {
-  font-size: 1.3rem;
+  font-size: clamp(0.9rem, 4vw, 1.3rem);
   font-weight: 900;
   font-family: 'Inter', system-ui, sans-serif;
   color: #76b900;
@@ -1349,12 +1352,14 @@ if True:
 .nv-title-wrap {
   overflow: hidden;
   display: inline-block;
+  max-width: 100%;
 }
+/* font-size는 뷰포트 반응형(clamp) — 좁은 모바일 화면에서 자동 축소돼 한 줄 유지(오버플로 방지) */
 .nv-title {
   font-family: 'Press Start 2P', monospace;
-  font-size: 1.05rem;
+  font-size: clamp(0.62rem, 3.4vw, 1.05rem);
   color: #76b900;
-  letter-spacing: 1px;
+  letter-spacing: clamp(0px, 0.2vw, 1px);
   line-height: 1.3;
   text-shadow: 0 0 18px rgba(118,185,0,0.35);
   white-space: nowrap;
@@ -1362,7 +1367,7 @@ if True:
 }
 .nv-cursor {
   font-family: 'Press Start 2P', monospace;
-  font-size: 1.05rem;
+  font-size: clamp(0.62rem, 3.4vw, 1.05rem);
   color: #76b900;
   animation: cursor-blink 1s step-end infinite;
   margin-left: 2px;
@@ -1391,7 +1396,7 @@ components.html("""
   var p = window.parent;
   if (!p || p.__nvScrambled) return;
   var TEXT = 'NVIDIA Portfolio Tracker';
-  var GLYPHS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#%&*';
+  var GLYPHS = '<>/{}[]()=+*#%&|;:!?';  // 코드 기호 글리치 (Press Start 2P 지원 글리프)
   var INTRO_DELAY = 800;  // 페이지 로딩 완료 후 텀 (사람이 화면 인지할 시간)
   function rand() { return GLYPHS[Math.floor(Math.random() * GLYPHS.length)]; }
   var tries = 0;
@@ -1419,8 +1424,9 @@ components.html("""
     var spans = chars.map(function(c) {
       var s = p.document.createElement('span');
       // ② 글자 폭 고정(inline-block) → 랜덤 글자 교체 시 폭 변동 reflow 차단
+      // width를 1em(폰트크기 상대)으로 → 모바일 clamp 폰트 축소 시 폭도 함께 축소
       s.style.display = 'inline-block';
-      s.style.width = '1.05rem';
+      s.style.width = '1em';
       s.style.textAlign = 'center';
       s.textContent = (c === ' ') ? '\\u00A0' : rand();
       el.appendChild(s);
