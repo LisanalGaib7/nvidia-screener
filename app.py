@@ -1393,34 +1393,48 @@ components.html("""
   var GLYPHS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#%&*';
   function rand() { return GLYPHS[Math.floor(Math.random() * GLYPHS.length)]; }
   var tries = 0;
-  function init() {
+  function waitEl() {
     var el = p.document.getElementById('nv-title');
-    if (!el) { if (tries++ < 40) p.setTimeout(init, 50); return; }  // DOM 미생성 시 재시도
+    if (!el) { if (tries++ < 40) p.setTimeout(waitEl, 50); return; }  // DOM 미생성 시 재시도
     if (p.__nvScrambled) return;
     p.__nvScrambled = true;
+    // ① 폰트 로드 대기 후 시작 → 폰트 늦게 떨어질 때의 reflow 버벅임 제거
+    var fonts = p.document.fonts;
+    if (fonts && fonts.ready) { fonts.ready.then(function(){ run(el); }); }
+    else { run(el); }
+  }
+  function run(el) {
     var chars = TEXT.split('');
     var mid = (chars.length - 1) / 2;
     el.textContent = '';
     var spans = chars.map(function(c) {
       var s = p.document.createElement('span');
+      // ② 글자 폭 고정(inline-block) → 랜덤 글자 교체 시 폭 변동 reflow 차단
+      s.style.display = 'inline-block';
+      s.style.width = '1.05rem';
+      s.style.textAlign = 'center';
       s.textContent = (c === ' ') ? '\\u00A0' : rand();
       el.appendChild(s);
       return s;
     });
     var settleAt = chars.map(function(_, i) { return Math.abs(i - mid) * 115 + 180; });
+    var settled = new Array(chars.length).fill(false);  // ③ 정착 글자 재기록 방지
     var start = p.performance.now();
+    var lastSwap = 0, SWAP_MS = 45;  // ④ 랜덤 교체 throttle → glow 재페인트 부담 ↓
     function tick(now) {
       var t = now - start, done = true;
+      var swap = (now - lastSwap) >= SWAP_MS;
       for (var i = 0; i < chars.length; i++) {
-        if (chars[i] === ' ') continue;
-        if (t >= settleAt[i]) { spans[i].textContent = chars[i]; }
-        else { spans[i].textContent = rand(); done = false; }
+        if (chars[i] === ' ' || settled[i]) continue;
+        if (t >= settleAt[i]) { spans[i].textContent = chars[i]; settled[i] = true; }
+        else { if (swap) spans[i].textContent = rand(); done = false; }
       }
+      if (swap) lastSwap = now;
       if (!done) p.requestAnimationFrame(tick);
     }
     p.requestAnimationFrame(tick);
   }
-  init();
+  waitEl();
 })();
 </script>
 """, height=0)
