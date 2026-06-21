@@ -367,6 +367,30 @@ st.markdown("""
     background: transparent !important;
   }
 
+  /* segmented_control(lazy 탭)을 원래 밑줄 탭 무드로 — 외곽 박스 제거 + 하단 밑줄 */
+  div[data-testid="stSegmentedControl"] { border: none !important; background: transparent !important; }
+  div[data-testid="stSegmentedControl"] > div {
+    border: none !important; background: transparent !important;
+    gap: 0 !important; border-bottom: 1px solid #1e1e1e !important;
+  }
+  div[data-testid="stSegmentedControl"] button {
+    color: #383838 !important;
+    font-size: 0.72rem !important; font-weight: 600 !important;
+    letter-spacing: 1.6px !important; text-transform: uppercase !important;
+    padding: 12px 24px !important;
+    background: transparent !important; border: none !important;
+    border-bottom: 2px solid transparent !important; border-radius: 0 !important;
+    transition: color 0.2s ease, border-color 0.2s ease !important;
+  }
+  div[data-testid="stSegmentedControl"] button:hover { color: #909090 !important; background: transparent !important; }
+  div[data-testid="stSegmentedControl"] button[aria-checked="true"],
+  div[data-testid="stSegmentedControl"] button[kind="segmented_controlActive"],
+  div[data-testid="stSegmentedControl"] button[data-testid="stBaseButton-segmented_controlActive"] {
+    color: #e8e8e8 !important;
+    border-bottom: 2px solid #76b900 !important;
+    background: transparent !important;
+  }
+
   /* ── 사이드바 텍스트 ── */
   .stSidebar h2, .stSidebar h3 { color: #e0e0e0 !important; }
   .stSidebar p, .stSidebar label { color: #909090 !important; }
