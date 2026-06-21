@@ -2130,12 +2130,12 @@ elif active_tab == "13F History":
     st.markdown(f"### {t('filings_title')}")
     st.caption(t("filings_caption"))
 
-    cf1, cf2 = st.columns([1,3])
-    with cf1:
-        all_cos = sorted({f["company"] for f in FILINGS_HISTORY})
-        if "f13_cos" not in st.session_state:
-            st.session_state.f13_cos = all_cos
-        _kor = st.session_state.lang == "KOR"
+    all_cos = sorted({f["company"] for f in FILINGS_HISTORY})
+    if "f13_cos" not in st.session_state:
+        st.session_state.f13_cos = all_cos
+    _kor = st.session_state.lang == "KOR"
+    # 필터는 접이식 — 모바일에선 기본 접힘(전체선택 칩이 화면 점유하지 않게), 데스크톱은 펼침
+    with st.expander("🔍 " + ("필터" if _kor else "Filter"), expanded=not is_mobile):
         _ba, _bn = st.columns(2)
         if _ba.button("전체 선택" if _kor else "Select all", use_container_width=True):
             st.session_state.f13_cos = all_cos; st.rerun()
@@ -2153,25 +2153,24 @@ elif active_tab == "13F History":
         sel_ct = st.multiselect(t("filings_type"), list(ct_map.values()), default=list(ct_map.values()))
         sel_ct_keys = [k for k,v in ct_map.items() if v in sel_ct]
 
-    with cf2:
-        filtered_f = sorted(
-            [f for f in FILINGS_HISTORY if f["company"] in sel_cos and f["change_type"] in sel_ct_keys],
-            key=lambda x: x["filed"], reverse=True
-        )
-        _cs = get_change_style()
-        for f in filtered_f:
-            css, label = _cs.get(f["change_type"],("filing-hold","🔵 " + t("change_hold")))
-            val = f"${f['value_m']:,.0f}M" if f.get("value_m") else ""
-            val_html = f"&nbsp;&nbsp;<span style='color:#76b900;font-size:0.85rem;font-weight:700'>{val}</span>" if val else ""
-            _change_txt = (f.get("change_eng") or f["change"]) if st.session_state.lang == "ENG" else f["change"]
-            st.markdown(
-                f'<div class="filing-row {css}">'
-                f'<span style="color:#f9fafb;font-weight:600">{f["company"]} ({f["ticker"]})</span>'
-                f'&nbsp;<span style="color:#9ca3af;font-size:0.82rem">{f["quarter"]} · {f["filed"]}</span><br>'
-                f'<span style="font-size:0.9rem">{label} — {_change_txt}</span>'
-                f'{val_html}'
-                f'</div>',
-                unsafe_allow_html=True)
+    filtered_f = sorted(
+        [f for f in FILINGS_HISTORY if f["company"] in sel_cos and f["change_type"] in sel_ct_keys],
+        key=lambda x: x["filed"], reverse=True
+    )
+    _cs = get_change_style()
+    for f in filtered_f:
+        css, label = _cs.get(f["change_type"],("filing-hold","🔵 " + t("change_hold")))
+        val = f"${f['value_m']:,.0f}M" if f.get("value_m") else ""
+        val_html = f"&nbsp;&nbsp;<span style='color:#76b900;font-size:0.85rem;font-weight:700'>{val}</span>" if val else ""
+        _change_txt = (f.get("change_eng") or f["change"]) if st.session_state.lang == "ENG" else f["change"]
+        st.markdown(
+            f'<div class="filing-row {css}">'
+            f'<span style="color:#f9fafb;font-weight:600">{f["company"]} ({f["ticker"]})</span>'
+            f'&nbsp;<span style="color:#9ca3af;font-size:0.82rem">{f["quarter"]} · {f["filed"]}</span><br>'
+            f'<span style="font-size:0.9rem">{label} — {_change_txt}</span>'
+            f'{val_html}'
+            f'</div>',
+            unsafe_allow_html=True)
 
     st.markdown(f"### {t('timeline_title')}")
     df_f = pd.DataFrame(FILINGS_HISTORY)
