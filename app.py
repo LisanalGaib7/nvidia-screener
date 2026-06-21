@@ -346,9 +346,10 @@ st.markdown("""
   /* segmented_control(lazy 탭) — 선택탭 '채운 박스' + 모바일 1줄 가로 스크롤. 실제 DOM: stButtonGroup + stBaseButton-segmented_control(Active) */
   div[data-testid="stButtonGroup"] { position: relative !important; }
   div[data-testid="stButtonGroup"] > div[data-baseweb="button-group"] {
-    border: none !important; border-radius: 0 !important; background: transparent !important;
-    gap: 6px !important; border-bottom: 1px solid #1e1e1e !important;
-    flex-wrap: nowrap !important; overflow-x: auto !important; padding-bottom: 6px !important;
+    border: 1px solid rgba(255,255,255,0.06) !important; border-radius: 10px !important;
+    background: rgba(255,255,255,0.025) !important;  /* 미세 배경 — 탭 그룹을 하나로 묶어 또렷하게 */
+    gap: 6px !important; padding: 5px !important;
+    flex-wrap: nowrap !important; overflow-x: auto !important;
     scrollbar-width: none !important;
   }
   div[data-testid="stButtonGroup"] > div[data-baseweb="button-group"]::-webkit-scrollbar { display: none !important; }
