@@ -368,6 +368,7 @@ st.markdown("""
   }
 
   /* segmented_control(lazy 탭) — 선택탭 '채운 박스' + 모바일 1줄 가로 스크롤. 실제 DOM: stButtonGroup + stBaseButton-segmented_control(Active) */
+  div[data-testid="stButtonGroup"] { position: relative !important; }
   div[data-testid="stButtonGroup"] > div[data-baseweb="button-group"] {
     border: none !important; border-radius: 0 !important; background: transparent !important;
     gap: 6px !important; border-bottom: 1px solid #1e1e1e !important;
@@ -383,6 +384,7 @@ st.markdown("""
     padding: 9px 18px !important;
     background: transparent !important; border: 1px solid transparent !important;
     border-radius: 6px !important; box-shadow: none !important; white-space: nowrap !important;
+    flex-shrink: 0 !important;  /* 자연 폭 유지 → 압축(글자 잘림) 대신 넘치면 가로 스크롤 */
     transition: color 0.2s ease, background 0.2s ease, border-color 0.2s ease !important;
   }
   button[data-testid="stBaseButton-segmented_control"]:hover { color: #909090 !important; background: transparent !important; }
@@ -390,6 +392,14 @@ st.markdown("""
     color: #cfe99a !important;
     background: rgba(118,185,0,0.14) !important;
     border: 1px solid #76b900 !important;
+  }
+  /* 모바일: 탭 가로 스크롤 시 우측 그라데이션으로 '더 있음' 암시 */
+  @media (max-width: 640px) {
+    div[data-testid="stButtonGroup"]::after {
+      content: ""; position: absolute; top: 0; right: 0; bottom: 8px;
+      width: 44px; pointer-events: none; z-index: 1;
+      background: linear-gradient(to right, rgba(8,8,8,0), #080808 78%) !important;
+    }
   }
 
   /* ── 사이드바 텍스트 ── */
