@@ -819,8 +819,8 @@ CURRENT_HOLDINGS = [
         "alert_date": "2026-05-15",
         "nvidia_thesis": "NVIDIA GPU 특화 하이퍼스케일러 — H100/B200 최대 보유 AI 클라우드. Q1 2026 13F: 47.2M주 ($3.66B), +95% 증가",
         "nvidia_thesis_eng": "NVIDIA GPU-specialized hyperscaler — largest H100/B200 AI cloud. Q1 2026 13F: 47.2M shares ($3.66B), +95% increase",
-        "note": "13F 지분 $3.66B (+95% 증가) | 47.2M주, 2025.03 IPO 참여 | NVIDIA 전략적 주주·최대 고객",
-        "note_eng": "13F stake $3.66B (+95%) | 47.2M shares, 2025.03 IPO | NVIDIA strategic shareholder & top customer",
+        "note": "13F 지분 +95% 증가 → $3.66B | 47.2M주, 2025.03 IPO 참여 | NVIDIA 전략적 주주·최대 고객",
+        "note_eng": "13F stake +95% → $3.66B | 47.2M shares, 2025.03 IPO | NVIDIA strategic shareholder & top customer",
         "source": "CoreWeave IPO Filing (2025.03) · SEC 13F Q1 2026 (2026.05.15)",
     },
     {
