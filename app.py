@@ -1601,13 +1601,15 @@ for col, label, value, color, extra_html in [
 st.markdown("---")
 
 # ── 탭 ───────────────────────────────────────────────────────────────────────
-tab1, tab2, tab3, tab4, tab5 = st.tabs([
-    "Portfolio", "Performance", "Sectors",
-    "News", "13F History"
-])
+# st.tabs는 모든 탭을 한 번에 렌더(차트 5개 동시) → 모바일 로딩 출렁임.
+# segmented_control + 조건부 렌더(lazy)로 선택 탭만 그림(초기 차트 5→0개).
+TAB_LABELS = ["Portfolio", "Performance", "Sectors", "News", "13F History"]
+active_tab = st.segmented_control(
+    "탭", TAB_LABELS, default="Portfolio", label_visibility="collapsed"
+) or "Portfolio"  # None(선택 해제) 가드 → 항상 한 탭 활성
 
 # ══ Tab 1 ════════════════════════════════════════════════════════════════════
-with tab1:
+if active_tab == "Portfolio":
     def sort_key(c):
         sd = stock_data.get(c["ticker"],{})
         if sort_by == t("sb_sort_invest"): return c.get("invest_amt_m") or 0
@@ -1738,7 +1740,7 @@ with tab1:
             st.markdown(row_html, unsafe_allow_html=True)
 
 # ══ Tab 2 ════════════════════════════════════════════════════════════════════
-with tab2:
+elif active_tab == "Performance":
     st.markdown(f"### {t('perf_title')}")
     # 파트너십(지분 없음)은 수익률 차트에서 제외 — NVIDIA 실제 보유분만
     chart_items = [c for c in all_display
@@ -1804,7 +1806,7 @@ with tab2:
         st.plotly_chart(fig2, use_container_width=True)
 
 # ══ Tab 3 ════════════════════════════════════════════════════════════════════
-with tab3:
+elif active_tab == "Sectors":
     current_only = NEW_2026 + CURRENT_HOLDINGS
     ca, cb = st.columns(2)
     with ca:
@@ -1829,7 +1831,7 @@ with tab3:
             st.plotly_chart(fig4, use_container_width=True)
 
 # ══ Tab 4: 뉴스 ══════════════════════════════════════════════════════════════
-with tab4:
+elif active_tab == "News":
     st.markdown(f"### {t('news_title')}")
     st.caption(t("news_caption"))
     news_map = {c["ticker"]: f"{c['name']} ({c['ticker']})" for c in all_display
@@ -1889,7 +1891,7 @@ with tab4:
         if shown == 0: st.info(t("no_news"))
 
 # ══ Tab 5: 13F 히스토리 ══════════════════════════════════════════════════════
-with tab5:
+elif active_tab == "13F History":
     st.markdown(f"### {t('filings_title')}")
     st.caption(t("filings_caption"))
 
