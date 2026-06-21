@@ -2020,7 +2020,7 @@ elif active_tab == "Performance":
             marker_color=["#22c55e" if v>=0 else "#ef4444" for v in df_ytd["ytd"]],
             text=[f"{v:+.0f}%" for v in df_ytd["ytd"]], textposition="outside", cliponaxis=False,
             textfont=dict(color="#ffffff"),
-            hovertemplate="%{y}: %{x:+.0f}%<extra></extra>",
+            hoverinfo="skip",  # 막대 끝 라벨로 값이 이미 보임 → 호버 제거(소수점 버그도 해소)
         ))
         fig2.update_layout(template="plotly_dark", paper_bgcolor="#111827", plot_bgcolor="#111827",
                             height=max(300,len(df_ytd)*38), xaxis_title="YTD (%)",
