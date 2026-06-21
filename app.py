@@ -1339,7 +1339,7 @@ if True:
   max-width: 100%;
 }
 .nv-logo {
-  font-size: clamp(0.9rem, 4vw, 1.3rem);
+  font-size: 1.3rem;
   font-weight: 900;
   font-family: 'Inter', system-ui, sans-serif;
   color: #76b900;
@@ -1354,12 +1354,12 @@ if True:
   display: inline-block;
   max-width: 100%;
 }
-/* font-size는 뷰포트 반응형(clamp) — 좁은 모바일 화면에서 자동 축소돼 한 줄 유지(오버플로 방지) */
+/* 데스크탑 고정 크기. 모바일은 아래 @media에서 vw 비례로 키움(한 줄 유지하며 화면 채움) */
 .nv-title {
   font-family: 'Press Start 2P', monospace;
-  font-size: clamp(0.62rem, 3.4vw, 1.05rem);
+  font-size: 1.05rem;
   color: #76b900;
-  letter-spacing: clamp(0px, 0.2vw, 1px);
+  letter-spacing: 1px;
   line-height: 1.3;
   text-shadow: 0 0 18px rgba(118,185,0,0.35);
   white-space: nowrap;
@@ -1367,10 +1367,16 @@ if True:
 }
 .nv-cursor {
   font-family: 'Press Start 2P', monospace;
-  font-size: clamp(0.62rem, 3.4vw, 1.05rem);
+  font-size: 1.05rem;
   color: #76b900;
   animation: cursor-blink 1s step-end infinite;
   margin-left: 2px;
+}
+/* 모바일: vw 비례로 헤더 확대 — 어느 기종이든 같은 비율로 채워 한 줄 유지(오버플로 안전) */
+@media (max-width: 640px) {
+  .nv-logo   { font-size: 5.4vw; }
+  .nv-title  { font-size: 4.6vw; letter-spacing: 0.5px; }
+  .nv-cursor { font-size: 4.6vw; }
 }
 </style>
 <div class="nv-header">
@@ -1497,6 +1503,8 @@ st.markdown("""
   border-radius: 4px;
   padding: 12px 16px;
   min-width: 200px;
+  max-width: calc(100vw - 24px);  /* 모바일 viewport 초과 방지 안전판 */
+  box-sizing: border-box;
   box-shadow: 0 8px 24px rgba(0,0,0,0.6);
 }
 .metric-box:hover .metric-tooltip { display: block; }
@@ -1535,7 +1543,7 @@ for col, label, value, color, extra_html in [
        )
      + '</div>'),
     (m2, t("metric_invested"), invest_str,   "#c87f00",
-     '<div class="metric-tooltip" style="border-top-color:#c87f00;min-width:220px">'
+     '<div class="metric-tooltip" style="border-top-color:#c87f00;min-width:220px;left:auto;right:0">'
      f'<div class="tooltip-title" style="color:#c87f00">{t("tooltip_invest_rank")}</div>'
      + "".join(
          f'<div class="tooltip-row">'
