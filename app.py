@@ -1645,7 +1645,13 @@ active_tab = st.segmented_control(
     "탭", TAB_LABELS, default="Portfolio", label_visibility="collapsed"
 ) or "Portfolio"  # None(선택 해제) 가드 → 항상 한 탭 활성
 
-PLOTLY_CFG = {"displayModeBar": False}  # plotly 떠다니는 툴바 숨김(모바일 가독성)
+PLOTLY_CFG = {"displayModeBar": False, "scrollZoom": False, "doubleClick": False}  # 툴바·줌 비활성(터치 시 의도치 않은 zoom 방지)
+# 모바일/데스크톱 분기(서버측 user-agent → 깜빡임 없음). 범례 위치 등에 사용.
+try:
+    _ua = st.context.headers.get("User-Agent", "")
+except Exception:
+    _ua = ""
+is_mobile = any(k in _ua for k in ["Mobile", "Android", "iPhone", "iPad"])
 
 # ══ Tab 1 ════════════════════════════════════════════════════════════════════
 if active_tab == "Portfolio":
@@ -1823,12 +1829,15 @@ elif active_tab == "Performance":
             hovertemplate=f"<b>{_blabel}</b><br>%{{y:+.0f}}%<extra></extra>",
         ))
     fig.add_hline(y=0, line_dash="dash", line_color="#6b7280", annotation_text="0%")
+    # 범례: 데스크톱=우측 세로 / 모바일=하단 가로(티커라 자동 여러 열)
+    _legend = (dict(bgcolor="rgba(31,41,55,0.5)", orientation="h", yanchor="top", y=-0.12, x=0, font=dict(size=10))
+               if is_mobile else
+               dict(bgcolor="rgba(31,41,55,0.3)", orientation="v", yanchor="top", y=1, xanchor="left", x=1.01, font=dict(size=11)))
     fig.update_layout(template="plotly_dark", paper_bgcolor="#111827", plot_bgcolor="#111827",
                       height=520, yaxis_title="YTD Return (%)" if st.session_state.lang=="ENG" else "YTD 수익률 (%)",
                       yaxis_ticksuffix="%", yaxis_hoverformat="+.0f",
-                      legend=dict(bgcolor="rgba(31,41,55,0.5)", orientation="h",
-                                  yanchor="top", y=-0.12, x=0, font=dict(size=10)),
-                      margin=dict(l=0,r=0,t=20,b=0))
+                      legend=_legend, dragmode=False,
+                      margin=dict(l=0, r=(0 if is_mobile else 12), t=20, b=0))
     st.plotly_chart(fig, use_container_width=True, config=PLOTLY_CFG)
 
     ytd_data = [{"ticker":c["ticker"],"name":c["name"],"ytd":stock_data.get(c["ticker"],{}).get("ytd_pct")}
@@ -1840,13 +1849,14 @@ elif active_tab == "Performance":
         fig2 = go.Figure(go.Bar(
             x=df_ytd["ytd"], y=df_ytd["ticker"], orientation="h",
             marker_color=["#22c55e" if v>=0 else "#ef4444" for v in df_ytd["ytd"]],
-            text=[f"{v:+.0f}%" for v in df_ytd["ytd"]], textposition="auto", cliponaxis=False,
+            text=[f"{v:+.0f}%" for v in df_ytd["ytd"]], textposition="outside", cliponaxis=False,
+            textfont=dict(color="#ffffff"),
             hovertemplate="%{y}: %{x:+.0f}%<extra></extra>",
         ))
         fig2.update_layout(template="plotly_dark", paper_bgcolor="#111827", plot_bgcolor="#111827",
                             height=max(300,len(df_ytd)*38), xaxis_title="YTD (%)",
-                            xaxis_hoverformat="+.0f",
-                            margin=dict(l=0,r=44,t=10,b=0))
+                            xaxis_hoverformat="+.0f", dragmode=False,
+                            margin=dict(l=0,r=60,t=10,b=0))
         st.plotly_chart(fig2, use_container_width=True, config=PLOTLY_CFG)
 
 # ══ Tab 3 ════════════════════════════════════════════════════════════════════
@@ -1861,7 +1871,7 @@ elif active_tab == "Sectors":
             marker_colors=[SECTOR_COLORS.get(s,"#6b7280") for s in sc_raw], hole=0.4,
             textposition="inside", textinfo="percent"))
         fig3.update_layout(template="plotly_dark",paper_bgcolor="#111827",
-            title=t("sector_count"),title_font_color="#f9fafb",height=420,
+            title=t("sector_count"),title_font_color="#f9fafb",height=420, dragmode=False,
             legend=dict(orientation="h",y=-0.05,x=0.5,xanchor="center",font=dict(size=10)),
             margin=dict(l=0,r=0,t=40,b=0))
         st.plotly_chart(fig3, use_container_width=True, config=PLOTLY_CFG)
@@ -1875,7 +1885,7 @@ elif active_tab == "Sectors":
                 customdata=[a/1000 for a in amts],
                 hovertemplate="%{label}<br>$%{customdata:.1f}B<extra></extra>"))
             fig4.update_layout(template="plotly_dark",paper_bgcolor="#111827",
-                title=t("sector_invest"),title_font_color="#f9fafb",height=420,
+                title=t("sector_invest"),title_font_color="#f9fafb",height=420, dragmode=False,
                 legend=dict(orientation="h",y=-0.05,x=0.5,xanchor="center",font=dict(size=10)),
                 margin=dict(l=0,r=0,t=40,b=0))
             st.plotly_chart(fig4, use_container_width=True, config=PLOTLY_CFG)
@@ -2000,7 +2010,7 @@ elif active_tab == "13F History":
         ))
     fig6.update_layout(
         template="plotly_dark", paper_bgcolor="#111827", plot_bgcolor="#111827",
-        height=500, xaxis_title=t("filings_xaxis"),
+        height=500, xaxis_title=t("filings_xaxis"), dragmode=False,
         legend=dict(bgcolor="#1f2937", orientation="h", y=1.12,
                     itemsizing="constant", traceorder="normal"),
         margin=dict(l=0, r=0, t=40, b=0),
