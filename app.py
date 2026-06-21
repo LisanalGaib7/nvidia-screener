@@ -1431,36 +1431,6 @@ if _csv_rows:
                            mime="text/csv", use_container_width=True)
         st.markdown("---")
 
-# ── 🚨 신규 투자 알림 배너 — 최근 5건 ────────────────────────────────────────
-all_investments = NEW_2026 + CURRENT_HOLDINGS + PARTNERSHIPS
-recent_5 = sorted(
-    [c for c in all_investments if c.get("alert_date")],
-    key=lambda x: x.get("alert_date",""), reverse=True
-)[:5]
-
-_cur_lang = st.session_state.lang
-
-if recent_5:
-    latest_year = recent_5[0].get("alert_date","")[:4]
-    _alert_items = []
-    for c in recent_5:
-        _raw = (c.get("note_eng") or c["note"]) if _cur_lang == "ENG" else c["note"]
-        # note 첫 조각에서 날짜 든 괄호 통째 제거 (비날짜 괄호 '(+95% 증가)'는 유지)
-        _desc = re.sub(r'\s*\([^)]*20\d{2}[.\-]\d[^)]*\)', '', _raw.split("|")[0].strip()).strip()
-        _alert_items.append(
-            f'<div class="alert-item">'
-            f'<span class="alert-date">{c.get("alert_date","")}</span>'
-            f'<span><b class="alert-co">{c["name"]} ({c["ticker"]})</b>&nbsp; '
-            f'<span class="alert-desc">{_desc}</span></span>'
-            f'</div>')
-    items_html = "".join(_alert_items)
-    st.markdown(
-        f'<div class="alert-banner">'
-        f'<div class="alert-title">{"Recent Investments" if _cur_lang=="ENG" else "최신 투자 알림"}&nbsp;·&nbsp;{latest_year}</div>'
-        f'{items_html}'
-        f'</div>',
-        unsafe_allow_html=True)
-
 # ── 헤더 ─────────────────────────────────────────────────────────────────────
 if True:
     st.markdown("""
@@ -1779,6 +1749,34 @@ for col, label, value, color, extra_html in [
         unsafe_allow_html=True)
 
 st.markdown("---")
+
+# ── 🚨 신규 투자 알림 배너 — 최근 5건 (첫 화면 위계: 헤더→요약 카드→알림 순으로 배치) ──
+all_investments = NEW_2026 + CURRENT_HOLDINGS + PARTNERSHIPS
+recent_5 = sorted(
+    [c for c in all_investments if c.get("alert_date")],
+    key=lambda x: x.get("alert_date",""), reverse=True
+)[:5]
+_cur_lang = st.session_state.lang
+if recent_5:
+    latest_year = recent_5[0].get("alert_date","")[:4]
+    _alert_items = []
+    for c in recent_5:
+        _raw = (c.get("note_eng") or c["note"]) if _cur_lang == "ENG" else c["note"]
+        # note 첫 조각에서 날짜 든 괄호 통째 제거 (비날짜 괄호 '(+95% 증가)'는 유지)
+        _desc = re.sub(r'\s*\([^)]*20\d{2}[.\-]\d[^)]*\)', '', _raw.split("|")[0].strip()).strip()
+        _alert_items.append(
+            f'<div class="alert-item">'
+            f'<span class="alert-date">{c.get("alert_date","")}</span>'
+            f'<span><b class="alert-co">{c["name"]} ({c["ticker"]})</b>&nbsp; '
+            f'<span class="alert-desc">{_desc}</span></span>'
+            f'</div>')
+    items_html = "".join(_alert_items)
+    st.markdown(
+        f'<div class="alert-banner">'
+        f'<div class="alert-title">{"Recent Investments" if _cur_lang=="ENG" else "최신 투자 알림"}&nbsp;·&nbsp;{latest_year}</div>'
+        f'{items_html}'
+        f'</div>',
+        unsafe_allow_html=True)
 
 # ── 탭 ───────────────────────────────────────────────────────────────────────
 # st.tabs는 모든 탭을 한 번에 렌더(차트 5개 동시) → 모바일 로딩 출렁임.
