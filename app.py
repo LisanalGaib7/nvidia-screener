@@ -1405,9 +1405,6 @@ components.html("""
     if (!el) { if (tries++ < 40) p.setTimeout(waitEl, 50); return; }  // DOM 미생성 시 재시도
     if (p.__nvScrambled) return;
     p.__nvScrambled = true;
-    // [진단 2026-06-22] 모바일은 scramble 스킵(정적 텍스트 그대로 표시).
-    // 이 상태에서도 버벅이면 범인은 Streamlit 로딩(scramble 무죄), 매끄러우면 scramble이 범인.
-    if (p.innerWidth <= 640) return;
     el.style.opacity = '0';  // 로딩 중 숨김(폭/레이아웃은 유지) → 출렁임에 안 끼어듦
     whenReady(function(){ p.setTimeout(function(){ run(el); }, INTRO_DELAY); });
   }
