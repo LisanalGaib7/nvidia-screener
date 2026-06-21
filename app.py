@@ -1666,7 +1666,8 @@ st.markdown("""
   box-sizing: border-box;
   box-shadow: 0 8px 24px rgba(0,0,0,0.6);
 }
-.metric-box:hover .metric-tooltip { display: block; }
+.metric-box:hover .metric-tooltip,
+.metric-box.active .metric-tooltip { display: block; }
 .tooltip-title {
   color: #8b949e;
   font-size: 0.65rem;
@@ -1687,6 +1688,25 @@ st.markdown("""
 .tooltip-name   { color: #9aa3b0; font-size: 0.75rem; }
 </style>
 """, unsafe_allow_html=True)
+
+# 모바일: metric 카드 탭 토글 — 같은 카드 다시 탭하면 툴팁 닫힘. 다른 카드/바깥 탭하면 닫힘.
+# 이벤트 위임(parent document)이라 Streamlit 재렌더에도 한 번만 바인딩.
+components.html("""
+<script>
+(function(){
+  var p = window.parent;
+  if (p.__metricTapBound) return;
+  p.__metricTapBound = true;
+  p.document.addEventListener('click', function(e){
+    var box = e.target.closest('.metric-box');
+    p.document.querySelectorAll('.metric-box.active').forEach(function(b){
+      if (b !== box) b.classList.remove('active');
+    });
+    if (box) box.classList.toggle('active');
+  });
+})();
+</script>
+""", height=0)
 
 for col, label, value, color, extra_html in [
     (m1, t("metric_holdings"),
