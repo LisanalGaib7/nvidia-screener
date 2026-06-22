@@ -344,15 +344,15 @@ st.markdown("""
 
 
   /* segmented_control(lazy 탭) — 선택탭 '채운 박스' + 모바일 1줄 가로 스크롤. 실제 DOM: stButtonGroup + stBaseButton-segmented_control(Active) */
-  div[data-testid="stButtonGroup"] { position: relative !important; }
-  div[data-testid="stButtonGroup"] > div[data-baseweb="button-group"] {
+  .st-key-main_tabs div[data-testid="stButtonGroup"] { position: relative !important; }
+  .st-key-main_tabs div[data-testid="stButtonGroup"] > div[data-baseweb="button-group"] {
     border: 1px solid rgba(255,255,255,0.06) !important; border-radius: 10px !important;
     background: rgba(255,255,255,0.025) !important;  /* 미세 배경 — 탭 그룹을 하나로 묶어 또렷하게 */
     gap: 6px !important; padding: 5px !important;
     flex-wrap: nowrap !important; overflow-x: auto !important;
     scrollbar-width: none !important;
   }
-  div[data-testid="stButtonGroup"] > div[data-baseweb="button-group"]::-webkit-scrollbar { display: none !important; }
+  .st-key-main_tabs div[data-testid="stButtonGroup"] > div[data-baseweb="button-group"]::-webkit-scrollbar { display: none !important; }
   button[data-testid="stBaseButton-segmented_control"],
   button[data-testid="stBaseButton-segmented_controlActive"] {
     color: #6b7280 !important;
@@ -372,7 +372,7 @@ st.markdown("""
   }
   /* 모바일: 탭 가로 스크롤 시 우측 그라데이션으로 '더 있음' 암시 */
   @media (max-width: 640px) {
-    div[data-testid="stButtonGroup"]::after {
+    .st-key-main_tabs div[data-testid="stButtonGroup"]::after {
       content: "\\203A"; position: absolute; top: 0; right: 0; bottom: 8px;
       width: 46px; pointer-events: none; z-index: 1;
       display: flex; align-items: center; justify-content: flex-end; padding-right: 8px;
@@ -1787,7 +1787,7 @@ st.markdown("---")  # 알림 배너 ↔ 탭 구분
 # segmented_control + 조건부 렌더(lazy)로 선택 탭만 그림(초기 차트 5→0개).
 TAB_LABELS = ["Portfolio", "Performance", "Sectors", "News", "13F History"]
 active_tab = st.segmented_control(
-    "탭", TAB_LABELS, default="Portfolio", label_visibility="collapsed"
+    "탭", TAB_LABELS, default="Portfolio", label_visibility="collapsed", key="main_tabs"
 ) or "Portfolio"  # None(선택 해제) 가드 → 항상 한 탭 활성
 
 PLOTLY_CFG = {"displayModeBar": False, "scrollZoom": False, "doubleClick": False}  # 툴바·줌 비활성(터치 시 의도치 않은 zoom 방지)
