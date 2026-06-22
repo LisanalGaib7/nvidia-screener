@@ -2130,8 +2130,9 @@ elif active_tab == "News":
 elif active_tab == "13F History":
     st.markdown(f"### {t('filings_title')}")
     st.caption(t("filings_caption"))
-    # 필터 expander 강조(박스+테두리) + 라벨·버튼 글자 밝게
+    # 필터 강조 + (데스크톱) 좌측 필터 열 sticky + 카드 폭 캡
     st.markdown("""<style>
+      /* 모바일 필터 expander 강조 */
       [data-testid="stExpander"] details {
         border: 1px solid rgba(118,185,0,0.28) !important;
         border-radius: 10px !important;
@@ -2139,34 +2140,57 @@ elif active_tab == "13F History":
       }
       [data-testid="stExpander"] [data-testid="stWidgetLabel"] p { color: #e5e7eb !important; font-weight: 500 !important; }
       [data-testid="stExpander"] button[data-testid="stBaseButton-secondary"] p { color: #e5e7eb !important; font-weight: 500 !important; }
+      .f13-filter-title { color:#e5e7eb; font-weight:600; font-size:0.95rem; margin:0 0 8px; }
+      [data-testid="stWidgetLabel"] p { color:#cbd5e1 !important; }
+      @media (min-width: 769px) {
+        /* 필터 열(=제목 칩 보유 열)만 sticky — 긴 카드 리스트 스크롤 시 따라옴. 다른 컬럼 비영향 */
+        div[data-testid="stColumn"]:has(.f13-filter-title) {
+          position: sticky; top: 0.75rem; align-self: flex-start;
+          background: rgba(255,255,255,0.025);
+          border: 1px solid rgba(118,185,0,0.22);
+          border-radius: 10px; padding: 12px 14px;
+        }
+        /* 카드 폭 캡 — 회사↔금액 간격 축소(휑한 전폭 방지) */
+        .filing-row { max-width: 860px; }
+      }
     </style>""", unsafe_allow_html=True)
 
     all_cos = sorted({f["company"] for f in FILINGS_HISTORY})
     if "f13_cos" not in st.session_state:
         st.session_state.f13_cos = all_cos
     _kor = st.session_state.lang == "KOR"
-    # 필터는 접이식 — 모바일에선 기본 접힘(전체선택 칩이 화면 점유하지 않게), 데스크톱은 펼침
-    with st.expander("🔍 " + ("필터" if _kor else "Filter"), expanded=not is_mobile):
-        _ba, _bn = st.columns(2)
-        if _ba.button("전체 선택" if _kor else "Select all", use_container_width=True):
+    _tk_map = {f["company"]: f["ticker"] for f in FILINGS_HISTORY}
+    ct_map = {
+        "new":      t("change_new"),
+        "increase": t("change_increase"),
+        "decrease": t("change_decrease"),
+        "exit":     t("change_exit"),
+        "hold":     t("change_hold"),
+    }
+    def _f13_filters():
+        # 버튼은 좁은 필터 열에 맞춰 세로 스택. multiselect는 타이핑으로 기업 검색 가능.
+        if st.button(("전체 선택" if _kor else "Select all"), use_container_width=True, key="f13_all"):
             st.session_state.f13_cos = all_cos; st.rerun()
-        if _bn.button("전체 해제" if _kor else "Clear all", use_container_width=True):
+        if st.button(("전체 해제" if _kor else "Clear all"), use_container_width=True, key="f13_none"):
             st.session_state.f13_cos = []; st.rerun()
-        # multiselect는 타이핑으로 기업 검색 가능. 전체 해제 후 원하는 기업만 골라 타임라인 보기.
-        _tk_map = {f["company"]: f["ticker"] for f in FILINGS_HISTORY}
-        sel_cos = st.multiselect(
+        _sc = st.multiselect(
             t("filings_company"), all_cos, key="f13_cos",
             format_func=lambda c: f"{c} ({_tk_map.get(c, '')})",
             placeholder=("기업 검색·선택" if _kor else "Search companies"))
-        ct_map = {
-            "new":      t("change_new"),
-            "increase": t("change_increase"),
-            "decrease": t("change_decrease"),
-            "exit":     t("change_exit"),
-            "hold":     t("change_hold"),
-        }
-        sel_ct = st.multiselect(t("filings_type"), list(ct_map.values()), default=list(ct_map.values()))
-        sel_ct_keys = [k for k,v in ct_map.items() if v in sel_ct]
+        _stt = st.multiselect(t("filings_type"), list(ct_map.values()), default=list(ct_map.values()))
+        return _sc, [k for k, vv in ct_map.items() if vv in _stt]
+
+    # 데스크톱: 필터 좌(sticky) / 카드 우 2단 · 모바일: 접이식 + 전폭
+    if is_mobile:
+        with st.expander("🔍 " + ("필터" if _kor else "Filter"), expanded=False):
+            sel_cos, sel_ct_keys = _f13_filters()
+        _list = st.container()
+    else:
+        _cf, _cl = st.columns([1, 2.4], gap="large")
+        with _cf:
+            st.markdown(f'<div class="f13-filter-title">🔍 {"필터" if _kor else "Filter"}</div>', unsafe_allow_html=True)
+            sel_cos, sel_ct_keys = _f13_filters()
+        _list = _cl
 
     filtered_f = sorted(
         [f for f in FILINGS_HISTORY if f["company"] in sel_cos and f["change_type"] in sel_ct_keys],
@@ -2188,7 +2212,7 @@ elif active_tab == "13F History":
         detail = (f.get("change_eng") or f["change"]) if st.session_state.lang == "ENG" else f["change"]
         detail_html = (f'<span style="color:#c4ccd6;font-size:0.82rem">{detail}</span>'
                        if detail else "<span></span>")
-        st.markdown(
+        _list.markdown(
             f'<div class="filing-row {css}">'
             # 1줄: 배지 · 회사(티커) ······ 금액
             f'<div style="display:flex;align-items:baseline;gap:10px">'
