@@ -1495,6 +1495,11 @@ if True:
   white-space: nowrap;
   display: inline;
 }
+/* 인트로 FOUC 방지: 첫 페인트/재런 때 완성 텍스트 'NVIDIA Portfolio Tracker'가
+   scramble 시작 전 한두 프레임 번뜩이던 잔상 차단 → scramble 시작(nv-head) 전엔 숨김.
+   scramble JS는 inline opacity로 제어(항상 우선)라 애니 동작엔 무영향. nv-head는
+   run() 시작과 4초 failsafe에서 body에 부여 → 재런 시(스크램블 가드)에도 타이틀 정상 노출. */
+body:not(.nv-head) #nv-title { opacity: 0; }
 .nv-cursor {
   font-family: 'Press Start 2P', monospace;
   font-size: 1.05rem;
@@ -1582,6 +1587,7 @@ components.html("""
   function revealContent() {
     if (!p || p.__nvRevealed) return;
     p.__nvRevealed = true;
+    p.document.body.classList.add('nv-head');   // 타이틀 노출(스크램블 실패해도 텍스트는 보이게)
     p.document.body.classList.add('nv-ready');
   }
   if (p) p.setTimeout(revealContent, 4000);  // failsafe: scramble 실패해도 4초 뒤 무조건 노출
@@ -1609,6 +1615,7 @@ components.html("""
     else p.addEventListener('load', afterLoad, { once: true });
   }
   function run(el) {
+    p.document.body.classList.add('nv-head');  // 타이틀 노출 게이트 해제(재런에도 영속) → scramble 시작
     el.style.opacity = '1';  // 깨끗한 화면에서 등장
     // scramble 중엔 glow(text-shadow blur) 끔 → 모바일 GPU의 매 프레임 재페인트 부담 제거.
     // 정착 후 transition으로 부드럽게 켬.
