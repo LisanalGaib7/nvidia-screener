@@ -2175,13 +2175,19 @@ elif active_tab == "13F History":
         "exit":     ("rgba(139,148,158,.18)", "#b0b8c2", "rgba(139,148,158,.5)"),
         "hold":     ("rgba(99,102,241,.18)",  "#a5a8f5", "rgba(99,102,241,.5)"),
     }
-    _present_ct = [k for k in ct_map if any(r["change_type"] == k for r in FILINGS_HISTORY)]
-    # 변동 유형 필 색상 동적 주입: key 기반 .st-key-f13_types로 스코프, 위치(nth)별 켜짐색·공통 꺼짐색
+    # 변동 유형 노출: 유지(hold)는 불필요해 제외, 감소는 데이터 없어도 향후 대비 노출(붉은색)
+    _ct_show = ["new", "increase", "decrease", "exit"]
+    # 변동 유형 필 색상 동적 주입: key 기반 .st-key-f13_types 스코프, 모양=카드 배지와 동일(4px), 위치(nth)별 켜짐색·공통 꺼짐색
     _pill_css = ("<style>"
+        ".st-key-f13_types [data-testid='stButtonGroup'] button{border-radius:4px !important;}"
+        # 좁은 필터 열: 줄바꿈 허용 + 자연폭(라벨 truncation 방지)
+        ".st-key-f13_types [data-testid='stButtonGroup']>div{flex-wrap:wrap !important;gap:6px !important;}"
+        ".st-key-f13_types [data-testid='stButtonGroup'] button{flex:0 0 auto !important;max-width:none !important;}"
+        ".st-key-f13_types [data-testid='stButtonGroup'] button p{white-space:nowrap !important;overflow:visible !important;text-overflow:clip !important;}"
         ".st-key-f13_types button[data-testid='stBaseButton-pills']{"
         "background:#0c0c0c !important;border-color:#1f1f1f !important;opacity:.55 !important;}"
         ".st-key-f13_types button[data-testid='stBaseButton-pills'] p{color:#3f4651 !important;}")
-    for _i, _k in enumerate(_present_ct, start=1):
+    for _i, _k in enumerate(_ct_show, start=1):
         _bg, _tx, _bd = _CT_PILL[_k]
         _sel = (f".st-key-f13_types [data-testid='stButtonGroup']>div>"
                 f"button:nth-of-type({_i})[data-testid='stBaseButton-pillsActive']")
@@ -2200,9 +2206,9 @@ elif active_tab == "13F History":
             format_func=lambda c: f"{c} ({_tk_map.get(c, '')})",
             placeholder=("기업 검색·선택" if _kor else "Search companies"))
         # 변동 유형: 색 매칭 토글 필(있는 유형만). 켜짐=배지색 / 꺼짐=무채색
-        _lbls = [ct_map[k] for k in _present_ct]
+        _lbls = [ct_map[k] for k in _ct_show]
         _sel = st.pills(t("filings_type"), _lbls, selection_mode="multi", default=_lbls, key="f13_types") or []
-        return _sc, [k for k in _present_ct if ct_map[k] in _sel]
+        return _sc, [k for k in _ct_show if ct_map[k] in _sel]
 
     # 데스크톱: 필터 좌(sticky) / 카드 우 2단 · 모바일: 접이식 + 전폭
     if is_mobile:
