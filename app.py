@@ -1548,11 +1548,14 @@ body:not(.nv-ready) [data-testid="stMainBlockContainer"] [data-testid="stVertica
   opacity: 0;
   transform: translateY(8px);
 }
-/* ④ reveal: 메인 visible 복귀 + 콘텐츠만 부드럽게 fade-in (transition은 여기서만) */
+/* ④ reveal: 메인 visible 복귀 + 콘텐츠만 부드럽게 fade-in (transition은 여기서만).
+   transform은 translateY(0)이 아니라 none 으로 끝냄 — translateY(0)도 transform이라
+   stacking context/containing block을 영구 생성해 카드 툴팁(z-index)이 뒤 형제 블록에
+   가려지는 버그가 났음. none 으로 끝내면 8px→0 lift는 애니메이트되고 잔여 컨텍스트는 없음. */
 body.nv-ready [data-testid="stMainBlockContainer"] [data-testid="stVerticalBlock"] > [data-testid="stElementContainer"]:has(.nv-header) ~ div {
   transition: opacity 0.5s ease, transform 0.5s ease;
   opacity: 1;
-  transform: translateY(0);
+  transform: none;
 }
 @media (prefers-reduced-motion: reduce) {
   body:not(.nv-ready) [data-testid="stMainBlockContainer"] [data-testid="stVerticalBlock"] > [data-testid="stElementContainer"]:has(.nv-header) ~ div,
