@@ -2181,7 +2181,7 @@ elif active_tab == "13F History":
     _pill_css = ("<style>"
         ".st-key-f13_types [data-testid='stButtonGroup'] button{border-radius:4px !important;}"
         # 좁은 필터 열: 줄바꿈 허용 + 자연폭(라벨 truncation 방지)
-        ".st-key-f13_types [data-testid='stButtonGroup']>div{flex-wrap:wrap !important;gap:6px !important;}"
+        ".st-key-f13_types [data-testid='stButtonGroup']>div[class]{flex-wrap:wrap !important;gap:6px !important;}"
         ".st-key-f13_types [data-testid='stButtonGroup'] button{flex:0 0 auto !important;max-width:none !important;}"
         ".st-key-f13_types [data-testid='stButtonGroup'] button p{white-space:nowrap !important;overflow:visible !important;text-overflow:clip !important;}"
         ".st-key-f13_types button[data-testid='stBaseButton-pills']{"
@@ -2216,7 +2216,7 @@ elif active_tab == "13F History":
             sel_cos, sel_ct_keys = _f13_filters()
         _list = st.container()
     else:
-        _cf, _cl = st.columns([1, 2.4], gap="large")
+        _cf, _cl = st.columns([1, 1.9], gap="large")
         with _cf:
             st.markdown(f'<div class="f13-filter-title">🔍 {"필터" if _kor else "Filter"}</div>', unsafe_allow_html=True)
             sel_cos, sel_ct_keys = _f13_filters()
