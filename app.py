@@ -1515,15 +1515,54 @@ if True:
 </div>
 """, unsafe_allow_html=True)
 
+# ── 인트로 콘텐츠 게이트(A안) ─────────────────────────────────────────────────
+#   헤더가 먼저 등장(scramble) → 헤더 아래 콘텐츠 전체를 opacity:0 + 살짝 아래(8px)로
+#   숨겨 두었다가 scramble 정착 직후 fade-in(+떠오름)으로 드러냄 → Streamlit 초기
+#   reflow(출렁임)를 페이드로 가림. transform/opacity만 써서 GPU 컴포지트(추가 reflow 0).
+#   • 롤백: 아래 INTRO_GATE = False 한 줄이면 즉시 무력화(기존 동작 복귀).
+#   • CSS는 헤더 직후 정적 <style>로 주입 → 콘텐츠보다 먼저 적용돼 "보였다 숨는" 플래시 차단.
+#   • 드러내기/안전판은 아래 scramble 스크립트의 revealContent()(nv-ready 클래스 토글)가 담당.
+#   • 셀렉터는 selenium 실측: 헤더(stElementContainer:has(.nv-header)) 이후 형제 div 30개
+#     = 콘텐츠 전체와 정확히 일치. :has() 미지원 브라우저는 규칙이 무시돼 콘텐츠 그대로 노출.
+INTRO_GATE = True
+if INTRO_GATE:
+    st.markdown("""
+<style id="nv-intro-gate">
+[data-testid="stMainBlockContainer"] [data-testid="stVerticalBlock"] > [data-testid="stElementContainer"]:has(.nv-header) ~ div {
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+body:not(.nv-ready) [data-testid="stMainBlockContainer"] [data-testid="stVerticalBlock"] > [data-testid="stElementContainer"]:has(.nv-header) ~ div {
+  opacity: 0;
+  transform: translateY(8px);
+}
+@media (prefers-reduced-motion: reduce) {
+  body:not(.nv-ready) [data-testid="stMainBlockContainer"] [data-testid="stVerticalBlock"] > [data-testid="stElementContainer"]:has(.nv-header) ~ div {
+    transform: none;
+  }
+}
+</style>
+""", unsafe_allow_html=True)
+
 # 헤더 타이틀 scramble 효과 (가운데→바깥 stagger, 약 1.5초).
 # st.markdown은 <script> 미실행 + components.html(srcdoc)은 null-origin이라
 # window.parent(앱 iframe, same-origin)의 #nv-title에 직접 주입 (GA4와 동일 패턴).
 # __nvScrambled 가드 → Streamlit 재렌더 시 재실행 안 함(세션 1회만).
 # 로딩 출렁임에 안 섞이도록: 로딩 중엔 타이틀 숨김 → 페이지 완료+폰트+텀 후 등장.
+# 인트로 게이트(위 nv-intro-gate <style>) 연동: scramble 정착 직후 revealContent()로
+# body에 nv-ready 부여 → 콘텐츠 fade-in. scramble 실패 대비 4초 failsafe 동시 가동.
 components.html("""
 <script>
 (function() {
   var p = window.parent;
+
+  // 인트로 콘텐츠 게이트 드러내기: body.nv-ready 부여 → CSS가 콘텐츠 fade-in (세션 1회)
+  function revealContent() {
+    if (!p || p.__nvRevealed) return;
+    p.__nvRevealed = true;
+    p.document.body.classList.add('nv-ready');
+  }
+  if (p) p.setTimeout(revealContent, 4000);  // failsafe: scramble 실패해도 4초 뒤 무조건 노출
+
   if (!p || p.__nvScrambled) return;
   var TEXT = 'NVIDIA Portfolio Tracker';
   var GLYPHS = '<>/{}[]()=+*#%&|;:!?';  // 코드 기호 글리치 (Press Start 2P 지원 글리프)
@@ -1582,7 +1621,10 @@ components.html("""
       }
       if (swap) lastSwap = now;
       if (!done) { p.requestAnimationFrame(tick); }
-      else { el.style.textShadow = ''; }  // 정착 완료 → CSS glow 복원(transition으로 페이드인)
+      else {
+        el.style.textShadow = '';  // 정착 완료 → CSS glow 복원(transition으로 페이드인)
+        p.setTimeout(revealContent, 250);  // 헤더 정착 직후 콘텐츠 fade-in(+떠오름)
+      }
     }
     p.requestAnimationFrame(tick);
   }
