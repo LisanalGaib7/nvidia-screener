@@ -1019,12 +1019,12 @@ FILINGS_HISTORY = [
     {"ticker":"NBIS", "company":"Nebius Group",      "quarter":"Q4 2024","filed":"2024-12-10","change":"사모(PIPE)",                        "change_eng":"PIPE",                                     "change_type":"new",      "value_m":100.0},
     {"ticker":"CRWV", "company":"CoreWeave",         "quarter":"Q1 2025","filed":"2025-03-28","change":"IPO 참여",                          "change_eng":"IPO participation",                        "change_type":"new",      "value_m":None},
     # 청산
-    {"ticker":"RXRX", "company":"Recursion Pharma", "quarter":"Q3 2023","filed":"2023-11-14","change":"사모(PIPE)",                         "change_eng":"PIPE",                                     "change_type":"new",      "value_m":50.0},
-    {"ticker":"RXRX", "company":"Recursion Pharma", "quarter":"Q4 2025","filed":"2025-11-14","change":"전량 청산",                          "change_eng":"Full exit",                                "change_type":"exit",     "value_m":None},
+    {"ticker":"RXRX", "company":"Recursion Pharma", "quarter":"Q3 2023","filed":"2023-07-12","change":"사모(PIPE)",                         "change_eng":"PIPE",                                     "change_type":"new",      "value_m":50.0},
+    {"ticker":"RXRX", "company":"Recursion Pharma", "quarter":"Q4 2025","filed":"2026-02-17","change":"전량 청산",                          "change_eng":"Full exit",                                "change_type":"exit",     "value_m":None},
     {"ticker":"ARM",  "company":"Arm Holdings",     "quarter":"Q3 2023","filed":"2023-09-14","change":"IPO 참여",                            "change_eng":"IPO participation",                        "change_type":"new",      "value_m":None},
-    {"ticker":"ARM",  "company":"Arm Holdings",     "quarter":"Q1 2026","filed":"2026-02-17","change":"전량 청산 · 1.1M주",                "change_eng":"Full exit · 1.1M shares",                  "change_type":"exit",     "value_m":140.0},
+    {"ticker":"ARM",  "company":"Arm Holdings",     "quarter":"Q4 2025","filed":"2026-02-17","change":"전량 청산 · 1.1M주",                "change_eng":"Full exit · 1.1M shares",                  "change_type":"exit",     "value_m":140.0},
     {"ticker":"WRD",  "company":"WeRide",           "quarter":"Q4 2024","filed":"2025-02-14","change":"보통주 13F · 1.7M주",               "change_eng":"13F common · 1.7M shares",                 "change_type":"new",      "value_m":24.0},
-    {"ticker":"WRD",  "company":"WeRide",           "quarter":"Q4 2025","filed":"2025-11-14","change":"전량 청산",                          "change_eng":"Full exit",                                "change_type":"exit",     "value_m":None},
+    {"ticker":"WRD",  "company":"WeRide",           "quarter":"Q4 2025","filed":"2026-02-17","change":"전량 청산",                          "change_eng":"Full exit",                                "change_type":"exit",     "value_m":None},
     {"ticker":"SOUN", "company":"SoundHound AI",    "quarter":"Q4 2023","filed":"2024-02-14","change":"보통주 13F · 1.73M주",              "change_eng":"13F common · 1.73M shares",                "change_type":"new",      "value_m":3.99},
     {"ticker":"SOUN", "company":"SoundHound AI",    "quarter":"Q4 2024","filed":"2025-02-14","change":"전량 청산",                          "change_eng":"Full exit",                                "change_type":"exit",     "value_m":None},
     {"ticker":"SERV", "company":"Serve Robotics",   "quarter":"Q2 2024","filed":"2024-08-14","change":"보통주 13F · 3.73M주",              "change_eng":"13F common · 3.73M shares",                "change_type":"new",      "value_m":None},
@@ -1032,7 +1032,7 @@ FILINGS_HISTORY = [
     {"ticker":"APLD", "company":"Applied Digital",  "quarter":"Q3 2024","filed":"2024-11-14","change":"보통주 13F · 7.72M주 (3.6%)",        "change_eng":"13F common · 7.72M shares (3.6%)",         "change_type":"new",      "value_m":None},
     {"ticker":"APLD", "company":"Applied Digital",  "quarter":"Q4 2025","filed":"2026-02-17","change":"전량 청산",                          "change_eng":"Full exit",                                "change_type":"exit",     "value_m":None},
     {"ticker":"NNOX", "company":"Nano-X Imaging",   "quarter":"Q4 2023","filed":"2024-02-14","change":"보통주 13F · 59.6K주 (0.16%)",       "change_eng":"13F common · 59.6K shares (0.16%)",        "change_type":"new",      "value_m":None},
-    {"ticker":"NNOX", "company":"Nano-X Imaging",   "quarter":"Q4 2024","filed":"2024-11-14","change":"전량 청산",                          "change_eng":"Full exit",                                "change_type":"exit",     "value_m":None},
+    {"ticker":"NNOX", "company":"Nano-X Imaging",   "quarter":"Q4 2024","filed":"2025-02-14","change":"전량 청산",                          "change_eng":"Full exit",                                "change_type":"exit",     "value_m":None},
 ]
 
 BADGE_MAP = {
