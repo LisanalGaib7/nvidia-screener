@@ -2167,6 +2167,28 @@ elif active_tab == "13F History":
         "exit":     t("change_exit"),
         "hold":     t("change_hold"),
     }
+    # 변동 유형 토글 색(켜짐) — 카드 배지와 매칭. 데이터에 있는 유형만 노출(감소/유지는 자동)
+    _CT_PILL = {
+        "new":      ("rgba(34,197,94,.16)",   "#4ade80", "rgba(34,197,94,.55)"),
+        "increase": ("rgba(74,144,217,.18)",  "#7ab8f5", "rgba(74,144,217,.55)"),
+        "decrease": ("rgba(239,68,68,.18)",   "#f08a8a", "rgba(239,68,68,.55)"),
+        "exit":     ("rgba(139,148,158,.18)", "#b0b8c2", "rgba(139,148,158,.5)"),
+        "hold":     ("rgba(99,102,241,.18)",  "#a5a8f5", "rgba(99,102,241,.5)"),
+    }
+    _present_ct = [k for k in ct_map if any(r["change_type"] == k for r in FILINGS_HISTORY)]
+    # 변동 유형 필 색상 동적 주입: key 기반 .st-key-f13_types로 스코프, 위치(nth)별 켜짐색·공통 꺼짐색
+    _pill_css = ("<style>"
+        ".st-key-f13_types button[data-testid='stBaseButton-pills']{"
+        "background:#0c0c0c !important;border-color:#1f1f1f !important;opacity:.55 !important;}"
+        ".st-key-f13_types button[data-testid='stBaseButton-pills'] p{color:#3f4651 !important;}")
+    for _i, _k in enumerate(_present_ct, start=1):
+        _bg, _tx, _bd = _CT_PILL[_k]
+        _sel = (f".st-key-f13_types [data-testid='stButtonGroup']>div>"
+                f"button:nth-of-type({_i})[data-testid='stBaseButton-pillsActive']")
+        _pill_css += (f"{_sel}{{background:{_bg} !important;border-color:{_bd} !important;}}"
+                      f"{_sel} p{{color:{_tx} !important;}}")
+    _pill_css += "</style>"
+    st.markdown(_pill_css, unsafe_allow_html=True)
     def _f13_filters():
         # 버튼은 좁은 필터 열에 맞춰 세로 스택. multiselect는 타이핑으로 기업 검색 가능.
         if st.button(("전체 선택" if _kor else "Select all"), use_container_width=True, key="f13_all"):
@@ -2177,8 +2199,10 @@ elif active_tab == "13F History":
             t("filings_company"), all_cos, key="f13_cos",
             format_func=lambda c: f"{c} ({_tk_map.get(c, '')})",
             placeholder=("기업 검색·선택" if _kor else "Search companies"))
-        _stt = st.multiselect(t("filings_type"), list(ct_map.values()), default=list(ct_map.values()))
-        return _sc, [k for k, vv in ct_map.items() if vv in _stt]
+        # 변동 유형: 색 매칭 토글 필(있는 유형만). 켜짐=배지색 / 꺼짐=무채색
+        _lbls = [ct_map[k] for k in _present_ct]
+        _sel = st.pills(t("filings_type"), _lbls, selection_mode="multi", default=_lbls, key="f13_types") or []
+        return _sc, [k for k in _present_ct if ct_map[k] in _sel]
 
     # 데스크톱: 필터 좌(sticky) / 카드 우 2단 · 모바일: 접이식 + 전폭
     if is_mobile:
