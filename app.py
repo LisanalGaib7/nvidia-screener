@@ -2129,6 +2129,16 @@ elif active_tab == "News":
 elif active_tab == "13F History":
     st.markdown(f"### {t('filings_title')}")
     st.caption(t("filings_caption"))
+    # 필터 expander 강조(박스+테두리) + 라벨·버튼 글자 밝게
+    st.markdown("""<style>
+      [data-testid="stExpander"] details {
+        border: 1px solid rgba(118,185,0,0.28) !important;
+        border-radius: 10px !important;
+        background: rgba(255,255,255,0.025) !important;
+      }
+      [data-testid="stExpander"] [data-testid="stWidgetLabel"] p { color: #e5e7eb !important; font-weight: 500 !important; }
+      [data-testid="stExpander"] button[data-testid="stBaseButton-secondary"] p { color: #e5e7eb !important; font-weight: 500 !important; }
+    </style>""", unsafe_allow_html=True)
 
     all_cos = sorted({f["company"] for f in FILINGS_HISTORY})
     if "f13_cos" not in st.session_state:
@@ -2142,7 +2152,11 @@ elif active_tab == "13F History":
         if _bn.button("전체 해제" if _kor else "Clear all", use_container_width=True):
             st.session_state.f13_cos = []; st.rerun()
         # multiselect는 타이핑으로 기업 검색 가능. 전체 해제 후 원하는 기업만 골라 타임라인 보기.
-        sel_cos = st.multiselect(t("filings_company"), all_cos, key="f13_cos")
+        _tk_map = {f["company"]: f["ticker"] for f in FILINGS_HISTORY}
+        sel_cos = st.multiselect(
+            t("filings_company"), all_cos, key="f13_cos",
+            format_func=lambda c: f"{c} ({_tk_map.get(c, '')})",
+            placeholder=("기업 검색·선택" if _kor else "Search companies"))
         ct_map = {
             "new":      "🟢 " + t("change_new"),
             "increase": "📈 " + t("change_increase"),
