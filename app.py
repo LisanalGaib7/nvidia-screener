@@ -300,11 +300,11 @@ st.markdown("""
     padding: 10px 16px;
     margin-bottom: 4px;
   }
-  .filing-new      { border-left: 3px solid #5a9e3a !important; }
-  .filing-increase { border-left: 3px solid #76b900 !important; }
-  .filing-decrease { border-left: 3px solid #a03030 !important; }
-  .filing-exit     { border-left: 3px solid #2a2a2a !important; }
-  .filing-hold     { border-left: 3px solid #1e3a5f !important; }
+  .filing-new      { border-left: 3px solid #22c55e !important; }
+  .filing-increase { border-left: 3px solid #4a90d9 !important; }
+  .filing-decrease { border-left: 3px solid #e05656 !important; }
+  .filing-exit     { border-left: 3px solid #8b949e !important; }
+  .filing-hold     { border-left: 3px solid #6366f1 !important; }
 
   /* ── 지표 카드 ── */
   div[data-testid="stMetricValue"] { color: #76b900 !important; font-size: 1.6rem !important; font-weight: 600 !important; letter-spacing: -0.5px; }
@@ -1001,38 +1001,38 @@ THESIS_EN = {
 
 # ── 13F 공시 히스토리 (검증된 것만) ─────────────────────────────────────────
 FILINGS_HISTORY = [
-    # 2026 Q2 신규
-    {"ticker":"IREN", "company":"IREN Ltd",          "quarter":"Q2 2026","filed":"2026-05-07","change":"신규 워런트 (최대 $2.1B @$70)",        "change_eng":"New warrants (up to $2.1B @$70)",           "change_type":"new",      "value_m":2100.0},
-    {"ticker":"GLW",  "company":"Corning",           "quarter":"Q2 2026","filed":"2026-05-06","change":"신규 워런트 (최대 $3.2B, $500M 선불)", "change_eng":"New warrants (up to $3.2B, $500M upfront)", "change_type":"new",      "value_m":3200.0},
+    # 2026 Q2 신규  —  change/change_eng = 상태어·중복금액 제거한 '상세'만 (배지·우측금액이 상태·총액 담당)
+    {"ticker":"IREN", "company":"IREN Ltd",          "quarter":"Q2 2026","filed":"2026-05-07","change":"워런트 · 최대 @$70",                  "change_eng":"Warrants · up to @$70",                    "change_type":"new",      "value_m":2100.0},
+    {"ticker":"GLW",  "company":"Corning",           "quarter":"Q2 2026","filed":"2026-05-06","change":"워런트 · $500M 선불",                "change_eng":"Warrants · $500M upfront",                 "change_type":"new",      "value_m":3200.0},
     # 2026 Q1 — 13F 공시 (2026-05-15)
-    {"ticker":"CRWV", "company":"CoreWeave",         "quarter":"Q1 2026","filed":"2026-05-15","change":"증가 +95% (24.3M→47.2M주, $3.66B)",  "change_eng":"Increase +95% (24.3M→47.2M shares, $3.66B)","change_type":"increase", "value_m":3660.0},
-    {"ticker":"COHR", "company":"Coherent Corp",     "quarter":"Q1 2026","filed":"2026-05-15","change":"신규 13F 확인 ($1.86B, 7.8M주)",      "change_eng":"New 13F confirmed ($1.86B, 7.8M shares)",   "change_type":"new",      "value_m":1855.0},
-    {"ticker":"GENB", "company":"Generate Biomedicines","quarter":"Q1 2026","filed":"2026-05-15","change":"신규 ($10.4M, 비상장 AI 신약개발)","change_eng":"New ($10.4M, private AI drug discovery)",   "change_type":"new",      "value_m":10.4},
-    {"ticker":"MRVL", "company":"Marvell Technology","quarter":"Q1 2026","filed":"2026-03-31","change":"신규 ($2B, NVLink Fusion) — 전환우선주, 13F 미포함","change_eng":"New ($2B, NVLink Fusion) — convertible preferred, not in 13F","change_type":"new","value_m":2000.0},
-    {"ticker":"LITE", "company":"Lumentum",          "quarter":"Q1 2026","filed":"2026-03-02","change":"신규 우선주 ($2B @$695.31) — 13F 미포함","change_eng":"New preferred stock ($2B @$695.31) — not in 13F","change_type":"new","value_m":2000.0},
+    {"ticker":"CRWV", "company":"CoreWeave",         "quarter":"Q1 2026","filed":"2026-05-15","change":"24.3M → 47.2M주 (+95%)",            "change_eng":"24.3M → 47.2M shares (+95%)",              "change_type":"increase", "value_m":3660.0},
+    {"ticker":"COHR", "company":"Coherent Corp",     "quarter":"Q1 2026","filed":"2026-05-15","change":"13F 확인 · 7.8M주",                  "change_eng":"13F confirmed · 7.8M shares",              "change_type":"new",      "value_m":1855.0},
+    {"ticker":"GENB", "company":"Generate Biomedicines","quarter":"Q1 2026","filed":"2026-05-15","change":"비상장 AI 신약개발",              "change_eng":"Private AI drug discovery",                "change_type":"new",      "value_m":10.4},
+    {"ticker":"MRVL", "company":"Marvell Technology","quarter":"Q1 2026","filed":"2026-03-31","change":"NVLink Fusion · 전환우선주 (13F 미포함)","change_eng":"NVLink Fusion · convertible preferred (not in 13F)","change_type":"new","value_m":2000.0},
+    {"ticker":"LITE", "company":"Lumentum",          "quarter":"Q1 2026","filed":"2026-03-02","change":"우선주 @$695.31 (13F 미포함)",        "change_eng":"Preferred @$695.31 (not in 13F)",          "change_type":"new",      "value_m":2000.0},
     # 2025 보유
-    {"ticker":"INTC", "company":"Intel",             "quarter":"Q3 2025","filed":"2025-09-18","change":"전략투자 계약 ($5B)",                 "change_eng":"Strategic investment agreement ($5B)",      "change_type":"new",      "value_m":5000.0},
-    {"ticker":"INTC", "company":"Intel",             "quarter":"Q4 2025","filed":"2025-12-29","change":"지분 취득 완료 (214.7M주)",           "change_eng":"Stake acquisition closed (214.7M shares)",  "change_type":"increase", "value_m":5000.0},
-    {"ticker":"SNPS", "company":"Synopsys",          "quarter":"Q4 2025","filed":"2025-12-01","change":"신규 ($2B 사모)",                    "change_eng":"New ($2B private placement)",               "change_type":"new",      "value_m":2000.0},
-    {"ticker":"NOK",  "company":"Nokia",             "quarter":"Q3 2025","filed":"2025-10-28","change":"신규 ($1B, 2.9%)",                   "change_eng":"New ($1B, 2.9% stake)",                     "change_type":"new",      "value_m":1000.0},
-    {"ticker":"NBIS", "company":"Nebius Group",      "quarter":"Q1 2026","filed":"2026-03-11","change":"추가 투자 ($2B, 풀스택 AI 클라우드 파트너십)","change_eng":"Follow-on ($2B, full-stack AI cloud partnership)","change_type":"increase","value_m":2000.0},
-    {"ticker":"NBIS", "company":"Nebius Group",      "quarter":"Q4 2024","filed":"2024-12-10","change":"신규 ($100M)",                       "change_eng":"New ($100M)",                               "change_type":"new",      "value_m":100.0},
-    {"ticker":"CRWV", "company":"CoreWeave",         "quarter":"Q1 2025","filed":"2025-03-28","change":"IPO 참여·전략 주주",                  "change_eng":"IPO · Strategic Shareholder",               "change_type":"new",      "value_m":None},
+    {"ticker":"INTC", "company":"Intel",             "quarter":"Q3 2025","filed":"2025-09-18","change":"전략투자 계약",                       "change_eng":"Strategic investment agreement",           "change_type":"new",      "value_m":5000.0},
+    {"ticker":"INTC", "company":"Intel",             "quarter":"Q4 2025","filed":"2025-12-29","change":"지분 취득 완료 · 214.7M주",           "change_eng":"Stake acquisition closed · 214.7M shares", "change_type":"increase", "value_m":5000.0},
+    {"ticker":"SNPS", "company":"Synopsys",          "quarter":"Q4 2025","filed":"2025-12-01","change":"사모 투자",                          "change_eng":"Private placement",                        "change_type":"new",      "value_m":2000.0},
+    {"ticker":"NOK",  "company":"Nokia",             "quarter":"Q3 2025","filed":"2025-10-28","change":"2.9% 지분",                          "change_eng":"2.9% stake",                               "change_type":"new",      "value_m":1000.0},
+    {"ticker":"NBIS", "company":"Nebius Group",      "quarter":"Q1 2026","filed":"2026-03-11","change":"풀스택 AI 클라우드 파트너십",         "change_eng":"Full-stack AI cloud partnership",          "change_type":"increase","value_m":2000.0},
+    {"ticker":"NBIS", "company":"Nebius Group",      "quarter":"Q4 2024","filed":"2024-12-10","change":"",                                  "change_eng":"",                                         "change_type":"new",      "value_m":100.0},
+    {"ticker":"CRWV", "company":"CoreWeave",         "quarter":"Q1 2025","filed":"2025-03-28","change":"IPO 참여 · 전략 주주",               "change_eng":"IPO · strategic shareholder",              "change_type":"new",      "value_m":None},
     # 청산
-    {"ticker":"RXRX", "company":"Recursion Pharma", "quarter":"Q3 2023","filed":"2023-11-14","change":"전략투자 ($50M)",                     "change_eng":"Strategic investment ($50M)",              "change_type":"new",      "value_m":50.0},
-    {"ticker":"RXRX", "company":"Recursion Pharma", "quarter":"Q4 2025","filed":"2025-11-14","change":"완전 청산",                           "change_eng":"Full exit",                                "change_type":"exit",     "value_m":None},
+    {"ticker":"RXRX", "company":"Recursion Pharma", "quarter":"Q3 2023","filed":"2023-11-14","change":"전략투자",                           "change_eng":"Strategic investment",                     "change_type":"new",      "value_m":50.0},
+    {"ticker":"RXRX", "company":"Recursion Pharma", "quarter":"Q4 2025","filed":"2025-11-14","change":"",                                  "change_eng":"",                                         "change_type":"exit",     "value_m":None},
     {"ticker":"ARM",  "company":"Arm Holdings",     "quarter":"Q3 2023","filed":"2023-09-14","change":"IPO 참여",                            "change_eng":"IPO participation",                        "change_type":"new",      "value_m":None},
-    {"ticker":"ARM",  "company":"Arm Holdings",     "quarter":"Q1 2026","filed":"2026-02-17","change":"완전 청산 (1.1M주, $140M)",           "change_eng":"Full exit (1.1M shares, $140M)",           "change_type":"exit",     "value_m":140.0},
-    {"ticker":"WRD",  "company":"WeRide",           "quarter":"Q4 2024","filed":"2025-02-14","change":"신규 ($24M, 1.7M주)",                 "change_eng":"New ($24M, 1.7M shares)",                  "change_type":"new",      "value_m":24.0},
-    {"ticker":"WRD",  "company":"WeRide",           "quarter":"Q4 2025","filed":"2025-11-14","change":"완전 청산",                           "change_eng":"Full exit",                                "change_type":"exit",     "value_m":None},
-    {"ticker":"SOUN", "company":"SoundHound AI",    "quarter":"Q4 2023","filed":"2024-02-14","change":"신규 ($3.99M)",                       "change_eng":"New ($3.99M)",                             "change_type":"new",      "value_m":3.99},
-    {"ticker":"SOUN", "company":"SoundHound AI",    "quarter":"Q4 2024","filed":"2024-11-14","change":"완전 청산",                           "change_eng":"Full exit",                                "change_type":"exit",     "value_m":None},
-    {"ticker":"SERV", "company":"Serve Robotics",   "quarter":"Q1 2024","filed":"2024-05-15","change":"신규",                                "change_eng":"New position",                             "change_type":"new",      "value_m":None},
-    {"ticker":"SERV", "company":"Serve Robotics",   "quarter":"Q4 2024","filed":"2024-11-14","change":"완전 청산",                           "change_eng":"Full exit",                                "change_type":"exit",     "value_m":None},
-    {"ticker":"APLD", "company":"Applied Digital",  "quarter":"Q2 2024","filed":"2024-08-14","change":"신규",                                "change_eng":"New position",                             "change_type":"new",      "value_m":None},
-    {"ticker":"APLD", "company":"Applied Digital",  "quarter":"Q4 2025","filed":"2025-11-14","change":"완전 청산",                           "change_eng":"Full exit",                                "change_type":"exit",     "value_m":None},
-    {"ticker":"NNOX", "company":"Nano-X Imaging",   "quarter":"Q4 2023","filed":"2024-02-14","change":"신규",                                "change_eng":"New position",                             "change_type":"new",      "value_m":None},
-    {"ticker":"NNOX", "company":"Nano-X Imaging",   "quarter":"Q4 2024","filed":"2024-11-14","change":"완전 청산",                           "change_eng":"Full exit",                                "change_type":"exit",     "value_m":None},
+    {"ticker":"ARM",  "company":"Arm Holdings",     "quarter":"Q1 2026","filed":"2026-02-17","change":"1.1M주",                            "change_eng":"1.1M shares",                              "change_type":"exit",     "value_m":140.0},
+    {"ticker":"WRD",  "company":"WeRide",           "quarter":"Q4 2024","filed":"2025-02-14","change":"1.7M주",                            "change_eng":"1.7M shares",                              "change_type":"new",      "value_m":24.0},
+    {"ticker":"WRD",  "company":"WeRide",           "quarter":"Q4 2025","filed":"2025-11-14","change":"",                                  "change_eng":"",                                         "change_type":"exit",     "value_m":None},
+    {"ticker":"SOUN", "company":"SoundHound AI",    "quarter":"Q4 2023","filed":"2024-02-14","change":"",                                  "change_eng":"",                                         "change_type":"new",      "value_m":3.99},
+    {"ticker":"SOUN", "company":"SoundHound AI",    "quarter":"Q4 2024","filed":"2024-11-14","change":"",                                  "change_eng":"",                                         "change_type":"exit",     "value_m":None},
+    {"ticker":"SERV", "company":"Serve Robotics",   "quarter":"Q1 2024","filed":"2024-05-15","change":"",                                  "change_eng":"",                                         "change_type":"new",      "value_m":None},
+    {"ticker":"SERV", "company":"Serve Robotics",   "quarter":"Q4 2024","filed":"2024-11-14","change":"",                                  "change_eng":"",                                         "change_type":"exit",     "value_m":None},
+    {"ticker":"APLD", "company":"Applied Digital",  "quarter":"Q2 2024","filed":"2024-08-14","change":"",                                  "change_eng":"",                                         "change_type":"new",      "value_m":None},
+    {"ticker":"APLD", "company":"Applied Digital",  "quarter":"Q4 2025","filed":"2025-11-14","change":"",                                  "change_eng":"",                                         "change_type":"exit",     "value_m":None},
+    {"ticker":"NNOX", "company":"Nano-X Imaging",   "quarter":"Q4 2023","filed":"2024-02-14","change":"",                                  "change_eng":"",                                         "change_type":"new",      "value_m":None},
+    {"ticker":"NNOX", "company":"Nano-X Imaging",   "quarter":"Q4 2024","filed":"2024-11-14","change":"",                                  "change_eng":"",                                         "change_type":"exit",     "value_m":None},
 ]
 
 BADGE_MAP = {
@@ -1097,12 +1097,13 @@ def cat_name(g):
     return CAT_NAMES.get(g, {}).get(lang, g)
 
 def get_change_style():
+    # (좌측 컬러바 class, 배지 배경, 배지 글자) — 색은 타임라인 color_map과 일치
     return {
-        "new":      ("filing-new",      "🟢 " + t("change_new")),
-        "increase": ("filing-increase", "📈 " + t("change_increase")),
-        "decrease": ("filing-decrease", "📉 " + t("change_decrease")),
-        "exit":     ("filing-exit",     "⬛ " + t("change_exit")),
-        "hold":     ("filing-hold",     "🔵 " + t("change_hold")),
+        "new":      ("filing-new",      "rgba(34,197,94,.16)",   "#4ade80", t("change_new")),
+        "increase": ("filing-increase", "rgba(74,144,217,.18)",  "#7ab8f5", t("change_increase")),
+        "decrease": ("filing-decrease", "rgba(224,86,86,.18)",   "#f08a8a", t("change_decrease")),
+        "exit":     ("filing-exit",     "rgba(139,148,158,.18)", "#b0b8c2", t("change_exit")),
+        "hold":     ("filing-hold",     "rgba(99,102,241,.18)",  "#a5a8f5", t("change_hold")),
     }
 
 # ── fetch ────────────────────────────────────────────────────────────────────
@@ -2158,11 +2159,11 @@ elif active_tab == "13F History":
             format_func=lambda c: f"{c} ({_tk_map.get(c, '')})",
             placeholder=("기업 검색·선택" if _kor else "Search companies"))
         ct_map = {
-            "new":      "🟢 " + t("change_new"),
-            "increase": "📈 " + t("change_increase"),
-            "decrease": "📉 " + t("change_decrease"),
-            "exit":     "⬛ " + t("change_exit"),
-            "hold":     "🔵 " + t("change_hold"),
+            "new":      t("change_new"),
+            "increase": t("change_increase"),
+            "decrease": t("change_decrease"),
+            "exit":     t("change_exit"),
+            "hold":     t("change_hold"),
         }
         sel_ct = st.multiselect(t("filings_type"), list(ct_map.values()), default=list(ct_map.values()))
         sel_ct_keys = [k for k,v in ct_map.items() if v in sel_ct]
@@ -2173,16 +2174,35 @@ elif active_tab == "13F History":
     )
     _cs = get_change_style()
     for f in filtered_f:
-        css, label = _cs.get(f["change_type"],("filing-hold","🔵 " + t("change_hold")))
-        val = f"${f['value_m']:,.0f}M" if f.get("value_m") else ""
-        val_html = f"&nbsp;&nbsp;<span style='color:#76b900;font-size:0.85rem;font-weight:700'>{val}</span>" if val else ""
-        _change_txt = (f.get("change_eng") or f["change"]) if st.session_state.lang == "ENG" else f["change"]
+        ctype = f["change_type"]
+        css, pill_bg, pill_tx, badge = _cs.get(ctype, ("filing-hold", "rgba(99,102,241,.18)", "#a5a8f5", t("change_hold")))
+        # 우측 금액: ≥$1B → B(소수 2자리), 미만 → M (단위 통일, 본문 중복 $ 제거)
+        v = f.get("value_m")
+        if not v:        amt = ""
+        elif v >= 1000:  amt = f"${round(v/10)/100:.2f}B"   # float 절삭 방지(1855→$1.86B)
+        elif v == int(v):amt = f"${v:,.0f}M"
+        else:            amt = f"${v:g}M"
+        amt_color = "#8b949e" if ctype == "exit" else "#76b900"
+        amt_html = (f'<span style="margin-left:auto;flex-shrink:0;color:{amt_color};'
+                    f'font-weight:700;font-size:0.95rem">{amt}</span>') if amt else ""
+        detail = (f.get("change_eng") or f["change"]) if st.session_state.lang == "ENG" else f["change"]
+        detail_html = (f'<span style="color:#c4ccd6;font-size:0.82rem">{detail}</span>'
+                       if detail else "<span></span>")
         st.markdown(
             f'<div class="filing-row {css}">'
-            f'<span style="color:#f9fafb;font-weight:600">{f["company"]} ({f["ticker"]})</span>'
-            f'&nbsp;<span style="color:#9ca3af;font-size:0.82rem">{f["quarter"]} · {f["filed"]}</span><br>'
-            f'<span style="font-size:0.9rem">{label} — {_change_txt}</span>'
-            f'{val_html}'
+            # 1줄: 배지 · 회사(티커) ······ 금액
+            f'<div style="display:flex;align-items:baseline;gap:10px">'
+            f'<span style="flex-shrink:0;background:{pill_bg};color:{pill_tx};font-size:0.7rem;'
+            f'font-weight:600;padding:2px 8px;border-radius:4px">{badge}</span>'
+            f'<span style="color:#f9fafb;font-weight:600;font-size:0.95rem">{f["company"]} ({f["ticker"]})</span>'
+            f'{amt_html}'
+            f'</div>'
+            # 2줄: 설명(좌) ····· 분기·날짜(우)
+            f'<div style="display:flex;align-items:baseline;justify-content:space-between;'
+            f'gap:12px;flex-wrap:wrap;margin-top:6px">'
+            f'{detail_html}'
+            f'<span style="flex-shrink:0;color:#6b7280;font-size:0.74rem">{f["quarter"]} · {f["filed"]}</span>'
+            f'</div>'
             f'</div>',
             unsafe_allow_html=True)
 
