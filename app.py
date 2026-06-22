@@ -1526,17 +1526,37 @@ if True:
 #     = 콘텐츠 전체와 정확히 일치. :has() 미지원 브라우저는 규칙이 무시돼 콘텐츠 그대로 노출.
 INTRO_GATE = True
 if INTRO_GATE:
+    # FOUC(잔상) 방지 핵심:
+    #  ① 첫 페인트부터 visibility:hidden 으로 메인 전체 숨김 — :has() 비의존, 콘텐츠보다 먼저
+    #     존재하는 stMainBlockContainer에 걸어 "삽입 프레임 지각" 없이 즉시 적용(reflow 0).
+    #     (이전 opacity+:has 방식은 새 요소가 한 프레임 opacity:1로 그려진 뒤 규칙이 먹어,
+    #      숨김에 걸린 transition이 그 1→0을 0.5s 페이드아웃 잔상으로 노출시켰음 — selenium 곡선 확인)
+    #  ② 헤더(로고+scramble)만 visibility:visible 로 예외 노출.
+    #  ③ transition 은 reveal(nv-ready) 방향에만 → 숨김은 즉시(스냅), 등장만 부드럽게 fade-in.
     st.markdown("""
 <style id="nv-intro-gate">
-[data-testid="stMainBlockContainer"] [data-testid="stVerticalBlock"] > [data-testid="stElementContainer"]:has(.nv-header) ~ div {
-  transition: opacity 0.5s ease, transform 0.5s ease;
+/* ① 부팅 전: 메인 전체 숨김 (즉시·reflow 없음) */
+body:not(.nv-ready) [data-testid="stMainBlockContainer"] {
+  visibility: hidden;
 }
+/* ② 헤더만 예외 노출 (로고 + scramble 타이틀) */
+body:not(.nv-ready) [data-testid="stMainBlockContainer"] [data-testid="stElementContainer"]:has(.nv-header) {
+  visibility: visible;
+}
+/* ③ 콘텐츠(헤더 이후 형제) 숨김 상태값 — transition 없음(스냅), reveal 대비 opacity/translateY */
 body:not(.nv-ready) [data-testid="stMainBlockContainer"] [data-testid="stVerticalBlock"] > [data-testid="stElementContainer"]:has(.nv-header) ~ div {
   opacity: 0;
   transform: translateY(8px);
 }
+/* ④ reveal: 메인 visible 복귀 + 콘텐츠만 부드럽게 fade-in (transition은 여기서만) */
+body.nv-ready [data-testid="stMainBlockContainer"] [data-testid="stVerticalBlock"] > [data-testid="stElementContainer"]:has(.nv-header) ~ div {
+  transition: opacity 0.5s ease, transform 0.5s ease;
+  opacity: 1;
+  transform: translateY(0);
+}
 @media (prefers-reduced-motion: reduce) {
-  body:not(.nv-ready) [data-testid="stMainBlockContainer"] [data-testid="stVerticalBlock"] > [data-testid="stElementContainer"]:has(.nv-header) ~ div {
+  body:not(.nv-ready) [data-testid="stMainBlockContainer"] [data-testid="stVerticalBlock"] > [data-testid="stElementContainer"]:has(.nv-header) ~ div,
+  body.nv-ready [data-testid="stMainBlockContainer"] [data-testid="stVerticalBlock"] > [data-testid="stElementContainer"]:has(.nv-header) ~ div {
     transform: none;
   }
 }
