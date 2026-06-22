@@ -1495,11 +1495,12 @@ if True:
   white-space: nowrap;
   display: inline;
 }
-/* 인트로 FOUC 방지: 첫 페인트/재런 때 완성 텍스트 'NVIDIA Portfolio Tracker'가
-   scramble 시작 전 한두 프레임 번뜩이던 잔상 차단 → scramble 시작(nv-head) 전엔 숨김.
-   scramble JS는 inline opacity로 제어(항상 우선)라 애니 동작엔 무영향. nv-head는
-   run() 시작과 4초 failsafe에서 body에 부여 → 재런 시(스크램블 가드)에도 타이틀 정상 노출. */
-body:not(.nv-head) #nv-title { opacity: 0; }
+/* 인트로 FOUC 방지 + 타이핑 캐럿: scramble 시작(nv-head) 전엔 타이틀을 레이아웃에서
+   빼서(display:none) ① 완성 텍스트 번뜩임(FOUC) 차단 ② 폭 0이라 커서 _ 가 ◆ 바로
+   옆에 옴(◆_). nv-head는 run() 시작·4초 failsafe에서 부여 → 타이핑 시작/재런 시 노출.
+   재런(스크램블 가드로 run 미실행)에도 nv-head 영속이라 정적 타이틀 'NVIDIA Portfolio
+   Tracker_' 정상 표시. */
+body:not(.nv-head) #nv-title { display: none; }
 .nv-cursor {
   font-family: 'Press Start 2P', monospace;
   font-size: 1.05rem;
@@ -1571,7 +1572,9 @@ body.nv-ready [data-testid="stMainBlockContainer"] [data-testid="stVerticalBlock
 </style>
 """, unsafe_allow_html=True)
 
-# 헤더 타이틀 scramble 효과 (가운데→바깥 stagger, 약 1.5초).
+# 헤더 타이틀 인트로 효과 — 타이핑+순차 언스크램블 (왼쪽→오른쪽, 약 1.3초).
+# 커서 _ 가 타이핑 캐럿처럼 프런티어를 따라가며 한 글자씩 찍히고, 각 글자는 찍힌 직후 잠깐
+# 코드기호로 스크램블됐다가 정착. 부팅엔 ◆_ (커서만 깜빡) → 타이핑 → 완성 'Tracker_'.
 # st.markdown은 <script> 미실행 + components.html(srcdoc)은 null-origin이라
 # window.parent(앱 iframe, same-origin)의 #nv-title에 직접 주입 (GA4와 동일 패턴).
 # __nvScrambled 가드 → Streamlit 재렌더 시 재실행 안 함(세션 1회만).
@@ -1615,45 +1618,49 @@ components.html("""
     else p.addEventListener('load', afterLoad, { once: true });
   }
   function run(el) {
-    p.document.body.classList.add('nv-head');  // 타이틀 노출 게이트 해제(재런에도 영속) → scramble 시작
+    p.document.body.classList.add('nv-head');  // 타이틀 노출 게이트 해제(재런에도 영속) → 타이핑 시작
     el.style.opacity = '1';  // 깨끗한 화면에서 등장
-    // scramble 중엔 glow(text-shadow blur) 끔 → 모바일 GPU의 매 프레임 재페인트 부담 제거.
+    // 타이핑 중엔 glow(text-shadow blur) 끔 → 모바일 GPU의 매 프레임 재페인트 부담 제거.
     // 정착 후 transition으로 부드럽게 켬.
     el.style.transition = 'text-shadow 0.35s ease';
     el.style.textShadow = 'none';
     var chars = TEXT.split('');
-    var mid = (chars.length - 1) / 2;
     el.textContent = '';
-    var spans = chars.map(function(c) {
+    // 타이핑+순차 언스크램블: 안 찍힌 글자는 폭 0 → 커서(.nv-cursor)가 타이핑 프런티어를 따라옴.
+    // 찍힌 글자는 width:1em 고정(폰트크기 상대) → 글자 교체 시 폭 변동 reflow 차단(모바일 축소도 추종).
+    var spans = chars.map(function() {
       var s = p.document.createElement('span');
-      // ② 글자 폭 고정(inline-block) → 랜덤 글자 교체 시 폭 변동 reflow 차단
-      // width를 1em(폰트크기 상대)으로 → 모바일 clamp 폰트 축소 시 폭도 함께 축소
       s.style.display = 'inline-block';
-      s.style.width = '1em';
+      s.style.width = '0';
+      s.style.overflow = 'hidden';
       s.style.textAlign = 'center';
-      s.textContent = (c === ' ') ? '\\u00A0' : rand();
       el.appendChild(s);
       return s;
     });
     var isMobile = (p.innerWidth <= 640);
-    var settleAt = chars.map(function(_, i) { return Math.abs(i - mid) * 115 + 180; });  // 1.5초(공통)
-    var settled = new Array(chars.length).fill(false);  // ③ 정착 글자 재기록 방지
+    var TYPE_MS = 45;               // 글자당 타이핑 간격 (B안 — 총 ~1.3초)
+    var SCRAMBLE_MS = TYPE_MS * 3;  // 찍힌 직후 스크램블 지속(~135ms, 동시에 ~3글자가 풀림)
+    var settled = new Array(chars.length).fill(false);  // 정착 글자 재기록 방지
     var start = p.performance.now();
-    // ④ 랜덤 교체 throttle → 모바일은 크게 늘려 교체(=페인트) 횟수 대폭 ↓
-    var lastSwap = 0, SWAP_MS = isMobile ? 110 : 45;
+    // 랜덤 교체 throttle → 모바일은 늘려 교체(=페인트) 횟수 ↓ (동시 스크램블 글자 적어 부담은 작음)
+    var lastSwap = 0, SWAP_MS = isMobile ? 90 : 40;
     function tick(now) {
       var t = now - start, done = true;
       var swap = (now - lastSwap) >= SWAP_MS;
       for (var i = 0; i < chars.length; i++) {
-        if (chars[i] === ' ' || settled[i]) continue;
-        if (t >= settleAt[i]) { spans[i].textContent = chars[i]; settled[i] = true; }
-        else { if (swap) spans[i].textContent = rand(); done = false; }
+        if (settled[i]) continue;
+        var rt = i * TYPE_MS;                       // 이 글자가 '찍히는' 시각
+        if (t < rt) { done = false; continue; }     // 아직 안 찍힘 → 폭 0 유지(커서 왼쪽)
+        spans[i].style.width = '1em';               // 찍힘 → 폭 확보(커서 오른쪽으로 이동)
+        if (chars[i] === ' ') { spans[i].textContent = '\\u00A0'; settled[i] = true; continue; }
+        if (t < rt + SCRAMBLE_MS) { if (swap) spans[i].textContent = rand(); done = false; }  // 찍힌 직후 스크램블
+        else { spans[i].textContent = chars[i]; settled[i] = true; }  // 정착
       }
       if (swap) lastSwap = now;
       if (!done) { p.requestAnimationFrame(tick); }
       else {
         el.style.textShadow = '';  // 정착 완료 → CSS glow 복원(transition으로 페이드인)
-        p.setTimeout(revealContent, 250);  // 헤더 정착 직후 콘텐츠 fade-in(+떠오름)
+        p.setTimeout(revealContent, 250);  // 헤더 완성 직후 콘텐츠 fade-in(+떠오름)
       }
     }
     p.requestAnimationFrame(tick);
