@@ -1322,29 +1322,30 @@ def _quote_badge(is_live):
     """시세 행 값 — LIVE(초록)/CLOSED(회색) 배지 + Finnhub."""
     _css = ("background:rgba(118,185,0,.16);color:#9ee23a" if is_live
             else "background:#20262e;color:#8b949e")
-    return (f"<span style='font-size:8.5px;font-weight:600;letter-spacing:0.5px;"
-            f"padding:1px 5px;border-radius:3px;margin-right:6px;{_css}'>"
+    return (f"<span style='font-size:10px;font-weight:600;letter-spacing:0.5px;"
+            f"padding:1px 6px;border-radius:3px;margin-right:7px;{_css}'>"
             f"{'LIVE' if is_live else 'CLOSED'}</span>Finnhub")
 
 def _sidebar_data_html(quote_v, asof_date):
-    """사이드바 '데이터' 섹션 = 출처+실시간 통합 블록. 폰트는 사이드바 주력 Inter로 통일,
-    헤더=정렬기준 라벨과 동일(11.5px·#909090·자간 0.8·UPPER). 행은 작게(10.5px)+nowrap로
-    한 줄 유지(라벨 #909090 / 값 #f9fafb). 면책=섹션 마지막 줄, 그 아래 구분선으로 버튼과 분리.
+    """사이드바 '데이터' 섹션 = 출처+실시간 통합 블록. 폰트는 네이티브 위젯과 통일(Source Sans 상속,
+    별도 font-family 지정 안 함). 헤더=보이는 '정렬 기준'과 동일(14px·#909090·weight400). 행은
+    13.6px(네이티브 값 '투자금액'과 동일; 값 칸 ~200px라 최장 'SEC EDGAR 13F · NVIDIA IR' 172px로
+    한 줄 OK)+nowrap. 라벨 #909090 / 값 #f9fafb. 면책=섹션 마지막 줄, 그 아래 구분선으로 버튼과 분리.
     quote_v = 시세 행 값(HTML)."""
-    _k = "flex:0 0 44px;font-size:10.5px;color:#909090"
-    _v = ("flex:1;font-size:10.5px;color:#f9fafb;line-height:1.4;"
+    _k = "flex:0 0 56px;font-size:13.6px;color:#909090"
+    _v = ("flex:1;font-size:13.6px;color:#f9fafb;line-height:1.4;"
           "white-space:nowrap;overflow:hidden;text-overflow:ellipsis")
     def _row(k, v):
-        return (f"<div style='display:flex;align-items:baseline;gap:9px;margin:7px 0'>"
+        return (f"<div style='display:flex;align-items:baseline;gap:8px;margin:8px 0'>"
                 f"<div style='{_k}'>{k}</div><div style='{_v}'>{v}</div></div>")
     return (
-        "<div style=\"font-family:'Inter','SF Pro Display',system-ui,sans-serif\">"
-        "<div style='font-size:11.5px;font-weight:400;letter-spacing:0.8px;color:#909090;"
-        f"text-transform:uppercase;margin:2px 0 10px'>{t('sb_data_title')}</div>"
+        "<div>"
+        "<div style='font-size:14px;font-weight:400;color:#909090;margin:2px 0 10px'>"
+        f"{t('sb_data_title')}</div>"
         + _row(t('sb_row_quote'), quote_v)
         + _row(t('sb_row_filing'), "SEC EDGAR 13F · NVIDIA IR")
         + _row(t('sb_row_fund'), f"{t('sb_fund_snap_v')}{asof_date}")
-        + f"<div style='font-size:11px;color:#c87f00;margin-top:10px'>{t('sb_disclaimer')}</div>"
+        + f"<div style='font-size:13.6px;color:#c87f00;margin-top:10px'>{t('sb_disclaimer')}</div>"
         + "<hr style='border:0;border-top:0.5px solid #1b2026;margin:13px 0 2px'>"
         + "</div>"
     )
