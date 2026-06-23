@@ -90,6 +90,13 @@ TRANSLATIONS = {
     "sb_data_sources":      {"KOR": "데이터 출처",                   "ENG": "Data Sources"},
     "sb_media":             {"KOR": "글로벌 주요 언론 교차검증",       "ENG": "Global Media Cross-verification"},
     "sb_disclaimer":        {"KOR": "⚠️ 투자 조언 아님",              "ENG": "⚠️ Not Financial Advice"},
+    # 통합 '데이터' 섹션 (라벨:값)
+    "sb_data_title":        {"KOR": "데이터",                       "ENG": "DATA"},
+    "sb_row_quote":         {"KOR": "시세",                         "ENG": "Quotes"},
+    "sb_row_filing":        {"KOR": "공시",                         "ENG": "Filings"},
+    "sb_row_fund":          {"KOR": "펀더멘털",                      "ENG": "Fundamentals"},
+    "sb_fund_snap_v":       {"KOR": "전일 스냅샷",                   "ENG": "Prev-close snapshot"},
+    "sb_quote_fallback":    {"KOR": "Yahoo · 전일 종가",             "ENG": "Yahoo · prev close"},
     "sb_delay":             {"KOR": "Data: Yahoo Finance", "ENG": "Data: Yahoo Finance"},
     "sb_asof":              {"KOR": "전일 종가 기준", "ENG": "Prev. close"},
     "sb_src_live":          {"KOR": "주가 실시간 · Finnhub", "ENG": "Live quotes · Finnhub"},
@@ -1311,6 +1318,32 @@ def ts_to_str(ts):
     try: return datetime.fromtimestamp(ts).strftime("%Y-%m-%d")
     except Exception: return ""
 
+def _quote_badge(is_live):
+    """시세 행 값 — LIVE(초록)/CLOSED(회색) 배지 + Finnhub."""
+    _css = ("background:rgba(118,185,0,.16);color:#9ee23a" if is_live
+            else "background:#20262e;color:#8b949e")
+    return (f"<span style='font-size:0.6rem;font-weight:600;letter-spacing:0.8px;"
+            f"padding:1px 6px;border-radius:3px;margin-right:7px;{_css}'>"
+            f"{'LIVE' if is_live else 'CLOSED'}</span>Finnhub")
+
+def _sidebar_data_html(quote_v, asof_date):
+    """사이드바 '데이터' 섹션 = 출처+실시간을 한 블록으로(통일 타이포: 헤더/라벨:값/면책).
+    quote_v = 시세 행의 값(HTML). 마크다운 불릿/HTML 혼용을 없애 폰트 통일."""
+    _k = "flex:0 0 56px;font-size:0.72rem;color:#5a626b"
+    _v = "flex:1;font-size:0.78rem;color:#c9d1d9;line-height:1.45"
+    def _row(k, v):
+        return (f"<div style='display:flex;align-items:baseline;gap:10px;margin:7px 0'>"
+                f"<div style='{_k}'>{k}</div><div style='{_v}'>{v}</div></div>")
+    return (
+        "<div style='font-size:0.68rem;font-weight:500;letter-spacing:1.3px;color:#6e7681;"
+        f"text-transform:uppercase;margin:2px 0 11px'>{t('sb_data_title')}</div>"
+        + _row(t('sb_row_quote'), quote_v)
+        + _row(t('sb_row_filing'), "SEC EDGAR 13F · NVIDIA IR")
+        + _row(t('sb_row_fund'), f"{t('sb_fund_snap_v')}{asof_date}")
+        + "<hr style='border:0;border-top:0.5px solid #1b2026;margin:12px 0'>"
+        + f"<div style='font-size:0.74rem;color:#c87f00'>{t('sb_disclaimer')}</div>"
+    )
+
 # ── 사이드바 ──────────────────────────────────────────────────────────────────
 with st.sidebar:
     # KOR/ENG 토글 — st.pills (Streamlit 1.36+)
@@ -1366,20 +1399,11 @@ with st.sidebar:
 
     st.markdown("---")
     _md_meta = load_market_data()
-    _asof_date = f" ({_md_meta['generated_at'][:10]})" if _md_meta and _md_meta.get("generated_at") else ""
-    st.markdown(
-        f"{t('sb_data_sources')}\n"
-        f"- SEC EDGAR 13F\n"
-        f"- NVIDIA IR\n"
-        f"- {t('sb_media')}\n"
-        f"  Bloomberg · Reuters · CNBC ·\n"
-        f"  FT · WSJ · Economist {'외' if st.session_state.lang=='KOR' else 'etc.'}\n\n"
-        f"---\n{t('sb_disclaimer')}"
-    )
-    # 시세 출처·신선도 — 실시간 오버레이 후 채움. 기본값은 폴백(스냅샷=전일 종가).
-    # 줄바꿈은 마크다운 hard break(공백 2칸).
-    _freshness_slot = st.empty()
-    _freshness_slot.markdown(f"{t('sb_delay')}  \n{t('sb_asof')}{_asof_date}")
+    _asof_date = f" · {_md_meta['generated_at'][:10]}" if _md_meta and _md_meta.get("generated_at") else ""
+    # '데이터' 섹션(출처+실시간 통합, 통일 타이포). 시세 행(LIVE/CLOSED 배지)은 실시간
+    # 오버레이 후 채우므로 placeholder; 기본값은 폴백(Yahoo 전일 종가).
+    _data_slot = st.empty()
+    _data_slot.markdown(_sidebar_data_html(t("sb_quote_fallback"), _asof_date), unsafe_allow_html=True)
     if st.button(t("sb_refresh"), use_container_width=True):
         st.cache_data.clear()
         st.rerun()
@@ -1494,19 +1518,9 @@ with st.spinner(t("loading")):
     # Finnhub 실시간 시세 오버레이 (US 종목 가격·등락%·YTD) — 키 있을 때만, 실패 시 스냅샷 유지.
     _live_meta = overlay_live_quotes(stock_data, tickers)
     if _live_meta.get("live"):
-        # 체결 경과 <5분이면 장중(LIVE), 아니면 장 마감(CLOSED). 배지+보조 한 줄(펀더멘털=전일).
+        # 체결 경과 <5분이면 장중(LIVE), 아니면 장 마감(CLOSED) → 시세 행 배지로. 데이터 블록 재채움.
         _is_live = (time.time() - (_live_meta.get("ts") or 0)) < 300
-        _badge = "LIVE" if _is_live else "CLOSED"
-        _badge_css = ("background:rgba(118,185,0,.16);color:#9ee23a"
-                      if _is_live else "background:#20262e;color:#8b949e")
-        _label = t("sb_src_live") if _is_live else t("sb_src_close")
-        _freshness_slot.markdown(
-            f"<div style='font-size:0.82rem;color:#c9d1d9;line-height:1.6'>"
-            f"<span style='font-size:0.6rem;font-weight:600;letter-spacing:0.8px;"
-            f"padding:1px 6px;border-radius:3px;margin-right:7px;{_badge_css}'>{_badge}</span>"
-            f"{_label}</div>"
-            f"<div style='font-size:0.72rem;color:#6e7681;margin-top:3px'>{t('sb_fund_snap')}{_asof_date}</div>",
-            unsafe_allow_html=True)
+        _data_slot.markdown(_sidebar_data_html(_quote_badge(_is_live), _asof_date), unsafe_allow_html=True)
 
 # ── CSV 내보내기 (사이드바 placeholder 채우기 — 공유하기 섹션 위) ──────────────
 _csv_rows = []
