@@ -1322,26 +1322,31 @@ def _quote_badge(is_live):
     """시세 행 값 — LIVE(초록)/CLOSED(회색) 배지 + Finnhub."""
     _css = ("background:rgba(118,185,0,.16);color:#9ee23a" if is_live
             else "background:#20262e;color:#8b949e")
-    return (f"<span style='font-size:0.6rem;font-weight:600;letter-spacing:0.8px;"
-            f"padding:1px 6px;border-radius:3px;margin-right:7px;{_css}'>"
+    return (f"<span style='font-size:8.5px;font-weight:600;letter-spacing:0.5px;"
+            f"padding:1px 5px;border-radius:3px;margin-right:6px;{_css}'>"
             f"{'LIVE' if is_live else 'CLOSED'}</span>Finnhub")
 
 def _sidebar_data_html(quote_v, asof_date):
-    """사이드바 '데이터' 섹션 = 출처+실시간을 한 블록으로(통일 타이포: 헤더/라벨:값/면책).
-    quote_v = 시세 행의 값(HTML). 마크다운 불릿/HTML 혼용을 없애 폰트 통일."""
-    _k = "flex:0 0 56px;font-size:0.72rem;color:#5a626b"
-    _v = "flex:1;font-size:0.78rem;color:#c9d1d9;line-height:1.45"
+    """사이드바 '데이터' 섹션 = 출처+실시간 통합 블록. 폰트는 사이드바 주력 Inter로 통일,
+    헤더=정렬기준 라벨과 동일(11.5px·#909090·자간 0.8·UPPER). 행은 작게(10.5px)+nowrap로
+    한 줄 유지(라벨 #909090 / 값 #f9fafb). 면책=섹션 마지막 줄, 그 아래 구분선으로 버튼과 분리.
+    quote_v = 시세 행 값(HTML)."""
+    _k = "flex:0 0 44px;font-size:10.5px;color:#909090"
+    _v = ("flex:1;font-size:10.5px;color:#f9fafb;line-height:1.4;"
+          "white-space:nowrap;overflow:hidden;text-overflow:ellipsis")
     def _row(k, v):
-        return (f"<div style='display:flex;align-items:baseline;gap:10px;margin:7px 0'>"
+        return (f"<div style='display:flex;align-items:baseline;gap:9px;margin:7px 0'>"
                 f"<div style='{_k}'>{k}</div><div style='{_v}'>{v}</div></div>")
     return (
-        "<div style='font-size:0.68rem;font-weight:500;letter-spacing:1.3px;color:#6e7681;"
-        f"text-transform:uppercase;margin:2px 0 11px'>{t('sb_data_title')}</div>"
+        "<div style=\"font-family:'Inter','SF Pro Display',system-ui,sans-serif\">"
+        "<div style='font-size:11.5px;font-weight:400;letter-spacing:0.8px;color:#909090;"
+        f"text-transform:uppercase;margin:2px 0 10px'>{t('sb_data_title')}</div>"
         + _row(t('sb_row_quote'), quote_v)
         + _row(t('sb_row_filing'), "SEC EDGAR 13F · NVIDIA IR")
         + _row(t('sb_row_fund'), f"{t('sb_fund_snap_v')}{asof_date}")
-        + "<hr style='border:0;border-top:0.5px solid #1b2026;margin:12px 0'>"
-        + f"<div style='font-size:0.74rem;color:#c87f00'>{t('sb_disclaimer')}</div>"
+        + f"<div style='font-size:11px;color:#c87f00;margin-top:10px'>{t('sb_disclaimer')}</div>"
+        + "<hr style='border:0;border-top:0.5px solid #1b2026;margin:13px 0 2px'>"
+        + "</div>"
     )
 
 # ── 사이드바 ──────────────────────────────────────────────────────────────────
@@ -1399,7 +1404,7 @@ with st.sidebar:
 
     st.markdown("---")
     _md_meta = load_market_data()
-    _asof_date = f" · {_md_meta['generated_at'][:10]}" if _md_meta and _md_meta.get("generated_at") else ""
+    _asof_date = f" · {_md_meta['generated_at'][5:10]}" if _md_meta and _md_meta.get("generated_at") else ""
     # '데이터' 섹션(출처+실시간 통합, 통일 타이포). 시세 행(LIVE/CLOSED 배지)은 실시간
     # 오버레이 후 채우므로 placeholder; 기본값은 폴백(Yahoo 전일 종가).
     _data_slot = st.empty()
