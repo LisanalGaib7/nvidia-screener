@@ -393,9 +393,12 @@ st.markdown("""
     }
   }
 
-  /* 탭 전환 시 차트 페이드인 — rerun으로 plotly가 다시 렌더될 때 '툭' 나타나는 깜빡임을
-     부드럽게 묻음. opacity만 사용(transform 금지: stacking context→툴팁 가림 버그 방지). */
-  div[data-testid="stPlotlyChart"] { animation: nvChartFade 0.45s ease both; }
+  /* 탭 전환 시 콘텐츠 페이드인 — 탭 본문을 active_tab-keyed 컨테이너(tabbodyN)로 감싸
+     매 전환마다 강제 remount → 제목·표·차트가 일제히 떠오름. (형제 셀렉터로는 React가
+     같은 타입 요소를 재사용해 개별 요소엔 애니가 안 걸려 차트만 페이드됐었음.)
+     opacity만 사용(transform 금지: stacking context로 차트 툴팁 가림 버그 방지).
+     같은 탭 내 위젯 조작은 key 불변이라 remount 안 돼 안 깜빡임. */
+  [class*="st-key-tabbody"] { animation: nvChartFade 0.45s ease both; }
   @keyframes nvChartFade { from { opacity: 0 } to { opacity: 1 } }
 
   /* ── 사이드바 텍스트 ── */
@@ -1999,494 +2002,499 @@ except Exception:
 is_mobile = any(k in _ua for k in ["Mobile", "Android", "iPhone", "iPad"])
 
 # ══ Tab 1 ════════════════════════════════════════════════════════════════════
-if active_tab == "Portfolio":
-    def sort_key(c):
-        sd = stock_data.get(c["ticker"],{})
-        if sort_by == t("sb_sort_invest"): return c.get("invest_amt_m") or 0
-        if sort_by == t("sb_sort_ytd"):    return sd.get("ytd_pct") or -9999
-        if sort_by == t("sb_sort_cap"):    return sd.get("market_cap") or 0
-        if sort_by == t("sb_sort_daily"):  return sd.get("change_pct") or -9999
-        if sort_by == t("sb_sort_date"):   return c.get("invest_date","")
-        return 0
+# 탭 본문을 active_tab-keyed 컨테이너로 감싸 매 전환마다 강제 remount →
+# 제목·표·차트가 일제히 페이드(CSS [class*="st-key-tabbody"]). React가 같은 타입
+# 요소를 재사용해 개별 요소엔 애니가 안 걸리던 문제(차트만 페이드)를 해결.
+_tab_body = st.container(key=f"tabbody{TAB_LABELS.index(active_tab)}")
+with _tab_body:
+    if active_tab == "Portfolio":
+        def sort_key(c):
+            sd = stock_data.get(c["ticker"],{})
+            if sort_by == t("sb_sort_invest"): return c.get("invest_amt_m") or 0
+            if sort_by == t("sb_sort_ytd"):    return sd.get("ytd_pct") or -9999
+            if sort_by == t("sb_sort_cap"):    return sd.get("market_cap") or 0
+            if sort_by == t("sb_sort_daily"):  return sd.get("change_pct") or -9999
+            if sort_by == t("sb_sort_date"):   return c.get("invest_date","")
+            return 0
 
-    groups = [
-        (t("group_new"),    [c for c in all_display if c.get("invest_year")==2026],            True),
-        (t("group_hold"),   [c for c in all_display if c["badge"] not in ["partner","exited"] and c.get("invest_year")!=2026], True),
-        (t("group_partner"), [c for c in all_display if c["badge"] == "partner"],               True),
-        (t("group_exited"),  [c for c in all_display if c["badge"] == "exited"],                False),
-    ]
+        groups = [
+            (t("group_new"),    [c for c in all_display if c.get("invest_year")==2026],            True),
+            (t("group_hold"),   [c for c in all_display if c["badge"] not in ["partner","exited"] and c.get("invest_year")!=2026], True),
+            (t("group_partner"), [c for c in all_display if c["badge"] == "partner"],               True),
+            (t("group_exited"),  [c for c in all_display if c["badge"] == "exited"],                False),
+        ]
 
-    for group_title, group_items, reverse in groups:
-        if not group_items: continue
-        if group_title == t("group_new"):     accent = "#76b900"
-        elif group_title == t("group_partner"): accent = "#c87f00"
-        elif group_title == t("group_exited"):  accent = "#3a3a3a"
-        else:                                   accent = "#4a90d9"
-        st.markdown(
-            f'<div style="display:flex;align-items:center;gap:14px;margin:32px 0 18px">'
-            f'<div style="width:3px;height:22px;background:{accent};border-radius:2px;flex-shrink:0"></div>'
-            f'<span style="color:#d0d0d0;font-size:0.95rem;font-weight:600;letter-spacing:0.4px">{group_title}</span>'
-            f'<div style="flex:1;height:1px;background:#1a1a1a"></div>'
-            f'</div>',
-            unsafe_allow_html=True)
-        sorted_items = sorted(group_items, key=sort_key, reverse=reverse)
+        for group_title, group_items, reverse in groups:
+            if not group_items: continue
+            if group_title == t("group_new"):     accent = "#76b900"
+            elif group_title == t("group_partner"): accent = "#c87f00"
+            elif group_title == t("group_exited"):  accent = "#3a3a3a"
+            else:                                   accent = "#4a90d9"
+            st.markdown(
+                f'<div style="display:flex;align-items:center;gap:14px;margin:32px 0 18px">'
+                f'<div style="width:3px;height:22px;background:{accent};border-radius:2px;flex-shrink:0"></div>'
+                f'<span style="color:#d0d0d0;font-size:0.95rem;font-weight:600;letter-spacing:0.4px">{group_title}</span>'
+                f'<div style="flex:1;height:1px;background:#1a1a1a"></div>'
+                f'</div>',
+                unsafe_allow_html=True)
+            sorted_items = sorted(group_items, key=sort_key, reverse=reverse)
 
-        lang       = st.session_state.lang
-        detail_lbl = "Details"
+            lang       = st.session_state.lang
+            detail_lbl = "Details"
 
-        # 테이블 헤더 (데스크탑 전용 — 모바일에서는 CSS로 숨김)
-        st.markdown(
-            f'<div class="ptable-header">'
-            f'<span>{t("col_company")}</span><span>{t("col_price")}</span>'
-            f'<span>{t("col_daily")}</span><span>YTD</span>'
-            f'<span>{t("col_cap")}</span><span>P/E</span><span></span>'
-            f'</div>',
-            unsafe_allow_html=True)
+            # 테이블 헤더 (데스크탑 전용 — 모바일에서는 CSS로 숨김)
+            st.markdown(
+                f'<div class="ptable-header">'
+                f'<span>{t("col_company")}</span><span>{t("col_price")}</span>'
+                f'<span>{t("col_daily")}</span><span>YTD</span>'
+                f'<span>{t("col_cap")}</span><span>P/E</span><span></span>'
+                f'</div>',
+                unsafe_allow_html=True)
 
-        for c in sorted_items:
-            ticker   = c["ticker"]
-            sd       = stock_data.get(ticker, {})
-            if "error" in sd:
-                _err = str(sd.get("error", ""))[:70]
-                st.warning(f"{ticker}: 데이터 로드 실패  ({_err})")
-                continue
+            for c in sorted_items:
+                ticker   = c["ticker"]
+                sd       = stock_data.get(ticker, {})
+                if "error" in sd:
+                    _err = str(sd.get("error", ""))[:70]
+                    st.warning(f"{ticker}: 데이터 로드 실패  ({_err})")
+                    continue
 
-            price    = sd.get("price")
-            currency = sd.get("currency", "USD")
-            amt      = (f"${c['invest_amt_m']/1000:.1f}B"
-                        if (c.get("invest_amt_m") or 0) >= 1000
-                        else f"${c['invest_amt_m']:.0f}M"
-                        if c.get("invest_amt_m") else "")
+                price    = sd.get("price")
+                currency = sd.get("currency", "USD")
+                amt      = (f"${c['invest_amt_m']/1000:.1f}B"
+                            if (c.get("invest_amt_m") or 0) >= 1000
+                            else f"${c['invest_amt_m']:.0f}M"
+                            if c.get("invest_amt_m") else "")
 
-            # 52W 바 (데스크탑용 전체 / 모바일용 축약)
-            w52h = sd.get("week52_high"); w52l = sd.get("week52_low")
-            if w52h and w52l and price:
-                pp = max(0, min(100, (price - w52l) / (w52h - w52l) * 100))
-                bar52_desk = (
-                    f'<div style="font-size:0.68rem;color:#9aa3b0">'
-                    f'{fmt_price(w52l,currency)}'
-                    f'<span style="color:#2a2a2a"> – </span>'
-                    f'{fmt_price(w52h,currency)}<br>'
-                    f'<div style="background:#1a1a1a;border-radius:2px;height:3px;margin-top:3px">'
-                    f'<div style="background:#76b900;width:{pp:.0f}%;height:3px;border-radius:2px"></div>'
+                # 52W 바 (데스크탑용 전체 / 모바일용 축약)
+                w52h = sd.get("week52_high"); w52l = sd.get("week52_low")
+                if w52h and w52l and price:
+                    pp = max(0, min(100, (price - w52l) / (w52h - w52l) * 100))
+                    bar52_desk = (
+                        f'<div style="font-size:0.68rem;color:#9aa3b0">'
+                        f'{fmt_price(w52l,currency)}'
+                        f'<span style="color:#2a2a2a"> – </span>'
+                        f'{fmt_price(w52h,currency)}<br>'
+                        f'<div style="background:#1a1a1a;border-radius:2px;height:3px;margin-top:3px">'
+                        f'<div style="background:#76b900;width:{pp:.0f}%;height:3px;border-radius:2px"></div>'
+                        f'</div></div>'
+                    )
+                    bar52_mob = (f'<span style="color:#76b900;font-size:0.82rem;font-weight:500">'
+                                 f'{pp:.0f}%</span>'
+                                 )
+                else:
+                    bar52_desk = bar52_mob = '<span style="color:#2a2a2a">—</span>'
+
+                _thesis  = ((c.get("nvidia_thesis_eng") or c["nvidia_thesis"])
+                            if lang == "ENG" else c["nvidia_thesis"])
+                # 한국어 + 재작성된 종목이면 3섹션 구조, 아니면 기존 한 덩어리 fallback
+                _tk3 = (THESIS_EN.get(ticker) if lang == "ENG" else THESIS_KO.get(ticker))
+                if _tk3:
+                    _L = (("In a nutshell", "Why NVIDIA invested", "Deal structure") if lang == "ENG"
+                          else ("한 줄 요약", "왜 NVIDIA가 투자했나", "투자 구조"))
+                    _thesis_html = (
+                        f'<div class="ptd-label">{_L[0]}</div>'
+                        f'<div class="ptd-summary">{_tk3[0]}</div>'
+                        f'<div class="ptd-label">{_L[1]}</div>'
+                        f'<div class="ptd-thesis">{_tk3[1]}</div>'
+                        f'<div class="ptd-label">{_L[2]}</div>'
+                        f'<div class="ptd-thesis">{_tk3[2]}</div>'
+                    )
+                else:
+                    _thesis_html = ('<div class="ptd-label">WHY NVIDIA</div>'
+                                    f'<div class="ptd-thesis">{_thesis}</div>')
+                price_h  = f'<span style="color:#c0c0c0;font-weight:500">{fmt_price(price,currency)}</span>'
+                daily_h  = fmt_pct(sd.get("change_pct"))
+                ytd_h    = fmt_pct(sd.get("ytd_pct"))
+                cap_h    = f'<span style="color:#a0a0a0">{fmt_cap(sd.get("market_cap"),currency,usdjpy)}</span>'
+                pe_h     = f'<span style="color:#a0a0a0">{fmt_ratio(sd.get("pe_ratio"))}</span>'
+                amt_h    = (f'<span style="color:#c87f00;font-size:0.75rem;font-weight:600">{amt}</span>'
+                            if amt else "")
+                amt_big  = (f'<div style="color:#c87f00;font-size:1rem;font-weight:600;margin-bottom:10px">{amt}</div>'
+                            if amt else "")
+
+                _src = re.sub(r'\s*\(\d{4}\.\d{2}(?:\.\d{2})?\)', '', c.get("source", "—")).strip()
+                _date = c.get("invest_date", "—")
+                _badge = BADGE_MAP[c["badge"]]
+                _sector = sector_name(c["sector"])
+                _col_price = t("col_price"); _col_daily = t("col_daily"); _col_cap = t("col_cap")
+                row_html = (
+                    f'<div class="ptable-row" style="--accent:{accent}">'
+                    f'<div class="pt-company">'
+                    f'<div><span style="color:#e8e8e8;font-weight:500">{c["name"]}</span>'
+                    f'<span style="color:#9aa3b0;font-size:0.75rem;margin-left:6px">{ticker}</span></div>'
+                    f'<div style="display:flex;align-items:center;flex-wrap:wrap;gap:5px;margin-top:4px">'
+                    f'{_badge}<span style="color:#9aa3b0;font-size:0.7rem">{_sector}</span>{amt_h}</div>'
+                    f'<div class="pt-stats">'
+                    f'<div><span class="pt-stat-label">{_col_price}</span>{price_h}</div>'
+                    f'<div><span class="pt-stat-label">{_col_daily}</span>{daily_h}</div>'
+                    f'<div><span class="pt-stat-label">YTD</span>{ytd_h}</div>'
+                    f'</div>'
+                    f'<div class="pt-meta">'
+                    f'<div><span class="pt-stat-label">{_col_cap}</span>{cap_h}</div>'
+                    f'<div><span class="pt-stat-label">P/E</span>{pe_h}</div>'
+                    f'<div><span class="pt-stat-label">52W</span>{bar52_mob}</div>'
                     f'</div></div>'
+                    f'<div class="pt-price">{price_h}</div>'
+                    f'<div class="pt-daily">{daily_h}</div>'
+                    f'<div class="pt-ytd">{ytd_h}</div>'
+                    f'<div class="pt-cap">{cap_h}</div>'
+                    f'<div class="pt-pe">{pe_h}</div>'
+                    f'<div class="pt-detail">'
+                    f'<details><summary>{detail_lbl}</summary></details>'
+                    f'<div class="pt-detail-body">'
+                    f'<div class="ptd-header"><span class="ptd-ticker">{ticker}</span><span class="ptd-sector">{_sector}</span></div>'
+                    + (f'<div class="ptd-label">NVIDIA INVEST</div><div class="ptd-amount">{amt}</div>' if amt else '')
+                    + _thesis_html
+                    + f'<div class="ptd-footer"><span class="ptd-date">{_date}</span><span class="ptd-src">{_src}</span></div>'
+                    + f'</div></div>'
+                    f'</div>'
                 )
-                bar52_mob = (f'<span style="color:#76b900;font-size:0.82rem;font-weight:500">'
-                             f'{pp:.0f}%</span>'
-                             )
-            else:
-                bar52_desk = bar52_mob = '<span style="color:#2a2a2a">—</span>'
+                st.markdown(row_html, unsafe_allow_html=True)
 
-            _thesis  = ((c.get("nvidia_thesis_eng") or c["nvidia_thesis"])
-                        if lang == "ENG" else c["nvidia_thesis"])
-            # 한국어 + 재작성된 종목이면 3섹션 구조, 아니면 기존 한 덩어리 fallback
-            _tk3 = (THESIS_EN.get(ticker) if lang == "ENG" else THESIS_KO.get(ticker))
-            if _tk3:
-                _L = (("In a nutshell", "Why NVIDIA invested", "Deal structure") if lang == "ENG"
-                      else ("한 줄 요약", "왜 NVIDIA가 투자했나", "투자 구조"))
-                _thesis_html = (
-                    f'<div class="ptd-label">{_L[0]}</div>'
-                    f'<div class="ptd-summary">{_tk3[0]}</div>'
-                    f'<div class="ptd-label">{_L[1]}</div>'
-                    f'<div class="ptd-thesis">{_tk3[1]}</div>'
-                    f'<div class="ptd-label">{_L[2]}</div>'
-                    f'<div class="ptd-thesis">{_tk3[2]}</div>'
-                )
-            else:
-                _thesis_html = ('<div class="ptd-label">WHY NVIDIA</div>'
-                                f'<div class="ptd-thesis">{_thesis}</div>')
-            price_h  = f'<span style="color:#c0c0c0;font-weight:500">{fmt_price(price,currency)}</span>'
-            daily_h  = fmt_pct(sd.get("change_pct"))
-            ytd_h    = fmt_pct(sd.get("ytd_pct"))
-            cap_h    = f'<span style="color:#a0a0a0">{fmt_cap(sd.get("market_cap"),currency,usdjpy)}</span>'
-            pe_h     = f'<span style="color:#a0a0a0">{fmt_ratio(sd.get("pe_ratio"))}</span>'
-            amt_h    = (f'<span style="color:#c87f00;font-size:0.75rem;font-weight:600">{amt}</span>'
-                        if amt else "")
-            amt_big  = (f'<div style="color:#c87f00;font-size:1rem;font-weight:600;margin-bottom:10px">{amt}</div>'
-                        if amt else "")
+    # ══ Tab 2 ════════════════════════════════════════════════════════════════════
+    elif active_tab == "Performance":
+        st.markdown(f"### {t('perf_title')}")
+        if st.session_state.lang == "KOR":
+            _hint = ("💡 주요 종목만 표시 중 — 범례에서 종목을 탭해 추가/제거, 더블탭하면 그 종목만 볼 수 있어요." if is_mobile
+                     else "💡 범례에서 종목을 탭하면 켜고 끌 수 있고, 더블클릭하면 그 종목만 볼 수 있어요.")
+        else:
+            _hint = ("💡 Showing key holdings — tap a legend item to add/remove; double-tap to isolate one." if is_mobile
+                     else "💡 Tap a legend item to show/hide it; double-click to view only that one.")
+        st.markdown(
+            f'<div style="color:#e5e7eb;font-size:0.85rem;margin:-6px 0 10px">{_hint}</div>',
+            unsafe_allow_html=True)
+        # 파트너십(지분 없음)은 수익률 차트에서 제외 — NVIDIA 실제 보유분만
+        chart_items = [c for c in all_display
+                       if c["badge"] != "partner"
+                       and "error" not in stock_data.get(c["ticker"],{})]
+        fig = go.Figure()
+        _palette = px.colors.qualitative.Light24  # 종목별 고유색 → 라인 구분성 ↑(섹터색 중복 해소)
+        # 모바일: 14개 스파게티 완화 — 기본은 YTD 상위 3종목만 표시, 나머지는 legendonly(범례 탭하면 추가)
+        _top_tk = set()
+        if is_mobile:
+            _ranked = sorted(chart_items,
+                             key=lambda c: stock_data.get(c["ticker"], {}).get("ytd_pct") or -9999,
+                             reverse=True)
+            _top_tk = {c["ticker"] for c in _ranked[:3]}
+        _ci = 0
+        for c in chart_items:
+            hist = stock_data[c["ticker"]].get("hist")
+            if hist is None or hist.empty: continue
+            ytd_h = hist[hist.index >= f"{date.today().year}-01-01"]["Close"]
+            if ytd_h.empty: continue
+            pct = ((ytd_h / ytd_h.iloc[0] - 1) * 100).round(0)
+            fig.add_trace(go.Scatter(
+                x=pct.index, y=pct.values,
+                name=c["ticker"],  # 범례는 티커만(컴팩트) — 풀네임은 hover로
+                line=dict(color=_palette[_ci % len(_palette)], width=2),
+                visible=(True if (not is_mobile or c["ticker"] in _top_tk) else "legendonly"),
+                hovertemplate=f"<b>{c['name']}</b><br>%{{y:+.0f}}%<extra></extra>",
+            ))
+            _ci += 1
+        # 벤치마크 비교선 (NVDA 본주 · SOXX 반도체 ETF) — 점선으로 구분
+        _bench_style = {
+            "NVDA": ("NVDA", "#76b900"),
+            "SOXX": ("SOXX 반도체 ETF" if st.session_state.lang=="KOR" else "SOXX (Semis ETF)", "#888888"),
+        }
+        for _btk, (_blabel, _bcolor) in _bench_style.items():
+            _bq = benchmarks.get(_btk)
+            if not _bq or "error" in _bq:
+                continue
+            _bhist = _bq.get("hist")
+            if _bhist is None or _bhist.empty:
+                continue
+            _bytd = _bhist[_bhist.index >= f"{date.today().year}-01-01"]["Close"]
+            if _bytd.empty:
+                continue
+            _bpct = ((_bytd / _bytd.iloc[0] - 1) * 100).round(0)
+            fig.add_trace(go.Scatter(
+                x=_bpct.index, y=_bpct.values, name=_blabel,
+                line=dict(color=_bcolor, width=2, dash="dot"),
+                hovertemplate=f"<b>{_blabel}</b><br>%{{y:+.0f}}%<extra></extra>",
+            ))
+        fig.add_hline(y=0, line_dash="dash", line_color="#6b7280", annotation_text="0%")
+        # 범례: 데스크톱=우측 세로 / 모바일=하단 가로(티커라 자동 여러 열)
+        _legend = (dict(bgcolor="rgba(31,41,55,0.5)", orientation="h", yanchor="top", y=-0.12, x=0, font=dict(size=10))
+                   if is_mobile else
+                   dict(bgcolor="rgba(31,41,55,0.3)", orientation="v", yanchor="top", y=1, xanchor="left", x=1.01, font=dict(size=11)))
+        fig.update_layout(template="plotly_dark", paper_bgcolor="#111827", plot_bgcolor="#111827",
+                          height=520, yaxis_title="YTD Return (%)" if st.session_state.lang=="ENG" else "YTD 수익률 (%)",
+                          yaxis_ticksuffix="%", yaxis_hoverformat="+.0f",
+                          legend=_legend, dragmode=False,
+                          margin=dict(l=0, r=(16 if is_mobile else 12), t=20, b=0))
+        st.plotly_chart(fig, use_container_width=True, config=PLOTLY_CFG)
 
-            _src = re.sub(r'\s*\(\d{4}\.\d{2}(?:\.\d{2})?\)', '', c.get("source", "—")).strip()
-            _date = c.get("invest_date", "—")
-            _badge = BADGE_MAP[c["badge"]]
-            _sector = sector_name(c["sector"])
-            _col_price = t("col_price"); _col_daily = t("col_daily"); _col_cap = t("col_cap")
-            row_html = (
-                f'<div class="ptable-row" style="--accent:{accent}">'
-                f'<div class="pt-company">'
-                f'<div><span style="color:#e8e8e8;font-weight:500">{c["name"]}</span>'
-                f'<span style="color:#9aa3b0;font-size:0.75rem;margin-left:6px">{ticker}</span></div>'
-                f'<div style="display:flex;align-items:center;flex-wrap:wrap;gap:5px;margin-top:4px">'
-                f'{_badge}<span style="color:#9aa3b0;font-size:0.7rem">{_sector}</span>{amt_h}</div>'
-                f'<div class="pt-stats">'
-                f'<div><span class="pt-stat-label">{_col_price}</span>{price_h}</div>'
-                f'<div><span class="pt-stat-label">{_col_daily}</span>{daily_h}</div>'
-                f'<div><span class="pt-stat-label">YTD</span>{ytd_h}</div>'
-                f'</div>'
-                f'<div class="pt-meta">'
-                f'<div><span class="pt-stat-label">{_col_cap}</span>{cap_h}</div>'
-                f'<div><span class="pt-stat-label">P/E</span>{pe_h}</div>'
-                f'<div><span class="pt-stat-label">52W</span>{bar52_mob}</div>'
-                f'</div></div>'
-                f'<div class="pt-price">{price_h}</div>'
-                f'<div class="pt-daily">{daily_h}</div>'
-                f'<div class="pt-ytd">{ytd_h}</div>'
-                f'<div class="pt-cap">{cap_h}</div>'
-                f'<div class="pt-pe">{pe_h}</div>'
-                f'<div class="pt-detail">'
-                f'<details><summary>{detail_lbl}</summary></details>'
-                f'<div class="pt-detail-body">'
-                f'<div class="ptd-header"><span class="ptd-ticker">{ticker}</span><span class="ptd-sector">{_sector}</span></div>'
-                + (f'<div class="ptd-label">NVIDIA INVEST</div><div class="ptd-amount">{amt}</div>' if amt else '')
-                + _thesis_html
-                + f'<div class="ptd-footer"><span class="ptd-date">{_date}</span><span class="ptd-src">{_src}</span></div>'
-                + f'</div></div>'
-                f'</div>'
-            )
-            st.markdown(row_html, unsafe_allow_html=True)
+        ytd_data = [{"ticker":c["ticker"],"name":c["name"],"ytd":stock_data.get(c["ticker"],{}).get("ytd_pct")}
+                    for c in all_display
+                    if c["badge"] != "partner"
+                    and stock_data.get(c["ticker"],{}).get("ytd_pct") is not None]
+        if ytd_data:
+            df_ytd = pd.DataFrame(ytd_data).sort_values("ytd", ascending=True)
+            fig2 = go.Figure(go.Bar(
+                x=df_ytd["ytd"], y=df_ytd["ticker"], orientation="h",
+                marker_color=["#22c55e" if v>=0 else "#ef4444" for v in df_ytd["ytd"]],
+                text=[f"{v:+.0f}%" for v in df_ytd["ytd"]], textposition="outside", cliponaxis=False,
+                textfont=dict(color="#ffffff"),
+                hoverinfo="skip",  # 막대 끝 라벨로 값이 이미 보임 → 호버 제거(소수점 버그도 해소)
+            ))
+            fig2.update_layout(template="plotly_dark", paper_bgcolor="#111827", plot_bgcolor="#111827",
+                                height=max(300,len(df_ytd)*38), xaxis_title="YTD (%)",
+                                xaxis_hoverformat="+.0f", dragmode=False,
+                                margin=dict(l=0,r=60,t=10,b=0))
+            st.plotly_chart(fig2, use_container_width=True, config=PLOTLY_CFG)
 
-# ══ Tab 2 ════════════════════════════════════════════════════════════════════
-elif active_tab == "Performance":
-    st.markdown(f"### {t('perf_title')}")
-    if st.session_state.lang == "KOR":
-        _hint = ("💡 주요 종목만 표시 중 — 범례에서 종목을 탭해 추가/제거, 더블탭하면 그 종목만 볼 수 있어요." if is_mobile
-                 else "💡 범례에서 종목을 탭하면 켜고 끌 수 있고, 더블클릭하면 그 종목만 볼 수 있어요.")
-    else:
-        _hint = ("💡 Showing key holdings — tap a legend item to add/remove; double-tap to isolate one." if is_mobile
-                 else "💡 Tap a legend item to show/hide it; double-click to view only that one.")
-    st.markdown(
-        f'<div style="color:#e5e7eb;font-size:0.85rem;margin:-6px 0 10px">{_hint}</div>',
-        unsafe_allow_html=True)
-    # 파트너십(지분 없음)은 수익률 차트에서 제외 — NVIDIA 실제 보유분만
-    chart_items = [c for c in all_display
-                   if c["badge"] != "partner"
-                   and "error" not in stock_data.get(c["ticker"],{})]
-    fig = go.Figure()
-    _palette = px.colors.qualitative.Light24  # 종목별 고유색 → 라인 구분성 ↑(섹터색 중복 해소)
-    # 모바일: 14개 스파게티 완화 — 기본은 YTD 상위 3종목만 표시, 나머지는 legendonly(범례 탭하면 추가)
-    _top_tk = set()
-    if is_mobile:
-        _ranked = sorted(chart_items,
-                         key=lambda c: stock_data.get(c["ticker"], {}).get("ytd_pct") or -9999,
-                         reverse=True)
-        _top_tk = {c["ticker"] for c in _ranked[:3]}
-    _ci = 0
-    for c in chart_items:
-        hist = stock_data[c["ticker"]].get("hist")
-        if hist is None or hist.empty: continue
-        ytd_h = hist[hist.index >= f"{date.today().year}-01-01"]["Close"]
-        if ytd_h.empty: continue
-        pct = ((ytd_h / ytd_h.iloc[0] - 1) * 100).round(0)
-        fig.add_trace(go.Scatter(
-            x=pct.index, y=pct.values,
-            name=c["ticker"],  # 범례는 티커만(컴팩트) — 풀네임은 hover로
-            line=dict(color=_palette[_ci % len(_palette)], width=2),
-            visible=(True if (not is_mobile or c["ticker"] in _top_tk) else "legendonly"),
-            hovertemplate=f"<b>{c['name']}</b><br>%{{y:+.0f}}%<extra></extra>",
-        ))
-        _ci += 1
-    # 벤치마크 비교선 (NVDA 본주 · SOXX 반도체 ETF) — 점선으로 구분
-    _bench_style = {
-        "NVDA": ("NVDA", "#76b900"),
-        "SOXX": ("SOXX 반도체 ETF" if st.session_state.lang=="KOR" else "SOXX (Semis ETF)", "#888888"),
-    }
-    for _btk, (_blabel, _bcolor) in _bench_style.items():
-        _bq = benchmarks.get(_btk)
-        if not _bq or "error" in _bq:
-            continue
-        _bhist = _bq.get("hist")
-        if _bhist is None or _bhist.empty:
-            continue
-        _bytd = _bhist[_bhist.index >= f"{date.today().year}-01-01"]["Close"]
-        if _bytd.empty:
-            continue
-        _bpct = ((_bytd / _bytd.iloc[0] - 1) * 100).round(0)
-        fig.add_trace(go.Scatter(
-            x=_bpct.index, y=_bpct.values, name=_blabel,
-            line=dict(color=_bcolor, width=2, dash="dot"),
-            hovertemplate=f"<b>{_blabel}</b><br>%{{y:+.0f}}%<extra></extra>",
-        ))
-    fig.add_hline(y=0, line_dash="dash", line_color="#6b7280", annotation_text="0%")
-    # 범례: 데스크톱=우측 세로 / 모바일=하단 가로(티커라 자동 여러 열)
-    _legend = (dict(bgcolor="rgba(31,41,55,0.5)", orientation="h", yanchor="top", y=-0.12, x=0, font=dict(size=10))
-               if is_mobile else
-               dict(bgcolor="rgba(31,41,55,0.3)", orientation="v", yanchor="top", y=1, xanchor="left", x=1.01, font=dict(size=11)))
-    fig.update_layout(template="plotly_dark", paper_bgcolor="#111827", plot_bgcolor="#111827",
-                      height=520, yaxis_title="YTD Return (%)" if st.session_state.lang=="ENG" else "YTD 수익률 (%)",
-                      yaxis_ticksuffix="%", yaxis_hoverformat="+.0f",
-                      legend=_legend, dragmode=False,
-                      margin=dict(l=0, r=(16 if is_mobile else 12), t=20, b=0))
-    st.plotly_chart(fig, use_container_width=True, config=PLOTLY_CFG)
-
-    ytd_data = [{"ticker":c["ticker"],"name":c["name"],"ytd":stock_data.get(c["ticker"],{}).get("ytd_pct")}
-                for c in all_display
-                if c["badge"] != "partner"
-                and stock_data.get(c["ticker"],{}).get("ytd_pct") is not None]
-    if ytd_data:
-        df_ytd = pd.DataFrame(ytd_data).sort_values("ytd", ascending=True)
-        fig2 = go.Figure(go.Bar(
-            x=df_ytd["ytd"], y=df_ytd["ticker"], orientation="h",
-            marker_color=["#22c55e" if v>=0 else "#ef4444" for v in df_ytd["ytd"]],
-            text=[f"{v:+.0f}%" for v in df_ytd["ytd"]], textposition="outside", cliponaxis=False,
-            textfont=dict(color="#ffffff"),
-            hoverinfo="skip",  # 막대 끝 라벨로 값이 이미 보임 → 호버 제거(소수점 버그도 해소)
-        ))
-        fig2.update_layout(template="plotly_dark", paper_bgcolor="#111827", plot_bgcolor="#111827",
-                            height=max(300,len(df_ytd)*38), xaxis_title="YTD (%)",
-                            xaxis_hoverformat="+.0f", dragmode=False,
-                            margin=dict(l=0,r=60,t=10,b=0))
-        st.plotly_chart(fig2, use_container_width=True, config=PLOTLY_CFG)
-
-# ══ Tab 3 ════════════════════════════════════════════════════════════════════
-elif active_tab == "Sectors":
-    current_only = NEW_2026 + CURRENT_HOLDINGS
-    ca, cb = st.columns(2)
-    with ca:
-        sc_raw = {}; sc_cnt = {}  # 카테고리별 투자액 합 + 종목 수
-        for c in current_only:
-            if not c.get("invest_amt_m"): continue
-            grp = SECTOR_GROUP.get(c["sector"], c["sector"])
-            sc_raw[grp] = sc_raw.get(grp, 0) + c["invest_amt_m"]
-            sc_cnt[grp] = sc_cnt.get(grp, 0) + 1
-        grps = list(sc_raw.keys())
-        sc_labels = [cat_name(g) for g in grps]
-        fig3 = go.Figure(go.Pie(labels=sc_labels, values=[sc_raw[g] for g in grps],
-            marker_colors=[CAT_COLORS.get(g,"#6b7280") for g in grps], hole=0.4,
-            textposition="inside", textinfo="percent",
-            customdata=[[sc_raw[g]/1000, sc_cnt[g]] for g in grps],
-            hovertemplate="%{label}<br>$%{customdata[0]:.1f}B · %{customdata[1]}개 종목<extra></extra>"))
-        fig3.update_layout(template="plotly_dark",paper_bgcolor="#111827",
-            title=t("sector_count"),title_font_color="#f9fafb",height=420, dragmode=False,
-            legend=dict(orientation="h",y=-0.05,x=0.5,xanchor="center",font=dict(size=10)),
-            margin=dict(l=0,r=0,t=40,b=0))
-        st.plotly_chart(fig3, use_container_width=True, config=PLOTLY_CFG)
-    with cb:
-        invest_data = [(c["name"], c["invest_amt_m"]) for c in current_only if c.get("invest_amt_m")]
-        if invest_data:
-            names, amts = zip(*invest_data)
-            fig4 = go.Figure(go.Pie(labels=list(names), values=list(amts),
-                marker_colors=px.colors.qualitative.Light24,  # 종목별 고유색(ⓑ) — 조각마다 구분
-                hole=0.4, textposition="inside", textinfo="percent",
-                customdata=[a/1000 for a in amts],
-                hovertemplate="%{label}<br>$%{customdata:.1f}B<extra></extra>"))
-            fig4.update_layout(template="plotly_dark",paper_bgcolor="#111827",
-                title=t("sector_invest"),title_font_color="#f9fafb",height=420, dragmode=False,
+    # ══ Tab 3 ════════════════════════════════════════════════════════════════════
+    elif active_tab == "Sectors":
+        current_only = NEW_2026 + CURRENT_HOLDINGS
+        ca, cb = st.columns(2)
+        with ca:
+            sc_raw = {}; sc_cnt = {}  # 카테고리별 투자액 합 + 종목 수
+            for c in current_only:
+                if not c.get("invest_amt_m"): continue
+                grp = SECTOR_GROUP.get(c["sector"], c["sector"])
+                sc_raw[grp] = sc_raw.get(grp, 0) + c["invest_amt_m"]
+                sc_cnt[grp] = sc_cnt.get(grp, 0) + 1
+            grps = list(sc_raw.keys())
+            sc_labels = [cat_name(g) for g in grps]
+            fig3 = go.Figure(go.Pie(labels=sc_labels, values=[sc_raw[g] for g in grps],
+                marker_colors=[CAT_COLORS.get(g,"#6b7280") for g in grps], hole=0.4,
+                textposition="inside", textinfo="percent",
+                customdata=[[sc_raw[g]/1000, sc_cnt[g]] for g in grps],
+                hovertemplate="%{label}<br>$%{customdata[0]:.1f}B · %{customdata[1]}개 종목<extra></extra>"))
+            fig3.update_layout(template="plotly_dark",paper_bgcolor="#111827",
+                title=t("sector_count"),title_font_color="#f9fafb",height=420, dragmode=False,
                 legend=dict(orientation="h",y=-0.05,x=0.5,xanchor="center",font=dict(size=10)),
                 margin=dict(l=0,r=0,t=40,b=0))
-            st.plotly_chart(fig4, use_container_width=True, config=PLOTLY_CFG)
+            st.plotly_chart(fig3, use_container_width=True, config=PLOTLY_CFG)
+        with cb:
+            invest_data = [(c["name"], c["invest_amt_m"]) for c in current_only if c.get("invest_amt_m")]
+            if invest_data:
+                names, amts = zip(*invest_data)
+                fig4 = go.Figure(go.Pie(labels=list(names), values=list(amts),
+                    marker_colors=px.colors.qualitative.Light24,  # 종목별 고유색(ⓑ) — 조각마다 구분
+                    hole=0.4, textposition="inside", textinfo="percent",
+                    customdata=[a/1000 for a in amts],
+                    hovertemplate="%{label}<br>$%{customdata:.1f}B<extra></extra>"))
+                fig4.update_layout(template="plotly_dark",paper_bgcolor="#111827",
+                    title=t("sector_invest"),title_font_color="#f9fafb",height=420, dragmode=False,
+                    legend=dict(orientation="h",y=-0.05,x=0.5,xanchor="center",font=dict(size=10)),
+                    margin=dict(l=0,r=0,t=40,b=0))
+                st.plotly_chart(fig4, use_container_width=True, config=PLOTLY_CFG)
 
-# ══ Tab 4: 뉴스 ══════════════════════════════════════════════════════════════
-elif active_tab == "News":
-    st.markdown(f"### {t('news_title')}")
-    st.caption(t("news_caption_live") if _live_meta.get("live") else t("news_caption"))
-    news_map = {c["ticker"]: f"{c['name']} ({c['ticker']})" for c in all_display
-                if "error" not in stock_data.get(c["ticker"],{})}
-    sel_t = st.selectbox(t("news_stock"), list(news_map.keys()), format_func=lambda x: news_map[x])
-    sel_c = next((c for c in all_display if c["ticker"]==sel_t), None)
-    if sel_c:
-        sd = stock_data.get(sel_t,{})
-        _chg = sd.get("change_pct"); _ytd = sd.get("ytd_pct")
-        _chg_c = "#22c55e" if (_chg or 0) >= 0 else "#ef4444"
-        _ytd_c = "#22c55e" if (_ytd or 0) >= 0 else "#ef4444"
-        def _metric_card(label, value_html, top_color):
-            return (f'<div style="background:#0e0e0e;border:1px solid #2a2a2a;border-top:2px solid {top_color};'
-                    f'border-radius:4px;padding:16px 20px;height:100%">'
-                    f'<div style="color:#8b949e;font-size:0.7rem;font-weight:600;letter-spacing:1.2px;'
-                    f'text-transform:uppercase;margin-bottom:8px">{label}</div>'
-                    f'<div style="font-size:1.7rem;font-weight:600;letter-spacing:-0.5px;line-height:1">{value_html}</div>'
-                    f'</div>')
-        n1,n2,n3 = st.columns(3)
-        with n1:
-            st.markdown(_metric_card(t("news_price"),
-                f'<span style="color:#e8e8e8">{fmt_price(sd.get("price"), sd.get("currency","USD"))}</span>',
-                "#76b900"), unsafe_allow_html=True)
-        with n2:
-            st.markdown(_metric_card(t("news_daily"), fmt_pct(_chg), _chg_c), unsafe_allow_html=True)
-        with n3:
-            st.markdown(_metric_card("YTD", fmt_pct(_ytd), _ytd_c), unsafe_allow_html=True)
-        st.markdown("---")
-        with st.spinner(t("news_loading")):
-            news_items = fetch_news(sel_t)
-        shown = 0
-        for item in news_items[:15]:
-            content = item.get("content",{})
-            title   = content.get("title") or item.get("title","")
-            summary = content.get("summary","")
-            pub_ts  = content.get("pubDate") or item.get("providerPublishTime") or ""
-            pub_str = ts_to_str(pub_ts) if isinstance(pub_ts,(int,float)) else (pub_ts[:10] if pub_ts else "")
-            url     = content.get("canonicalUrl",{}).get("url","") or item.get("link","")
-            provider= content.get("provider",{}).get("displayName","") or item.get("publisher","")
-            if not title: continue
-            shown += 1
-            lk = f'<a href="{url}" target="_blank" style="text-decoration:none;color:inherit">' if url else ""
-            lke = "</a>" if url else ""
-            st.markdown(f"""<div class="news-card">
-              <div class="news-title">{lk}{title}{lke}</div>
-              <div class="news-meta">{pub_str} · {provider}</div>
-              {"<div style='color:#9ca3af;font-size:0.8rem;margin-top:4px'>" + summary[:160] + "…</div>" if summary else ""}
-            </div>""", unsafe_allow_html=True)
-        if shown == 0: st.info(t("no_news"))
+    # ══ Tab 4: 뉴스 ══════════════════════════════════════════════════════════════
+    elif active_tab == "News":
+        st.markdown(f"### {t('news_title')}")
+        st.caption(t("news_caption_live") if _live_meta.get("live") else t("news_caption"))
+        news_map = {c["ticker"]: f"{c['name']} ({c['ticker']})" for c in all_display
+                    if "error" not in stock_data.get(c["ticker"],{})}
+        sel_t = st.selectbox(t("news_stock"), list(news_map.keys()), format_func=lambda x: news_map[x])
+        sel_c = next((c for c in all_display if c["ticker"]==sel_t), None)
+        if sel_c:
+            sd = stock_data.get(sel_t,{})
+            _chg = sd.get("change_pct"); _ytd = sd.get("ytd_pct")
+            _chg_c = "#22c55e" if (_chg or 0) >= 0 else "#ef4444"
+            _ytd_c = "#22c55e" if (_ytd or 0) >= 0 else "#ef4444"
+            def _metric_card(label, value_html, top_color):
+                return (f'<div style="background:#0e0e0e;border:1px solid #2a2a2a;border-top:2px solid {top_color};'
+                        f'border-radius:4px;padding:16px 20px;height:100%">'
+                        f'<div style="color:#8b949e;font-size:0.7rem;font-weight:600;letter-spacing:1.2px;'
+                        f'text-transform:uppercase;margin-bottom:8px">{label}</div>'
+                        f'<div style="font-size:1.7rem;font-weight:600;letter-spacing:-0.5px;line-height:1">{value_html}</div>'
+                        f'</div>')
+            n1,n2,n3 = st.columns(3)
+            with n1:
+                st.markdown(_metric_card(t("news_price"),
+                    f'<span style="color:#e8e8e8">{fmt_price(sd.get("price"), sd.get("currency","USD"))}</span>',
+                    "#76b900"), unsafe_allow_html=True)
+            with n2:
+                st.markdown(_metric_card(t("news_daily"), fmt_pct(_chg), _chg_c), unsafe_allow_html=True)
+            with n3:
+                st.markdown(_metric_card("YTD", fmt_pct(_ytd), _ytd_c), unsafe_allow_html=True)
+            st.markdown("---")
+            with st.spinner(t("news_loading")):
+                news_items = fetch_news(sel_t)
+            shown = 0
+            for item in news_items[:15]:
+                content = item.get("content",{})
+                title   = content.get("title") or item.get("title","")
+                summary = content.get("summary","")
+                pub_ts  = content.get("pubDate") or item.get("providerPublishTime") or ""
+                pub_str = ts_to_str(pub_ts) if isinstance(pub_ts,(int,float)) else (pub_ts[:10] if pub_ts else "")
+                url     = content.get("canonicalUrl",{}).get("url","") or item.get("link","")
+                provider= content.get("provider",{}).get("displayName","") or item.get("publisher","")
+                if not title: continue
+                shown += 1
+                lk = f'<a href="{url}" target="_blank" style="text-decoration:none;color:inherit">' if url else ""
+                lke = "</a>" if url else ""
+                st.markdown(f"""<div class="news-card">
+                  <div class="news-title">{lk}{title}{lke}</div>
+                  <div class="news-meta">{pub_str} · {provider}</div>
+                  {"<div style='color:#9ca3af;font-size:0.8rem;margin-top:4px'>" + summary[:160] + "…</div>" if summary else ""}
+                </div>""", unsafe_allow_html=True)
+            if shown == 0: st.info(t("no_news"))
 
-# ══ Tab 5: 13F 히스토리 ══════════════════════════════════════════════════════
-elif active_tab == "13F History":
-    st.markdown(f"### {t('filings_title')}")
-    st.caption(t("filings_caption"))
-    # 필터 강조 + (데스크톱) 좌측 필터 열 sticky + 카드 폭 캡
-    st.markdown("""<style>
-      /* 모바일 필터 expander 강조 */
-      [data-testid="stExpander"] details {
-        border: 1px solid rgba(118,185,0,0.28) !important;
-        border-radius: 10px !important;
-        background: rgba(255,255,255,0.025) !important;
-      }
-      [data-testid="stExpander"] [data-testid="stWidgetLabel"] p { color: #e5e7eb !important; font-weight: 500 !important; }
-      [data-testid="stExpander"] button[data-testid="stBaseButton-secondary"] p { color: #e5e7eb !important; font-weight: 500 !important; }
-      .f13-filter-title { color:#e5e7eb; font-weight:600; font-size:0.95rem; margin:0 0 8px; }
-      [data-testid="stWidgetLabel"] p { color:#cbd5e1 !important; }
-      @media (min-width: 769px) {
-        /* 필터 열(=제목 칩 보유 열)만 sticky — 긴 카드 리스트 스크롤 시 따라옴. 다른 컬럼 비영향 */
-        div[data-testid="stColumn"]:has(.f13-filter-title) {
-          position: sticky; top: 0.75rem; align-self: flex-start;
-          background: rgba(255,255,255,0.025);
-          border: 1px solid rgba(118,185,0,0.22);
-          border-radius: 10px; padding: 12px 14px;
+    # ══ Tab 5: 13F 히스토리 ══════════════════════════════════════════════════════
+    elif active_tab == "13F History":
+        st.markdown(f"### {t('filings_title')}")
+        st.caption(t("filings_caption"))
+        # 필터 강조 + (데스크톱) 좌측 필터 열 sticky + 카드 폭 캡
+        st.markdown("""<style>
+          /* 모바일 필터 expander 강조 */
+          [data-testid="stExpander"] details {
+            border: 1px solid rgba(118,185,0,0.28) !important;
+            border-radius: 10px !important;
+            background: rgba(255,255,255,0.025) !important;
+          }
+          [data-testid="stExpander"] [data-testid="stWidgetLabel"] p { color: #e5e7eb !important; font-weight: 500 !important; }
+          [data-testid="stExpander"] button[data-testid="stBaseButton-secondary"] p { color: #e5e7eb !important; font-weight: 500 !important; }
+          .f13-filter-title { color:#e5e7eb; font-weight:600; font-size:0.95rem; margin:0 0 8px; }
+          [data-testid="stWidgetLabel"] p { color:#cbd5e1 !important; }
+          @media (min-width: 769px) {
+            /* 필터 열(=제목 칩 보유 열)만 sticky — 긴 카드 리스트 스크롤 시 따라옴. 다른 컬럼 비영향 */
+            div[data-testid="stColumn"]:has(.f13-filter-title) {
+              position: sticky; top: 0.75rem; align-self: flex-start;
+              background: rgba(255,255,255,0.025);
+              border: 1px solid rgba(118,185,0,0.22);
+              border-radius: 10px; padding: 12px 14px;
+            }
+            /* 카드 폭 캡 — 회사↔금액 간격 축소(휑한 전폭 방지) */
+            .filing-row { max-width: 860px; }
+          }
+        </style>""", unsafe_allow_html=True)
+
+        all_cos = sorted({f["company"] for f in FILINGS_HISTORY})
+        if "f13_cos" not in st.session_state:
+            st.session_state.f13_cos = all_cos
+        _kor = st.session_state.lang == "KOR"
+        _tk_map = {f["company"]: f["ticker"] for f in FILINGS_HISTORY}
+        ct_map = {
+            "new":      t("change_new"),
+            "increase": t("change_increase"),
+            "decrease": t("change_decrease"),
+            "exit":     t("change_exit"),
+            "hold":     t("change_hold"),
         }
-        /* 카드 폭 캡 — 회사↔금액 간격 축소(휑한 전폭 방지) */
-        .filing-row { max-width: 860px; }
-      }
-    </style>""", unsafe_allow_html=True)
+        # 변동 유형 토글 색(켜짐) — 카드 배지와 매칭. 데이터에 있는 유형만 노출(감소/유지는 자동)
+        _CT_PILL = {
+            "new":      ("rgba(34,197,94,.16)",   "#4ade80", "rgba(34,197,94,.55)"),
+            "increase": ("rgba(74,144,217,.18)",  "#7ab8f5", "rgba(74,144,217,.55)"),
+            "decrease": ("rgba(239,68,68,.18)",   "#f08a8a", "rgba(239,68,68,.55)"),
+            "exit":     ("rgba(139,148,158,.18)", "#b0b8c2", "rgba(139,148,158,.5)"),
+            "hold":     ("rgba(99,102,241,.18)",  "#a5a8f5", "rgba(99,102,241,.5)"),
+        }
+        # 변동 유형 노출: 유지(hold)는 불필요해 제외, 감소는 데이터 없어도 향후 대비 노출(붉은색)
+        _ct_show = ["new", "increase", "decrease", "exit"]
+        # 변동 유형 필 색상 동적 주입: key 기반 .st-key-f13_types 스코프, 모양=카드 배지와 동일(4px), 위치(nth)별 켜짐색·공통 꺼짐색
+        _pill_css = ("<style>"
+            ".st-key-f13_types [data-testid='stButtonGroup'] button{border-radius:4px !important;}"
+            # 좁은 필터 열: 줄바꿈 허용 + 자연폭(라벨 truncation 방지)
+            ".st-key-f13_types [data-testid='stButtonGroup']>div[class]{flex-wrap:wrap !important;gap:6px !important;}"
+            ".st-key-f13_types [data-testid='stButtonGroup'] button{flex:0 0 auto !important;max-width:none !important;}"
+            ".st-key-f13_types [data-testid='stButtonGroup'] button p{white-space:nowrap !important;overflow:visible !important;text-overflow:clip !important;}"
+            ".st-key-f13_types button[data-testid='stBaseButton-pills']{"
+            "background:#0c0c0c !important;border-color:#1f1f1f !important;opacity:.55 !important;}"
+            ".st-key-f13_types button[data-testid='stBaseButton-pills'] p{color:#3f4651 !important;}")
+        for _i, _k in enumerate(_ct_show, start=1):
+            _bg, _tx, _bd = _CT_PILL[_k]
+            _sel = (f".st-key-f13_types [data-testid='stButtonGroup']>div>"
+                    f"button:nth-of-type({_i})[data-testid='stBaseButton-pillsActive']")
+            _pill_css += (f"{_sel}{{background:{_bg} !important;border-color:{_bd} !important;}}"
+                          f"{_sel} p{{color:{_tx} !important;}}")
+        _pill_css += "</style>"
+        st.markdown(_pill_css, unsafe_allow_html=True)
+        def _f13_filters():
+            # 버튼은 좁은 필터 열에 맞춰 세로 스택. multiselect는 타이핑으로 기업 검색 가능.
+            if st.button(("전체 선택" if _kor else "Select all"), use_container_width=True, key="f13_all"):
+                st.session_state.f13_cos = all_cos; st.rerun()
+            if st.button(("전체 해제" if _kor else "Clear all"), use_container_width=True, key="f13_none"):
+                st.session_state.f13_cos = []; st.rerun()
+            _sc = st.multiselect(
+                t("filings_company"), all_cos, key="f13_cos",
+                format_func=lambda c: f"{c} ({_tk_map.get(c, '')})",
+                placeholder=("기업 검색·선택" if _kor else "Search companies"))
+            # 변동 유형: 색 매칭 토글 필(있는 유형만). 켜짐=배지색 / 꺼짐=무채색
+            _lbls = [ct_map[k] for k in _ct_show]
+            _sel = st.pills(t("filings_type"), _lbls, selection_mode="multi", default=_lbls, key="f13_types") or []
+            return _sc, [k for k in _ct_show if ct_map[k] in _sel]
 
-    all_cos = sorted({f["company"] for f in FILINGS_HISTORY})
-    if "f13_cos" not in st.session_state:
-        st.session_state.f13_cos = all_cos
-    _kor = st.session_state.lang == "KOR"
-    _tk_map = {f["company"]: f["ticker"] for f in FILINGS_HISTORY}
-    ct_map = {
-        "new":      t("change_new"),
-        "increase": t("change_increase"),
-        "decrease": t("change_decrease"),
-        "exit":     t("change_exit"),
-        "hold":     t("change_hold"),
-    }
-    # 변동 유형 토글 색(켜짐) — 카드 배지와 매칭. 데이터에 있는 유형만 노출(감소/유지는 자동)
-    _CT_PILL = {
-        "new":      ("rgba(34,197,94,.16)",   "#4ade80", "rgba(34,197,94,.55)"),
-        "increase": ("rgba(74,144,217,.18)",  "#7ab8f5", "rgba(74,144,217,.55)"),
-        "decrease": ("rgba(239,68,68,.18)",   "#f08a8a", "rgba(239,68,68,.55)"),
-        "exit":     ("rgba(139,148,158,.18)", "#b0b8c2", "rgba(139,148,158,.5)"),
-        "hold":     ("rgba(99,102,241,.18)",  "#a5a8f5", "rgba(99,102,241,.5)"),
-    }
-    # 변동 유형 노출: 유지(hold)는 불필요해 제외, 감소는 데이터 없어도 향후 대비 노출(붉은색)
-    _ct_show = ["new", "increase", "decrease", "exit"]
-    # 변동 유형 필 색상 동적 주입: key 기반 .st-key-f13_types 스코프, 모양=카드 배지와 동일(4px), 위치(nth)별 켜짐색·공통 꺼짐색
-    _pill_css = ("<style>"
-        ".st-key-f13_types [data-testid='stButtonGroup'] button{border-radius:4px !important;}"
-        # 좁은 필터 열: 줄바꿈 허용 + 자연폭(라벨 truncation 방지)
-        ".st-key-f13_types [data-testid='stButtonGroup']>div[class]{flex-wrap:wrap !important;gap:6px !important;}"
-        ".st-key-f13_types [data-testid='stButtonGroup'] button{flex:0 0 auto !important;max-width:none !important;}"
-        ".st-key-f13_types [data-testid='stButtonGroup'] button p{white-space:nowrap !important;overflow:visible !important;text-overflow:clip !important;}"
-        ".st-key-f13_types button[data-testid='stBaseButton-pills']{"
-        "background:#0c0c0c !important;border-color:#1f1f1f !important;opacity:.55 !important;}"
-        ".st-key-f13_types button[data-testid='stBaseButton-pills'] p{color:#3f4651 !important;}")
-    for _i, _k in enumerate(_ct_show, start=1):
-        _bg, _tx, _bd = _CT_PILL[_k]
-        _sel = (f".st-key-f13_types [data-testid='stButtonGroup']>div>"
-                f"button:nth-of-type({_i})[data-testid='stBaseButton-pillsActive']")
-        _pill_css += (f"{_sel}{{background:{_bg} !important;border-color:{_bd} !important;}}"
-                      f"{_sel} p{{color:{_tx} !important;}}")
-    _pill_css += "</style>"
-    st.markdown(_pill_css, unsafe_allow_html=True)
-    def _f13_filters():
-        # 버튼은 좁은 필터 열에 맞춰 세로 스택. multiselect는 타이핑으로 기업 검색 가능.
-        if st.button(("전체 선택" if _kor else "Select all"), use_container_width=True, key="f13_all"):
-            st.session_state.f13_cos = all_cos; st.rerun()
-        if st.button(("전체 해제" if _kor else "Clear all"), use_container_width=True, key="f13_none"):
-            st.session_state.f13_cos = []; st.rerun()
-        _sc = st.multiselect(
-            t("filings_company"), all_cos, key="f13_cos",
-            format_func=lambda c: f"{c} ({_tk_map.get(c, '')})",
-            placeholder=("기업 검색·선택" if _kor else "Search companies"))
-        # 변동 유형: 색 매칭 토글 필(있는 유형만). 켜짐=배지색 / 꺼짐=무채색
-        _lbls = [ct_map[k] for k in _ct_show]
-        _sel = st.pills(t("filings_type"), _lbls, selection_mode="multi", default=_lbls, key="f13_types") or []
-        return _sc, [k for k in _ct_show if ct_map[k] in _sel]
+        # 데스크톱: 필터 좌(sticky) / 카드 우 2단 · 모바일: 접이식 + 전폭
+        if is_mobile:
+            with st.expander("🔍 " + ("필터" if _kor else "Filter"), expanded=False):
+                sel_cos, sel_ct_keys = _f13_filters()
+            _list = st.container()
+        else:
+            _cf, _cl = st.columns([1, 1.9], gap="large")
+            with _cf:
+                st.markdown(f'<div class="f13-filter-title">🔍 {"필터" if _kor else "Filter"}</div>', unsafe_allow_html=True)
+                sel_cos, sel_ct_keys = _f13_filters()
+            _list = _cl
 
-    # 데스크톱: 필터 좌(sticky) / 카드 우 2단 · 모바일: 접이식 + 전폭
-    if is_mobile:
-        with st.expander("🔍 " + ("필터" if _kor else "Filter"), expanded=False):
-            sel_cos, sel_ct_keys = _f13_filters()
-        _list = st.container()
-    else:
-        _cf, _cl = st.columns([1, 1.9], gap="large")
-        with _cf:
-            st.markdown(f'<div class="f13-filter-title">🔍 {"필터" if _kor else "Filter"}</div>', unsafe_allow_html=True)
-            sel_cos, sel_ct_keys = _f13_filters()
-        _list = _cl
+        filtered_f = sorted(
+            [f for f in FILINGS_HISTORY if f["company"] in sel_cos and f["change_type"] in sel_ct_keys],
+            key=lambda x: x["filed"], reverse=True
+        )
+        _cs = get_change_style()
+        for f in filtered_f:
+            ctype = f["change_type"]
+            css, pill_bg, pill_tx, badge = _cs.get(ctype, ("filing-hold", "rgba(99,102,241,.18)", "#a5a8f5", t("change_hold")))
+            # 우측 금액: ≥$1B → B(소수 2자리), 미만 → M (단위 통일, 본문 중복 $ 제거)
+            v = f.get("value_m")
+            if not v:        amt = ""
+            elif v >= 1000:  amt = f"${round(v/10)/100:.2f}B"   # float 절삭 방지(1855→$1.86B)
+            elif v == int(v):amt = f"${v:,.0f}M"
+            else:            amt = f"${v:g}M"
+            amt_color = "#8b949e" if ctype == "exit" else "#76b900"
+            amt_html = (f'<span style="margin-left:auto;flex-shrink:0;color:{amt_color};'
+                        f'font-weight:700;font-size:0.95rem">{amt}</span>') if amt else ""
+            detail = (f.get("change_eng") or f["change"]) if st.session_state.lang == "ENG" else f["change"]
+            detail_html = (f'<span style="color:#c4ccd6;font-size:0.82rem">{detail}</span>'
+                           if detail else "<span></span>")
+            _list.markdown(
+                f'<div class="filing-row {css}">'
+                # 1줄: 배지 · 회사(티커) ······ 금액
+                f'<div style="display:flex;align-items:baseline;gap:10px">'
+                f'<span style="flex-shrink:0;background:{pill_bg};color:{pill_tx};font-size:0.7rem;'
+                f'font-weight:600;padding:2px 8px;border-radius:4px">{badge}</span>'
+                f'<span style="color:#f9fafb;font-weight:600;font-size:0.95rem">{f["company"]} ({f["ticker"]})</span>'
+                f'{amt_html}'
+                f'</div>'
+                # 2줄: 설명(좌) ····· 분기·날짜(우)
+                f'<div style="display:flex;align-items:baseline;justify-content:space-between;'
+                f'gap:12px;flex-wrap:wrap;margin-top:6px">'
+                f'{detail_html}'
+                f'<span style="flex-shrink:0;color:#6b7280;font-size:0.74rem">{f["quarter"]} · {f["filed"]}</span>'
+                f'</div>'
+                f'</div>',
+                unsafe_allow_html=True)
 
-    filtered_f = sorted(
-        [f for f in FILINGS_HISTORY if f["company"] in sel_cos and f["change_type"] in sel_ct_keys],
-        key=lambda x: x["filed"], reverse=True
-    )
-    _cs = get_change_style()
-    for f in filtered_f:
-        ctype = f["change_type"]
-        css, pill_bg, pill_tx, badge = _cs.get(ctype, ("filing-hold", "rgba(99,102,241,.18)", "#a5a8f5", t("change_hold")))
-        # 우측 금액: ≥$1B → B(소수 2자리), 미만 → M (단위 통일, 본문 중복 $ 제거)
-        v = f.get("value_m")
-        if not v:        amt = ""
-        elif v >= 1000:  amt = f"${round(v/10)/100:.2f}B"   # float 절삭 방지(1855→$1.86B)
-        elif v == int(v):amt = f"${v:,.0f}M"
-        else:            amt = f"${v:g}M"
-        amt_color = "#8b949e" if ctype == "exit" else "#76b900"
-        amt_html = (f'<span style="margin-left:auto;flex-shrink:0;color:{amt_color};'
-                    f'font-weight:700;font-size:0.95rem">{amt}</span>') if amt else ""
-        detail = (f.get("change_eng") or f["change"]) if st.session_state.lang == "ENG" else f["change"]
-        detail_html = (f'<span style="color:#c4ccd6;font-size:0.82rem">{detail}</span>'
-                       if detail else "<span></span>")
-        _list.markdown(
-            f'<div class="filing-row {css}">'
-            # 1줄: 배지 · 회사(티커) ······ 금액
-            f'<div style="display:flex;align-items:baseline;gap:10px">'
-            f'<span style="flex-shrink:0;background:{pill_bg};color:{pill_tx};font-size:0.7rem;'
-            f'font-weight:600;padding:2px 8px;border-radius:4px">{badge}</span>'
-            f'<span style="color:#f9fafb;font-weight:600;font-size:0.95rem">{f["company"]} ({f["ticker"]})</span>'
-            f'{amt_html}'
-            f'</div>'
-            # 2줄: 설명(좌) ····· 분기·날짜(우)
-            f'<div style="display:flex;align-items:baseline;justify-content:space-between;'
-            f'gap:12px;flex-wrap:wrap;margin-top:6px">'
-            f'{detail_html}'
-            f'<span style="flex-shrink:0;color:#6b7280;font-size:0.74rem">{f["quarter"]} · {f["filed"]}</span>'
-            f'</div>'
-            f'</div>',
-            unsafe_allow_html=True)
-
-    st.markdown(f"### {t('timeline_title')}")
-    df_f = pd.DataFrame(FILINGS_HISTORY)
-    color_map  = {"new":"#22c55e","increase":"#4a90d9","decrease":"#ef4444","exit":"#6b7280","hold":"#3b82f6"}
-    label_map  = {
-        "new":      t("change_new"),
-        "increase": t("change_increase"),
-        "decrease": t("change_decrease"),
-        "exit":     t("change_exit"),
-        "hold":     t("change_hold"),
-    }
-    fig6 = go.Figure()
-    for ct, grp in df_f.groupby("change_type"):
-        fig6.add_trace(go.Scatter(
-            x=grp["filed"], y=grp["company"], mode="markers",
-            name=label_map.get(ct, ct),
-            marker=dict(color=color_map.get(ct, "#9ca3af"), size=14, symbol="circle"),
-            customdata=grp["quarter"],
-            hovertemplate="<b>%{y}</b><br>%{x}<br>%{customdata}<extra></extra>",
-        ))
-    fig6.update_layout(
-        template="plotly_dark", paper_bgcolor="#111827", plot_bgcolor="#111827",
-        height=500, xaxis_title=t("filings_xaxis"), dragmode=False,
-        legend=dict(bgcolor="#1f2937", orientation="h", y=1.12,
-                    itemsizing="constant", traceorder="normal"),
-        margin=dict(l=0, r=0, t=40, b=0),
-    )
-    st.plotly_chart(fig6, use_container_width=True, config=PLOTLY_CFG)
+        st.markdown(f"### {t('timeline_title')}")
+        df_f = pd.DataFrame(FILINGS_HISTORY)
+        color_map  = {"new":"#22c55e","increase":"#4a90d9","decrease":"#ef4444","exit":"#6b7280","hold":"#3b82f6"}
+        label_map  = {
+            "new":      t("change_new"),
+            "increase": t("change_increase"),
+            "decrease": t("change_decrease"),
+            "exit":     t("change_exit"),
+            "hold":     t("change_hold"),
+        }
+        fig6 = go.Figure()
+        for ct, grp in df_f.groupby("change_type"):
+            fig6.add_trace(go.Scatter(
+                x=grp["filed"], y=grp["company"], mode="markers",
+                name=label_map.get(ct, ct),
+                marker=dict(color=color_map.get(ct, "#9ca3af"), size=14, symbol="circle"),
+                customdata=grp["quarter"],
+                hovertemplate="<b>%{y}</b><br>%{x}<br>%{customdata}<extra></extra>",
+            ))
+        fig6.update_layout(
+            template="plotly_dark", paper_bgcolor="#111827", plot_bgcolor="#111827",
+            height=500, xaxis_title=t("filings_xaxis"), dragmode=False,
+            legend=dict(bgcolor="#1f2937", orientation="h", y=1.12,
+                        itemsizing="constant", traceorder="normal"),
+            margin=dict(l=0, r=0, t=40, b=0),
+        )
+        st.plotly_chart(fig6, use_container_width=True, config=PLOTLY_CFG)
 
 # ── 어드민 피드백 뷰 (비밀번호 보호) ─────────────────────────────────────────
 import json, os, html
