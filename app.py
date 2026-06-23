@@ -66,6 +66,7 @@ TRANSLATIONS = {
     "news_daily":           {"KOR": "일간등락",                      "ENG": "Daily"},
     "news_title":           {"KOR": "종목별 최신 뉴스",               "ENG": "Latest News by Stock"},
     "news_caption":         {"KOR": "Yahoo Finance 기준",            "ENG": "Source: Yahoo Finance"},
+    "news_caption_live":    {"KOR": "시세 Finnhub 실시간 · 뉴스 Yahoo Finance", "ENG": "Quotes Finnhub real-time · News Yahoo Finance"},
     "news_stock":           {"KOR": "종목",                          "ENG": "Stock"},
     "news_loading":         {"KOR": "뉴스 로드 중...",                "ENG": "Loading news..."},
     "news_none":            {"KOR": "뉴스 없음",                     "ENG": "No news found"},
@@ -91,6 +92,9 @@ TRANSLATIONS = {
     "sb_disclaimer":        {"KOR": "⚠️ 투자 조언 아님",              "ENG": "⚠️ Not Financial Advice"},
     "sb_delay":             {"KOR": "Data: Yahoo Finance", "ENG": "Data: Yahoo Finance"},
     "sb_asof":              {"KOR": "전일 종가 기준", "ENG": "Prev. close"},
+    "sb_src_live":          {"KOR": "시세 · Finnhub 실시간", "ENG": "Quotes · Finnhub real-time"},
+    "sb_src_close":         {"KOR": "시세 · Finnhub 최종가 (장 마감)", "ENG": "Quotes · Finnhub last close (market closed)"},
+    "sb_fund_snap":         {"KOR": "펀더멘털·히스토리 · 전일 스냅샷", "ENG": "Fundamentals · prev-close snapshot"},
     "sb_refresh":           {"KOR": "↻ 새로고침",                    "ENG": "↻ Refresh"},
     "csv_export":           {"KOR": "⬇ CSV 내보내기",                 "ENG": "⬇ Export CSV"},
     # 피드백
@@ -133,6 +137,7 @@ TRANSLATIONS = {
     # 기타
     "no_news":              {"KOR": "최근 뉴스가 없습니다.",           "ENG": "No recent news found."},
     "footer_delay":         {"KOR": "Yahoo Finance · 전일 종가 기준",   "ENG": "Yahoo Finance · Prev. close"},
+    "footer_live":          {"KOR": "시세 Finnhub · 펀더멘털 Yahoo 스냅샷", "ENG": "Quotes Finnhub · Fundamentals Yahoo snapshot"},
     "detail_basis":         {"KOR": "투자 근거",                      "ENG": "Investment Basis"},
 }
 
@@ -1198,6 +1203,64 @@ def load_market_data():
         "generated_at": raw.get("generated_at", ""),
     }
 
+@st.cache_data(ttl=90, show_spinner=False)
+def fetch_live_quotes(symbols):
+    """Finnhub /quote 로 실시간 시세(현재가 c·등락% dp·체결시각 t)를 받음.
+    키 기반 인증이라 Streamlit Cloud 공유 IP rate-limit 무관(yfinance IP밴 회피). ttl 캐시로
+    세션 수와 무관하게 90초당 1회만 호출 → 60콜/분 한도 대비 여유. 키 없거나 실패 시 {} (스냅샷 폴백).
+    무료 미커버(예: 도쿄 6954.T → c=0/403)는 자동 제외하고 일일 스냅샷이 담당."""
+    try:
+        key = st.secrets["FINNHUB_API_KEY"]
+    except Exception:
+        import os
+        key = os.environ.get("FINNHUB_API_KEY")
+    if not key:
+        return {}
+    import json as _json, urllib.request, urllib.parse
+    def _one(sym):
+        try:
+            url = "https://finnhub.io/api/v1/quote?symbol=%s&token=%s" % (urllib.parse.quote(sym), key)
+            with urllib.request.urlopen(url, timeout=6) as r:
+                q = _json.load(r)
+            c = q.get("c")
+            if c:  # 0/None = 미커버 → 제외
+                return sym, {"price": float(c), "change_pct": q.get("dp"), "ts": q.get("t") or 0}
+        except Exception:
+            pass
+        return sym, None
+    out = {}
+    with ThreadPoolExecutor(max_workers=8) as ex:
+        for sym, res in ex.map(_one, symbols):
+            if res:
+                out[sym] = res
+    return out
+
+def overlay_live_quotes(stock_data, tickers):
+    """스냅샷(히스토리·시총·PER·52주는 그대로) 위에 Finnhub 실시간 시세를 덮어씀:
+    US 종목의 price·change_pct·ytd_pct만 갱신. YTD는 스냅샷 price·ytd에서 역산한 '연초가'로
+    실시간가 기준 재계산(히스토리 재파싱 불필요). 키/호출 실패 시 무변경(스냅샷 유지).
+    반환: {'live': bool, 'ts': 최신체결epoch, 'n': 갱신 종목수}."""
+    us = tuple(tk for tk in tickers if not tk.endswith(".T"))
+    live = fetch_live_quotes(us)
+    if not live:
+        return {"live": False}
+    newest, n = 0, 0
+    for tk, q in live.items():
+        sd = stock_data.get(tk)
+        if not sd or "error" in sd:
+            continue
+        p_snap, ytd_snap = sd.get("price"), sd.get("ytd_pct")
+        sd["price"] = q["price"]
+        if q.get("change_pct") is not None:
+            sd["change_pct"] = q["change_pct"]
+        if ytd_snap is not None and p_snap:
+            ys = p_snap / (1 + ytd_snap / 100.0)  # 연초가 역산
+            if ys:
+                sd["ytd_pct"] = (q["price"] / ys - 1) * 100.0
+        newest = max(newest, q.get("ts") or 0)
+        n += 1
+    return {"live": n > 0, "ts": newest, "n": n}
+
 @st.cache_data(ttl=600)
 def fetch_news(ticker):
     try:
@@ -1289,8 +1352,6 @@ with st.sidebar:
     st.markdown("---")
     _md_meta = load_market_data()
     _asof_date = f" ({_md_meta['generated_at'][:10]})" if _md_meta and _md_meta.get("generated_at") else ""
-    # 소스(고정)와 기준일(자동 갱신)을 2줄로 분리 — 줄바꿈은 마크다운 hard break(공백 2칸)
-    _asof_line = f"  \n{t('sb_asof')}{_asof_date}"
     st.markdown(
         f"{t('sb_data_sources')}\n"
         f"- SEC EDGAR 13F\n"
@@ -1298,8 +1359,12 @@ with st.sidebar:
         f"- {t('sb_media')}\n"
         f"  Bloomberg · Reuters · CNBC ·\n"
         f"  FT · WSJ · Economist {'외' if st.session_state.lang=='KOR' else 'etc.'}\n\n"
-        f"---\n{t('sb_disclaimer')}\n\n{t('sb_delay')}{_asof_line}"
+        f"---\n{t('sb_disclaimer')}"
     )
+    # 시세 출처·신선도 — 실시간 오버레이 후 채움. 기본값은 폴백(스냅샷=전일 종가).
+    # 줄바꿈은 마크다운 hard break(공백 2칸).
+    _freshness_slot = st.empty()
+    _freshness_slot.markdown(f"{t('sb_delay')}  \n{t('sb_asof')}{_asof_date}")
     if st.button(t("sb_refresh"), use_container_width=True):
         st.cache_data.clear()
         st.rerun()
@@ -1411,6 +1476,12 @@ with st.spinner(t("loading")):
         stock_data = fetch_stock_data(tickers)
         usdjpy = fetch_usdjpy()
         benchmarks = {}
+    # Finnhub 실시간 시세 오버레이 (US 종목 가격·등락%·YTD) — 키 있을 때만, 실패 시 스냅샷 유지.
+    _live_meta = overlay_live_quotes(stock_data, tickers)
+    if _live_meta.get("live"):
+        _age = time.time() - (_live_meta.get("ts") or 0)
+        _src = t("sb_src_live") if _age < 300 else t("sb_src_close")
+        _freshness_slot.markdown(f"{_src}  \n{t('sb_fund_snap')}{_asof_date}")
 
 # ── CSV 내보내기 (사이드바 placeholder 채우기 — 공유하기 섹션 위) ──────────────
 _csv_rows = []
@@ -2156,7 +2227,7 @@ elif active_tab == "Sectors":
 # ══ Tab 4: 뉴스 ══════════════════════════════════════════════════════════════
 elif active_tab == "News":
     st.markdown(f"### {t('news_title')}")
-    st.caption(t("news_caption"))
+    st.caption(t("news_caption_live") if _live_meta.get("live") else t("news_caption"))
     news_map = {c["ticker"]: f"{c['name']} ({c['ticker']})" for c in all_display
                 if "error" not in stock_data.get(c["ticker"],{})}
     sel_t = st.selectbox(t("news_stock"), list(news_map.keys()), format_func=lambda x: news_map[x])
@@ -2441,6 +2512,6 @@ st.markdown("---")
 st.markdown(
     f"<div style='text-align:center;color:#2a2a2a;font-size:0.72rem;letter-spacing:0.5px'>"
     f"SEC EDGAR 13F &nbsp;·&nbsp; NVIDIA IR &nbsp;·&nbsp; Bloomberg &nbsp;·&nbsp; Reuters &nbsp;·&nbsp; FT &nbsp;·&nbsp; WSJ"
-    f"&nbsp;&nbsp;|&nbsp;&nbsp;{t('footer_delay')}"
+    f"&nbsp;&nbsp;|&nbsp;&nbsp;{t('footer_live') if _live_meta.get('live') else t('footer_delay')}"
     f"&nbsp;&nbsp;|&nbsp;&nbsp;{datetime.now().strftime('%Y-%m-%d %H:%M')}"
     f"</div>", unsafe_allow_html=True)
