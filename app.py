@@ -393,6 +393,11 @@ st.markdown("""
     }
   }
 
+  /* 탭 전환 시 차트 페이드인 — rerun으로 plotly가 다시 렌더될 때 '툭' 나타나는 깜빡임을
+     부드럽게 묻음. opacity만 사용(transform 금지: stacking context→툴팁 가림 버그 방지). */
+  div[data-testid="stPlotlyChart"] { animation: nvChartFade 0.45s ease both; }
+  @keyframes nvChartFade { from { opacity: 0 } to { opacity: 1 } }
+
   /* ── 사이드바 텍스트 ── */
   .stSidebar h2, .stSidebar h3 { color: #e0e0e0 !important; }
   .stSidebar p, .stSidebar label { color: #909090 !important; }
