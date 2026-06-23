@@ -1203,17 +1203,32 @@ def load_market_data():
         "generated_at": raw.get("generated_at", ""),
     }
 
+def _finnhub_key():
+    """secrets 어디에 있든 FINNHUB_API_KEY 탐색 — 최상위 우선, 없으면 [admin]/[telegram] 등
+    섹션 안까지 뒤지고, 마지막으로 환경변수. TOML에서 섹션 헤더 아래에 키를 넣어 nested되는
+    배치 footgun을 코드 레벨에서 무력화(Cloud Secrets에 [admin] 등 기존 섹션이 있을 때 흔함)."""
+    try:
+        if "FINNHUB_API_KEY" in st.secrets:
+            return st.secrets["FINNHUB_API_KEY"]
+        for _sec in st.secrets:
+            try:
+                _v = st.secrets[_sec]
+                if hasattr(_v, "get") and _v.get("FINNHUB_API_KEY"):
+                    return _v["FINNHUB_API_KEY"]
+            except Exception:
+                pass
+    except Exception:
+        pass
+    import os
+    return os.environ.get("FINNHUB_API_KEY")
+
 @st.cache_data(ttl=90, show_spinner=False)
 def fetch_live_quotes(symbols):
     """Finnhub /quote 로 실시간 시세(현재가 c·등락% dp·체결시각 t)를 받음.
     키 기반 인증이라 Streamlit Cloud 공유 IP rate-limit 무관(yfinance IP밴 회피). ttl 캐시로
     세션 수와 무관하게 90초당 1회만 호출 → 60콜/분 한도 대비 여유. 키 없거나 실패 시 {} (스냅샷 폴백).
     무료 미커버(예: 도쿄 6954.T → c=0/403)는 자동 제외하고 일일 스냅샷이 담당."""
-    try:
-        key = st.secrets["FINNHUB_API_KEY"]
-    except Exception:
-        import os
-        key = os.environ.get("FINNHUB_API_KEY")
+    key = _finnhub_key()
     if not key:
         return {}
     import json as _json, urllib.request, urllib.parse
