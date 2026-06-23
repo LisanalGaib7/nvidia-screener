@@ -92,9 +92,9 @@ TRANSLATIONS = {
     "sb_disclaimer":        {"KOR": "⚠️ 투자 조언 아님",              "ENG": "⚠️ Not Financial Advice"},
     "sb_delay":             {"KOR": "Data: Yahoo Finance", "ENG": "Data: Yahoo Finance"},
     "sb_asof":              {"KOR": "전일 종가 기준", "ENG": "Prev. close"},
-    "sb_src_live":          {"KOR": "시세 · Finnhub 실시간", "ENG": "Quotes · Finnhub real-time"},
-    "sb_src_close":         {"KOR": "시세 · Finnhub 최종가 (장 마감)", "ENG": "Quotes · Finnhub last close (market closed)"},
-    "sb_fund_snap":         {"KOR": "펀더멘털·히스토리 · 전일 스냅샷", "ENG": "Fundamentals · prev-close snapshot"},
+    "sb_src_live":          {"KOR": "주가 실시간 · Finnhub", "ENG": "Live quotes · Finnhub"},
+    "sb_src_close":         {"KOR": "장 마감 종가 · Finnhub", "ENG": "Market closed · Finnhub"},
+    "sb_fund_snap":         {"KOR": "시총·PER 등은 전일 기준", "ENG": "Mkt cap·P/E as of prev close"},
     "sb_refresh":           {"KOR": "↻ 새로고침",                    "ENG": "↻ Refresh"},
     "csv_export":           {"KOR": "⬇ CSV 내보내기",                 "ENG": "⬇ Export CSV"},
     # 피드백
@@ -1494,9 +1494,19 @@ with st.spinner(t("loading")):
     # Finnhub 실시간 시세 오버레이 (US 종목 가격·등락%·YTD) — 키 있을 때만, 실패 시 스냅샷 유지.
     _live_meta = overlay_live_quotes(stock_data, tickers)
     if _live_meta.get("live"):
-        _age = time.time() - (_live_meta.get("ts") or 0)
-        _src = t("sb_src_live") if _age < 300 else t("sb_src_close")
-        _freshness_slot.markdown(f"{_src}  \n{t('sb_fund_snap')}{_asof_date}")
+        # 체결 경과 <5분이면 장중(LIVE), 아니면 장 마감(CLOSED). 배지+보조 한 줄(펀더멘털=전일).
+        _is_live = (time.time() - (_live_meta.get("ts") or 0)) < 300
+        _badge = "LIVE" if _is_live else "CLOSED"
+        _badge_css = ("background:rgba(118,185,0,.16);color:#9ee23a"
+                      if _is_live else "background:#20262e;color:#8b949e")
+        _label = t("sb_src_live") if _is_live else t("sb_src_close")
+        _freshness_slot.markdown(
+            f"<div style='font-size:0.82rem;color:#c9d1d9;line-height:1.6'>"
+            f"<span style='font-size:0.6rem;font-weight:600;letter-spacing:0.8px;"
+            f"padding:1px 6px;border-radius:3px;margin-right:7px;{_badge_css}'>{_badge}</span>"
+            f"{_label}</div>"
+            f"<div style='font-size:0.72rem;color:#6e7681;margin-top:3px'>{t('sb_fund_snap')}{_asof_date}</div>",
+            unsafe_allow_html=True)
 
 # ── CSV 내보내기 (사이드바 placeholder 채우기 — 공유하기 섹션 위) ──────────────
 _csv_rows = []
