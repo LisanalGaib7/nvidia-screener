@@ -97,6 +97,9 @@ TRANSLATIONS = {
     "sb_row_fund":          {"KOR": "펀더멘털",                      "ENG": "Fundamentals"},
     "sb_fund_snap_v":       {"KOR": "전일 스냅샷",                   "ENG": "Prev-close snapshot"},
     "sb_quote_fallback":    {"KOR": "Yahoo · 전일 종가",             "ENG": "Yahoo · prev close"},
+    # 헤더 방문자 배지
+    "vis_online":           {"KOR": "접속 {n}명",                    "ENG": "{n} online"},
+    "vis_total":            {"KOR": "누적 {x}",                     "ENG": "{x} total"},
     "sb_delay":             {"KOR": "Data: Yahoo Finance", "ENG": "Data: Yahoo Finance"},
     "sb_asof":              {"KOR": "전일 종가 기준", "ENG": "Prev. close"},
     "sb_src_live":          {"KOR": "주가 실시간 · Finnhub", "ENG": "Live quotes · Finnhub"},
@@ -1291,6 +1294,47 @@ def overlay_live_quotes(stock_data, tickers):
         n += 1
     return {"live": n > 0, "ts": newest, "n": n}
 
+def _fmt_count(n):
+    """방문자 수 포맷 — 만 단위부터 K(소수 1자리 절사, 30.0K→30K), 미만은 콤마."""
+    if n is None:
+        return None
+    return f"{int(n / 100) / 10:g}K" if n >= 10_000 else f"{n:,}"
+
+def _active_sessions():
+    """현재 동시 접속 수 = 런타임 활성 웹소켓 세션 수.
+    공개 API가 없어 내부 API 사용 — 버전업으로 깨지면 1(본인)로 폴백,
+    배지는 VIS_MIN_ONLINE 미만을 숨기므로 폴백 시 접속 표기가 자연 비활성화됨."""
+    try:
+        from streamlit.runtime import get_instance
+        return max(1, len(get_instance()._session_mgr.list_active_sessions()))
+    except Exception:
+        return 1
+
+@st.cache_data(ttl=3600, show_spinner=False)
+def fetch_ga_total_users():
+    """GA4 Data API로 누적 사용자(totalUsers) 실제값. 시간당 1회만 호출(캐시).
+    Secrets 필요: GA4_PROPERTY_ID(최상위) + [gcp_service_account] 서비스계정 JSON.
+    미설정/실패 시 None → 배지에서 누적만 생략(가짜 숫자 폴백 없음)."""
+    try:
+        prop = st.secrets.get("GA4_PROPERTY_ID")
+        sa = dict(st.secrets["gcp_service_account"])
+        if not prop or not sa:
+            return None
+        from google.oauth2 import service_account
+        from google.auth.transport.requests import AuthorizedSession
+        creds = service_account.Credentials.from_service_account_info(
+            sa, scopes=["https://www.googleapis.com/auth/analytics.readonly"])
+        r = AuthorizedSession(creds).post(
+            f"https://analyticsdata.googleapis.com/v1beta/properties/{prop}:runReport",
+            json={"dateRanges": [{"startDate": "2020-01-01", "endDate": "today"}],
+                  "metrics": [{"name": "totalUsers"}]},
+            timeout=10)
+        r.raise_for_status()
+        rows = r.json().get("rows") or []
+        return int(rows[0]["metricValues"][0]["value"]) if rows else 0
+    except Exception:
+        return None
+
 @st.cache_data(ttl=600)
 def fetch_news(ticker):
     try:
@@ -1793,6 +1837,101 @@ components.html("""
 })();
 </script>
 """, height=0)
+
+# ── 헤더 방문자 배지 ──────────────────────────────────────────────────────────
+# 상단 헤더 바(stToolbar, Share 왼쪽)에 '● 접속 N명 · 누적 X' 주입(A안).
+# 접속=활성 세션 실측(VIS_MIN_ONLINE 미만 숨김 — 썰렁 방지), 누적=GA4 실제값(미설정 시 생략).
+# 둘 다 없으면 배지 자체를 안 그림. 모바일(≤640px)은 라벨 뺀 축약형(275 · 27.5K).
+# st.markdown은 <script> 미실행 → components.html로 window.parent에 주입(GA4와 동일 패턴).
+# 매 재런마다 실행되는 idempotent 갱신(있으면 innerHTML만 교체). 롤백: VISITOR_BADGE=False.
+VISITOR_BADGE = True
+if VISITOR_BADGE:
+    import os as _os, json as _json
+    VIS_MIN_ONLINE = int(_os.environ.get("NV_VIS_MIN", "10"))  # env는 로컬 selenium 검증용 훅
+    _vis_on, _vis_tot = _active_sessions(), fetch_ga_total_users()
+    _vf, _vm = [], []  # full(데스크톱) / mini(모바일 축약)
+    if _vis_on >= VIS_MIN_ONLINE:
+        _vf.append(t("vis_online").format(n=f"{_vis_on:,}"))
+        _vm.append(f"{_vis_on:,}")
+    if _vis_tot:
+        _vf.append(t("vis_total").format(x=_fmt_count(_vis_tot)))
+        _vm.append(_fmt_count(_vis_tot))
+    if _vf:
+        components.html("""
+<script>
+(function(){
+  var p = window.parent; if (!p) return;
+  var d = p.document;
+  // 최신 값을 parent 전역에 보관 — 재런마다 이 스크립트가 갱신하고,
+  // 관찰자(아래)가 재삽입할 때도 항상 최신 숫자를 쓰게 함.
+  p.__nvVisHTML = '<span class="nv-vis-dot"></span>' + HTML_FULL + HTML_MINI;
+  var tries = 0;
+  function findAnchor() {
+    // 우측 액션 버튼(Share/⋮) 앞에 삽입. 툴바 자체는 헤더 전폭이라 firstChild는 좌측 끝에
+    // 붙고(계측), 모바일은 첫 button이 좌측 사이드바 화살표라 '우측 절반의 첫 버튼'을 앵커로.
+    var tb = d.querySelector('[data-testid="stToolbar"]');
+    if (!tb) return null;
+    var btns = tb.querySelectorAll('button');
+    for (var i = 0; i < btns.length; i++) {
+      if (btns[i].getBoundingClientRect().left > p.innerWidth * 0.5) return btns[i];
+    }
+    return btns.length ? btns[btns.length - 1] : null;
+  }
+  function place() {
+    var anchor = findAnchor();
+    if (!anchor) return false;
+    var host = anchor.parentElement;
+    if (!d.getElementById('nv-vis-style')) {
+      var s = d.createElement('style'); s.id = 'nv-vis-style';
+      s.textContent =
+        '@keyframes nvVisPulse{0%,100%{opacity:1}50%{opacity:.25}}' +
+        '#nv-vis{display:inline-flex;align-items:center;gap:6px;margin-right:12px;' +
+          'font-size:12px;white-space:nowrap;pointer-events:none}' +
+        '#nv-vis .nv-vis-dot{width:7px;height:7px;border-radius:50%;background:#76b900;' +
+          'animation:nvVisPulse 1.6s ease-in-out infinite;flex:0 0 auto}' +
+        '#nv-vis .nv-vis-on{color:#9ee23a}' +
+        '#nv-vis .nv-vis-tot{color:#8b949e}' +
+        '#nv-vis .nv-vis-mini{display:none}' +
+        '@media (max-width:640px){#nv-vis .nv-vis-full{display:none}' +
+          '#nv-vis .nv-vis-mini{display:inline-flex;align-items:center;gap:6px}}';
+      d.head.appendChild(s);
+    }
+    var el = d.getElementById('nv-vis');
+    if (!el) {
+      el = d.createElement('span'); el.id = 'nv-vis';
+      host.insertBefore(el, anchor);
+    }
+    el.innerHTML = p.__nvVisHTML;
+    return true;
+  }
+  function inject() {
+    if (!place() && tries++ < 40) p.setTimeout(inject, 250);  // 콜드스타트: 툴바 늦게 마운트
+  }
+  inject();
+  // 로딩 중 React가 툴바 서브트리를 비결정적으로 재렌더하며 주입 노드를 날림(계측으로 확인)
+  // → 헤더를 관찰해 사라지면 즉시 재삽입. 관찰자는 세션당 1개(가드).
+  if (!p.__nvVisMO) {
+    var hdr = d.querySelector('header') || d.body;
+    p.__nvVisMO = new p.MutationObserver(function(){
+      if (!d.getElementById('nv-vis')) place();
+    });
+    p.__nvVisMO.observe(hdr, { childList: true, subtree: true });
+  }
+})();
+</script>
+""".replace("HTML_FULL", _json.dumps(
+        '<span class="nv-vis-full">'
+        + '<span style="color:#3a4048"> · </span>'.join(
+            f'<span class="{"nv-vis-on" if i == 0 and _vis_on >= VIS_MIN_ONLINE else "nv-vis-tot"}">{v}</span>'
+            for i, v in enumerate(_vf))
+        + '</span>')
+).replace("HTML_MINI", _json.dumps(
+        '<span class="nv-vis-mini">'
+        + '<span style="color:#3a4048"> · </span>'.join(
+            f'<span class="{"nv-vis-on" if i == 0 and _vis_on >= VIS_MIN_ONLINE else "nv-vis-tot"}">{v}</span>'
+            for i, v in enumerate(_vm))
+        + '</span>')
+), height=0)
 
 # ── 요약 지표 ─────────────────────────────────────────────────────────────────
 # 파트너십(지분 없음)은 수익률 집계에서 제외 — NVIDIA 실제 보유분 성과만 반영
