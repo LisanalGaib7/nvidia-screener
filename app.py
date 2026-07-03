@@ -1310,14 +1310,32 @@ def _active_sessions():
     except Exception:
         return 1
 
+def _ga4_conf():
+    """Secrets에서 GA4 property id·서비스계정을 배치에 관대하게 탐색.
+    _finnhub_key와 같은 원칙 — Cloud Secrets에서 최상위 키가 기존 섹션 아래로
+    nested되는 footgun(FINNHUB 사고)을 코드에서 무력화. property id는 최상위 →
+    모든 섹션 순으로, 서비스계정은 섹션명과 무관하게 필드(private_key+client_email)로 식별."""
+    prop, sa = None, None
+    try:
+        prop = st.secrets.get("GA4_PROPERTY_ID")
+        for name in st.secrets:
+            sec = st.secrets.get(name)
+            if not hasattr(sec, "get"):
+                continue
+            prop = prop or sec.get("GA4_PROPERTY_ID") or sec.get("ga4_property_id")
+            if sec.get("private_key") and sec.get("client_email"):
+                sa = dict(sec)
+    except Exception:
+        pass
+    return (str(prop) if prop else None), sa
+
 @st.cache_data(ttl=3600, show_spinner=False)
 def fetch_ga_total_users():
     """GA4 Data API로 누적 사용자(totalUsers) 실제값. 시간당 1회만 호출(캐시).
-    Secrets 필요: GA4_PROPERTY_ID(최상위) + [gcp_service_account] 서비스계정 JSON.
+    Secrets 필요: GA4_PROPERTY_ID + 서비스계정 JSON 섹션(배치 관대 — _ga4_conf).
     미설정/실패 시 None → 배지에서 누적만 생략(가짜 숫자 폴백 없음)."""
     try:
-        prop = st.secrets.get("GA4_PROPERTY_ID")
-        sa = dict(st.secrets["gcp_service_account"])
+        prop, sa = _ga4_conf()
         if not prop or not sa:
             return None
         from google.oauth2 import service_account
