@@ -2678,6 +2678,38 @@ with st.expander("Admin", expanded=False):
                         st.error("비밀번호가 틀렸습니다.")
 
         if st.session_state.admin_auth:
+            # GA4 연동 진단 — 실패 지점을 단계별 관측(키 값은 절대 표시 안 함, 에러 종류만)
+            with st.expander("GA4 진단", expanded=False):
+                if st.button("진단 실행", key="ga4_diag_btn"):
+                    _dprop, _dsa = _ga4_conf()
+                    st.write(f"1) property id: {'OK (' + _dprop + ')' if _dprop else '❌ 못 찾음'}")
+                    st.write(f"2) 서비스계정 섹션: {'OK (' + _dsa.get('client_email', '?') + ')' if _dsa else '❌ 못 찾음'}")
+                    if _dprop and _dsa:
+                        try:
+                            from google.oauth2 import service_account
+                            from google.auth.transport.requests import AuthorizedSession
+                            st.write("3) google-auth import: OK")
+                            try:
+                                _dc = service_account.Credentials.from_service_account_info(
+                                    _dsa, scopes=["https://www.googleapis.com/auth/analytics.readonly"])
+                                st.write("4) 키 파싱: OK")
+                                _dr = AuthorizedSession(_dc).post(
+                                    f"https://analyticsdata.googleapis.com/v1beta/properties/{_dprop}:runReport",
+                                    json={"dateRanges": [{"startDate": "2020-01-01", "endDate": "today"}],
+                                          "metrics": [{"name": "totalUsers"}]},
+                                    timeout=10)
+                                if _dr.status_code == 200:
+                                    _drows = _dr.json().get("rows") or []
+                                    _dv = _drows[0]["metricValues"][0]["value"] if _drows else "0"
+                                    st.success(f"5) API 호출: OK — totalUsers={_dv}")
+                                else:
+                                    _derr = _dr.json().get("error", {})
+                                    st.error(f"5) API {_dr.status_code}: {_derr.get('status','')} — {_derr.get('message','')[:300]}")
+                            except Exception as _de:
+                                st.error(f"4~5) 실패: {type(_de).__name__} — {str(_de)[:300]}")
+                        except Exception:
+                            st.error("3) google-auth 미설치 (requirements 재배포 필요)")
+
             path = "feedback.json"
             data = []
             if os.path.exists(path):
