@@ -1865,7 +1865,7 @@ components.html("""
 VISITOR_BADGE = True
 if VISITOR_BADGE:
     import os as _os, json as _json
-    VIS_MIN_ONLINE = int(_os.environ.get("NV_VIS_MIN", "10"))  # env는 로컬 selenium 검증용 훅
+    VIS_MIN_ONLINE = int(_os.environ.get("NV_VIS_MIN", "5"))  # 이 수 이상 동시접속일 때만 '접속 N명' 표시. env는 로컬 검증 훅
     _vis_on, _vis_tot = _active_sessions(), fetch_ga_total_users()
     _vf, _vm = [], []  # full(데스크톱) / mini(모바일 축약)
     if _vis_on >= VIS_MIN_ONLINE:
