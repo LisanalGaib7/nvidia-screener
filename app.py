@@ -2710,6 +2710,21 @@ with st.expander("Admin", expanded=False):
                         except Exception:
                             st.error("3) google-auth 미설치 (requirements 재배포 필요)")
 
+            # 동시 접속(활성 세션) 진단 — Cloud에서 여러 세션을 실제로 세는지 관측.
+            # 이 값은 rerun마다 갱신되니 항상 표시(버튼 불필요). 여러 창으로 열고
+            # 각 창 새로고침 시 숫자가 오르면 함수 정상(=순수 임계값 문제), 항상 1이면 함수 교체 필요.
+            with st.expander("동시 접속 진단", expanded=False):
+                try:
+                    from streamlit.runtime import get_instance
+                    _sess = get_instance()._session_mgr.list_active_sessions()
+                    st.metric("현재 활성 세션(동시 접속)", len(_sess))
+                    st.caption(f"배지는 {globals().get('VIS_MIN_ONLINE', 10)}명 이상일 때만 '접속 N명' 표시. "
+                               "PC·폰·다른 브라우저로 동시에 열고 각 창을 새로고침해 숫자가 오르는지 확인하세요. "
+                               "이 진단 창을 새로고침(R)하면 값이 갱신됩니다.")
+                except Exception as _se:
+                    st.error(f"세션 조회 실패: {type(_se).__name__} — {str(_se)[:200]} "
+                             "(내부 API가 이 Streamlit 버전에서 바뀜 → heartbeat 방식으로 교체 필요)")
+
             path = "feedback.json"
             data = []
             if os.path.exists(path):
