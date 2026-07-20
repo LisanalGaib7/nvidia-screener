@@ -12,7 +12,9 @@ English | [한국어](#nvidia-portfolio-tracker-한국어)
 
 ## Demo
 
-![NVIDIA Portfolio Tracker demo](docs/demo.gif)
+![Header intro animation](docs/demo-intro.gif)
+
+![Tab switching demo](docs/demo-tabs-en.gif)
 
 ## Features
 
@@ -90,7 +92,9 @@ Source is public for portfolio purposes. Not investment advice.
 
 ## 데모
 
-![NVIDIA Portfolio Tracker 데모](docs/demo.gif)
+![헤더 인트로 애니메이션](docs/demo-intro.gif)
+
+![탭 전환 데모](docs/demo-tabs-ko.gif)
 
 ## 주요 기능
 
