@@ -12,7 +12,7 @@ English | [한국어](#nvidia-portfolio-tracker-한국어)
 
 ## Demo
 
-![NVIDIA Portfolio Tracker screenshot](docs/hero.png)
+![NVIDIA Portfolio Tracker demo](docs/demo.gif)
 
 ## Features
 
@@ -90,7 +90,7 @@ Source is public for portfolio purposes. Not investment advice.
 
 ## 데모
 
-![NVIDIA Portfolio Tracker 스크린샷](docs/hero.png)
+![NVIDIA Portfolio Tracker 데모](docs/demo.gif)
 
 ## 주요 기능
 
