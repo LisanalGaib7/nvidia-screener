@@ -1024,6 +1024,9 @@ THESIS_EN = {
 
 # ── 13F 공시 히스토리 (검증된 것만) ─────────────────────────────────────────
 FILINGS_HISTORY = [
+    # SC 13G (2026-07-20, NVIDIA Corp 제출) — 13F 분기 공시 아님, 신규 매수 아니고 기존 워런트
+    # 재분류(60일 내 행사가능 규정)로 지분율만 8.3%→9.3% 갱신. SEC EDGAR 원문 확인(acc 0001045810-26-000062).
+    {"ticker":"NBIS", "company":"Nebius Group",      "quarter":"Q3 2026","filed":"2026-07-20","change":"SC 13G · 9.3% 지분(워런트 포함 2,226만주), 신규 매수 아님", "change_eng":"SC 13G · 9.3% stake (22.26M shares incl. warrant), not a new purchase", "change_type":"increase","value_m":None},
     # 2026 Q2 신규  —  change/change_eng = 상태어·중복금액 제거한 '상세'만 (배지·우측금액이 상태·총액 담당)
     {"ticker":"IREN", "company":"IREN Ltd",          "quarter":"Q2 2026","filed":"2026-05-07","change":"워런트 · 행사가 $70",                "change_eng":"Warrant · strike $70",                     "change_type":"new",      "value_m":2100.0},
     {"ticker":"GLW",  "company":"Corning",           "quarter":"Q2 2026","filed":"2026-05-06","change":"워런트 · 선불 $500M",                "change_eng":"Warrant · $500M upfront",                  "change_type":"new",      "value_m":3200.0},
