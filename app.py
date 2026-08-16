@@ -825,8 +825,8 @@ NEW_2026 = [
         "alert_date": "2026-08-14",
         "nvidia_thesis": "2026.01 xAI 시리즈E($20B, 참여금액 비공개) 투자 → 2026.02 SpaceX·xAI 합병으로 지분이 SpaceX Class A주 1억 2,276만주로 전환. 엔비디아 2번째로 큰 보유 종목(6/30 기준 $21.0B)",
         "nvidia_thesis_eng": "Invested in xAI's $20B Series E (2026.01, NVIDIA's exact amount undisclosed) → converted to 122.76M SpaceX Class A shares via the Feb 2026 SpaceX-xAI merger. NVIDIA's 2nd-largest holding ($21.0B at 6/30)",
-        "note": "10-Q·13F 동시 공시 (2026.08.14) | 122,764,805주 · $20.98B (6/30 기준) | xAI 투자 원금 비공개",
-        "note_eng": "Disclosed via 10-Q + 13F (2026.08.14) | 122,764,805 shares · $20.98B (as of 6/30) | Original xAI investment amount undisclosed",
+        "note": "$21.0B 지분 (xAI 투자분 전환) | 122,764,805주 · 6/30 기준 | 10-Q·13F 동시 공시 (2026.08.14) | xAI 투자 원금 비공개",
+        "note_eng": "$21.0B stake (converted from xAI position) | 122,764,805 shares · as of 6/30 | Disclosed via 10-Q + 13F (2026.08.14) | Original xAI investment amount undisclosed",
         "source": "SEC 13F-HR 원문(acc. 0001045810-26-000065, 2026.08.14) — Bloomberg, CNBC, Fortune 교차확인",
     },
 ]
@@ -1148,7 +1148,7 @@ THESIS_EN = {
 FILINGS_HISTORY = [
     # 2026 Q2 13F (2026-08-14 접수, acc. 0001045810-26-000065). SEC EDGAR 원문
     # information_table.xml 직접 대조 완료 — SpaceX 신규 편입 외 기존 7종목 주식수 전량 동일.
-    {"ticker":"SPCX", "company":"SpaceX",            "quarter":"Q3 2026","filed":"2026-08-14","change":"신규 편입 · 122,764,805주 (xAI 투자분, SpaceX·xAI 합병으로 전환)", "change_eng":"New position · 122,764,805 shares (converted from xAI stake via SpaceX-xAI merger)", "change_type":"new","value_m":20975.6},
+    {"ticker":"SPCX", "company":"SpaceX",            "quarter":"Q2 2026","filed":"2026-08-14","change":"122,764,805주 (xAI 투자분, SpaceX·xAI 합병으로 전환)", "change_eng":"122,764,805 shares (converted from xAI stake via SpaceX-xAI merger)", "change_type":"new","value_m":20975.6},
     # Naver 공시(주요사항보고서·유상증자결정, 2026-07-27) — 13F 대상 아님(한국 상장, 직접 신주 인수).
     # Reuters/KED Global/한국경제 교차확인, DART 원문 문서는 미열람(동적 뷰어라 자동 접근 불가).
     {"ticker":"035420.KS", "company":"Naver",        "quarter":"Q3 2026","filed":"2026-07-27","change":"제3자배정 유상증자 참여 · 4.5% 지분 확보", "change_eng":"Third-party share placement · 4.5% stake", "change_type":"new","value_m":1000.0},
