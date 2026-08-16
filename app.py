@@ -2607,6 +2607,12 @@ with _tab_body:
         current_only = NEW_2026 + CURRENT_HOLDINGS
         with st.expander(t("vc_toggle")):
             st.markdown(_valuechain_html(current_only), unsafe_allow_html=True)
+        # $ 단위 표기 — B는 소수 2자리, M은 정수(또는 필요시 소수). FILINGS_HISTORY 금액 포맷과 동일 규칙.
+        def _fmt_amt(v_m):
+            if v_m >= 1000:      return f"${round(v_m/10)/100:.2f}B"
+            elif v_m == int(v_m):return f"${v_m:,.0f}M"
+            else:                return f"${v_m:g}M"
+        _holdings_word = "개 종목" if st.session_state.lang == "KOR" else " holdings"
         ca, cb = st.columns(2)
         with ca:
             sc_raw = {}; sc_cnt = {}  # 카테고리별 투자액 합 + 종목 수
@@ -2617,11 +2623,14 @@ with _tab_body:
                 sc_cnt[grp] = sc_cnt.get(grp, 0) + 1
             grps = list(sc_raw.keys())
             sc_labels = [cat_name(g) for g in grps]
+            # customdata는 pie trace에서 중첩 배열 인덱싱(%{customdata[0]})이 해석 안 되는 Plotly 3.x
+            # 버그가 있어 평면 배열만 사용 — 금액은 text에 미리 포맷해 넣음.
             fig3 = go.Figure(go.Pie(labels=sc_labels, values=[sc_raw[g] for g in grps],
                 marker_colors=[CAT_COLORS.get(g,"#6b7280") for g in grps], hole=0.4,
                 textposition="inside", textinfo="percent",
-                customdata=[[sc_raw[g]/1000, sc_cnt[g]] for g in grps],
-                hovertemplate="%{label}<br>$%{customdata[0]:.1f}B · %{customdata[1]}개 종목<extra></extra>"))
+                text=[_fmt_amt(sc_raw[g]) for g in grps],
+                customdata=[sc_cnt[g] for g in grps],
+                hovertemplate=f"%{{label}}<br>%{{text}} · %{{customdata}}{_holdings_word}<extra></extra>"))
             fig3.update_layout(template="plotly_dark",paper_bgcolor="#111827",
                 title=t("sector_count"),title_font_color="#f9fafb",height=420, dragmode=False,
                 legend=dict(orientation="h",y=-0.05,x=0.5,xanchor="center",font=dict(size=10)),
@@ -2634,8 +2643,8 @@ with _tab_body:
                 fig4 = go.Figure(go.Pie(labels=list(names), values=list(amts),
                     marker_colors=px.colors.qualitative.Light24,  # 종목별 고유색(ⓑ) — 조각마다 구분
                     hole=0.4, textposition="inside", textinfo="percent",
-                    customdata=[a/1000 for a in amts],
-                    hovertemplate="%{label}<br>$%{customdata:.1f}B<extra></extra>"))
+                    text=[_fmt_amt(a) for a in amts],
+                    hovertemplate="%{label}<br>%{text}<extra></extra>"))
                 fig4.update_layout(template="plotly_dark",paper_bgcolor="#111827",
                     title=t("sector_invest"),title_font_color="#f9fafb",height=420, dragmode=False,
                     legend=dict(orientation="h",y=-0.05,x=0.5,xanchor="center",font=dict(size=10)),
