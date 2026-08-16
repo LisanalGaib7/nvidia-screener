@@ -85,6 +85,7 @@ TRANSLATIONS = {
     "perf_ytd_start":       {"KOR": "YTD 시작",                     "ENG": "YTD Start"},
     "perf_yaxis":           {"KOR": "정규화 주가 (100=YTD시작)",      "ENG": "Normalized Price (100=YTD Start)"},
     # 섹터 탭
+    "ptd_fmv_note":         {"KOR": "취득원가 아님 · 13F 기준일 지분 평가액", "ENG": "Not acquisition cost · equity value as of 13F reporting date"},
     "sector_count":         {"KOR": "섹터별 투자액 비중", "ENG": "Investment by Sector"},
     "sector_invest":        {"KOR": "종목별 투자액 비중", "ENG": "Investment by Holding"},
     "vc_toggle":            {"KOR": "이 종목들이 왜 함께 묶였을까요? (밸류체인 보기)", "ENG": "Why are these companies grouped together? (View value chain)"},
@@ -558,7 +559,8 @@ st.markdown("""
   .ptd-sector { color: #8b949e; font-size: 0.68rem; }
   .ptd-label  { color: #3a3a3a; font-size: 0.58rem; font-weight: 600;
                 letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 4px; }
-  .ptd-amount { color: #c87f00; font-size: 1.05rem; font-weight: 600; margin-bottom: 10px; }
+  .ptd-amount { color: #c87f00; font-size: 1.05rem; font-weight: 600; margin-bottom: 2px; }
+  .ptd-fmv-note { color: #828a94; font-size: 0.62rem; margin-bottom: 10px; }
   .ptd-thesis { color: #b0b0b0; font-size: 0.8rem; line-height: 1.7; margin-bottom: 10px; }
   .ptd-summary { color: #e8e8e8; font-size: 0.85rem; font-weight: 500; line-height: 1.6; margin-bottom: 12px; }
   .ptd-footer { display: flex; justify-content: space-between; align-items: flex-start;
@@ -818,6 +820,7 @@ NEW_2026 = [
         "sector": "우주·위성",
         "invest_year": 2026,
         "invest_amt_m": 20975.6,
+        "amt_is_fmv": True,  # invest_amt_m이 취득원가가 아니라 6/30 지분 평가액(FMV) — 카드에 각주 표시
         "invest_date": "2026-08-14",
         "badge": "new",
         "exchange": "NASDAQ",
@@ -2505,7 +2508,9 @@ with _tab_body:
                     f'<details><summary>{detail_lbl}</summary></details>'
                     f'<div class="pt-detail-body">'
                     f'<div class="ptd-header"><span class="ptd-ticker">{disp_ticker(ticker, c["name"])}</span><span class="ptd-sector">{_sector}</span></div>'
-                    + (f'<div class="ptd-label">NVIDIA INVEST</div><div class="ptd-amount">{amt}</div>' if amt else '')
+                    + (f'<div class="ptd-label">NVIDIA INVEST</div><div class="ptd-amount">{amt}</div>'
+                       + (f'<div class="ptd-fmv-note">{t("ptd_fmv_note")}</div>' if c.get("amt_is_fmv") else '')
+                       if amt else '')
                     + _thesis_html
                     + f'<div class="ptd-footer"><span class="ptd-date">{_date}</span><span class="ptd-src">{_src}</span></div>'
                     + f'</div></div>'
