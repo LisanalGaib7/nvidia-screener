@@ -1145,37 +1145,40 @@ THESIS_EN = {
 }
 
 # ── 13F 공시 히스토리 (검증된 것만) ─────────────────────────────────────────
+# "quarter"는 실제 13F 보고 기준 분기(quarter-end)일 때만 적는다. PIPE·워런트·우선주·
+# IPO·SC 13G 등 13F가 아닌 이벤트는 quarter를 아예 생략 — filed(사건 발생일)만 표시.
+# 두 종류를 섞어서 quarter를 채우면 "Q2인데 8월?" 식으로 독자가 오독함(2026-08-17 확인).
 FILINGS_HISTORY = [
     # 2026 Q2 13F (2026-08-14 접수, acc. 0001045810-26-000065). SEC EDGAR 원문
     # information_table.xml 직접 대조 완료 — SpaceX 신규 편입 외 기존 7종목 주식수 전량 동일.
     {"ticker":"SPCX", "company":"SpaceX",            "quarter":"Q2 2026","filed":"2026-08-14","change":"122,764,805주 (xAI 투자분, SpaceX·xAI 합병으로 전환)", "change_eng":"122,764,805 shares (converted from xAI stake via SpaceX-xAI merger)", "change_type":"new","value_m":20975.6},
     # Naver 공시(주요사항보고서·유상증자결정, 2026-07-27) — 13F 대상 아님(한국 상장, 직접 신주 인수).
     # Reuters/KED Global/한국경제 교차확인, DART 원문 문서는 미열람(동적 뷰어라 자동 접근 불가).
-    {"ticker":"035420.KS", "company":"Naver",        "quarter":"Q3 2026","filed":"2026-07-27","change":"제3자배정 유상증자 참여 · 4.5% 지분 확보", "change_eng":"Third-party share placement · 4.5% stake", "change_type":"new","value_m":1000.0},
+    {"ticker":"035420.KS", "company":"Naver",        "filed":"2026-07-27","change":"제3자배정 유상증자 참여 · 4.5% 지분 확보", "change_eng":"Third-party share placement · 4.5% stake", "change_type":"new","value_m":1000.0},
     # SC 13G (2026-07-20, NVIDIA Corp 제출) — 13F 분기 공시 아님, 신규 매수 아니고 기존 워런트
     # 재분류(60일 내 행사가능 규정)로 지분율만 8.3%→9.3% 갱신. SEC EDGAR 원문 확인(acc 0001045810-26-000062).
-    {"ticker":"NBIS", "company":"Nebius Group",      "quarter":"Q3 2026","filed":"2026-07-20","change":"SC 13G · 9.3% 지분(워런트 포함 2,226만주), 신규 매수 아님", "change_eng":"SC 13G · 9.3% stake (22.26M shares incl. warrant), not a new purchase", "change_type":"increase","value_m":None},
+    {"ticker":"NBIS", "company":"Nebius Group",      "filed":"2026-07-20","change":"SC 13G · 9.3% 지분(워런트 포함 2,226만주), 신규 매수 아님", "change_eng":"SC 13G · 9.3% stake (22.26M shares incl. warrant), not a new purchase", "change_type":"increase","value_m":None},
     # 2026 Q2 신규  —  change/change_eng = 상태어·중복금액 제거한 '상세'만 (배지·우측금액이 상태·총액 담당)
-    {"ticker":"IREN", "company":"IREN Ltd",          "quarter":"Q2 2026","filed":"2026-05-07","change":"워런트 · 행사가 $70",                "change_eng":"Warrant · strike $70",                     "change_type":"new",      "value_m":2100.0},
-    {"ticker":"GLW",  "company":"Corning",           "quarter":"Q2 2026","filed":"2026-05-06","change":"워런트 · 선불 $500M",                "change_eng":"Warrant · $500M upfront",                  "change_type":"new",      "value_m":3200.0},
+    {"ticker":"IREN", "company":"IREN Ltd",          "filed":"2026-05-07","change":"워런트 · 행사가 $70",                "change_eng":"Warrant · strike $70",                     "change_type":"new",      "value_m":2100.0},
+    {"ticker":"GLW",  "company":"Corning",           "filed":"2026-05-06","change":"워런트 · 선불 $500M",                "change_eng":"Warrant · $500M upfront",                  "change_type":"new",      "value_m":3200.0},
     # 2026 Q1 — 13F 공시 (2026-05-15)
     {"ticker":"CRWV", "company":"CoreWeave",         "quarter":"Q1 2026","filed":"2026-05-15","change":"24.3M → 47.2M주 (+95%)",            "change_eng":"24.3M → 47.2M shares (+95%)",              "change_type":"increase", "value_m":3660.0},
     {"ticker":"COHR", "company":"Coherent Corp",     "quarter":"Q1 2026","filed":"2026-05-15","change":"보통주 13F · 7.8M주",               "change_eng":"13F common · 7.8M shares",                 "change_type":"new",      "value_m":1855.0},
     {"ticker":"GENB", "company":"Generate Biomedicines","quarter":"Q1 2026","filed":"2026-05-15","change":"보통주 13F · 833,325주 (2026.02 나스닥 상장)", "change_eng":"13F common · 833,325 shares (2026.02 Nasdaq listing)", "change_type":"new",      "value_m":10.4},
-    {"ticker":"MRVL", "company":"Marvell Technology","quarter":"Q1 2026","filed":"2026-03-31","change":"전환우선주 · 전환 시 최대 21.78M주",  "change_eng":"Convertible preferred · up to 21.78M shares","change_type":"new",    "value_m":2000.0},
-    {"ticker":"LITE", "company":"Lumentum",          "quarter":"Q1 2026","filed":"2026-03-02","change":"전환우선주 · 전환 시 2.88M주",        "change_eng":"Convertible preferred · 2.88M shares",     "change_type":"new",      "value_m":2000.0},
+    {"ticker":"MRVL", "company":"Marvell Technology","filed":"2026-03-31","change":"전환우선주 · 전환 시 최대 21.78M주",  "change_eng":"Convertible preferred · up to 21.78M shares","change_type":"new",    "value_m":2000.0},
+    {"ticker":"LITE", "company":"Lumentum",          "filed":"2026-03-02","change":"전환우선주 · 전환 시 2.88M주",        "change_eng":"Convertible preferred · 2.88M shares",     "change_type":"new",      "value_m":2000.0},
     # 2025 보유
-    {"ticker":"INTC", "company":"Intel",             "quarter":"Q3 2025","filed":"2025-09-18","change":"사모(PIPE) · @$23.28",              "change_eng":"PIPE · @$23.28",                           "change_type":"new",      "value_m":5000.0},
-    {"ticker":"INTC", "company":"Intel",             "quarter":"Q4 2025","filed":"2025-12-29","change":"214.7M주 취득 완료 (~4%)",           "change_eng":"214.7M shares acquired (~4%)",             "change_type":"increase", "value_m":5000.0},
-    {"ticker":"SNPS", "company":"Synopsys",          "quarter":"Q4 2025","filed":"2025-12-01","change":"사모(PIPE)",                        "change_eng":"PIPE",                                     "change_type":"new",      "value_m":2000.0},
-    {"ticker":"NOK",  "company":"Nokia",             "quarter":"Q3 2025","filed":"2025-10-28","change":"보통주 · 2.9% 지분",                "change_eng":"Common · 2.9% stake",                      "change_type":"new",      "value_m":1000.0},
-    {"ticker":"NBIS", "company":"Nebius Group",      "quarter":"Q1 2026","filed":"2026-03-11","change":"사모(PIPE) · 추가 투자",            "change_eng":"PIPE · follow-on",                         "change_type":"increase","value_m":2000.0},
-    {"ticker":"NBIS", "company":"Nebius Group",      "quarter":"Q4 2024","filed":"2024-12-10","change":"사모(PIPE)",                        "change_eng":"PIPE",                                     "change_type":"new",      "value_m":100.0},
-    {"ticker":"CRWV", "company":"CoreWeave",         "quarter":"Q1 2025","filed":"2025-03-28","change":"IPO 참여",                          "change_eng":"IPO participation",                        "change_type":"new",      "value_m":None},
+    {"ticker":"INTC", "company":"Intel",             "filed":"2025-09-18","change":"사모(PIPE) · @$23.28",              "change_eng":"PIPE · @$23.28",                           "change_type":"new",      "value_m":5000.0},
+    {"ticker":"INTC", "company":"Intel",             "filed":"2025-12-29","change":"214.7M주 취득 완료 (~4%)",           "change_eng":"214.7M shares acquired (~4%)",             "change_type":"increase", "value_m":5000.0},
+    {"ticker":"SNPS", "company":"Synopsys",          "filed":"2025-12-01","change":"사모(PIPE)",                        "change_eng":"PIPE",                                     "change_type":"new",      "value_m":2000.0},
+    {"ticker":"NOK",  "company":"Nokia",             "filed":"2025-10-28","change":"보통주 · 2.9% 지분",                "change_eng":"Common · 2.9% stake",                      "change_type":"new",      "value_m":1000.0},
+    {"ticker":"NBIS", "company":"Nebius Group",      "filed":"2026-03-11","change":"사모(PIPE) · 추가 투자",            "change_eng":"PIPE · follow-on",                         "change_type":"increase","value_m":2000.0},
+    {"ticker":"NBIS", "company":"Nebius Group",      "filed":"2024-12-10","change":"사모(PIPE)",                        "change_eng":"PIPE",                                     "change_type":"new",      "value_m":100.0},
+    {"ticker":"CRWV", "company":"CoreWeave",         "filed":"2025-03-28","change":"IPO 참여",                          "change_eng":"IPO participation",                        "change_type":"new",      "value_m":None},
     # 청산
-    {"ticker":"RXRX", "company":"Recursion Pharma", "quarter":"Q3 2023","filed":"2023-07-12","change":"사모(PIPE)",                         "change_eng":"PIPE",                                     "change_type":"new",      "value_m":50.0},
+    {"ticker":"RXRX", "company":"Recursion Pharma", "filed":"2023-07-12","change":"사모(PIPE)",                         "change_eng":"PIPE",                                     "change_type":"new",      "value_m":50.0},
     {"ticker":"RXRX", "company":"Recursion Pharma", "quarter":"Q4 2025","filed":"2026-02-17","change":"전량 청산",                          "change_eng":"Full exit",                                "change_type":"exit",     "value_m":None},
-    {"ticker":"ARM",  "company":"Arm Holdings",     "quarter":"Q3 2023","filed":"2023-09-14","change":"IPO 참여",                            "change_eng":"IPO participation",                        "change_type":"new",      "value_m":None},
+    {"ticker":"ARM",  "company":"Arm Holdings",     "filed":"2023-09-14","change":"IPO 참여",                            "change_eng":"IPO participation",                        "change_type":"new",      "value_m":None},
     {"ticker":"ARM",  "company":"Arm Holdings",     "quarter":"Q4 2025","filed":"2026-02-17","change":"전량 청산 · 1.1M주",                "change_eng":"Full exit · 1.1M shares",                  "change_type":"exit",     "value_m":140.0},
     {"ticker":"WRD",  "company":"WeRide",           "quarter":"Q4 2024","filed":"2025-02-14","change":"보통주 13F · 1.7M주",               "change_eng":"13F common · 1.7M shares",                 "change_type":"new",      "value_m":24.0},
     {"ticker":"WRD",  "company":"WeRide",           "quarter":"Q4 2025","filed":"2026-02-17","change":"전량 청산",                          "change_eng":"Full exit",                                "change_type":"exit",     "value_m":None},
@@ -2819,6 +2822,13 @@ with _tab_body:
             detail = (f.get("change_eng") or f["change"]) if st.session_state.lang == "ENG" else f["change"]
             detail_html = (f'<span style="color:#c4ccd6;font-size:0.82rem">{detail}</span>'
                            if detail else "<span></span>")
+            # 13F 보고 기준 분기가 있는 행만 "Q2 2026 기준" 식으로 붙임 — 없으면 공시일만
+            # ("Q2 2026 · 2026-08-14"처럼 라벨 없이 붙이면 분기·날짜 관계가 안 읽혀 오독 유발).
+            if f.get("quarter"):
+                date_txt = (f"As of {f['quarter']} · filed {f['filed']}" if st.session_state.lang == "ENG"
+                            else f"{f['quarter']} 기준 · {f['filed']} 공시")
+            else:
+                date_txt = (f"filed {f['filed']}" if st.session_state.lang == "ENG" else f"{f['filed']} 공시")
             _list.markdown(
                 f'<div class="filing-row {css}">'
                 # 1줄: 배지 · 회사(티커) ······ 금액
@@ -2832,7 +2842,7 @@ with _tab_body:
                 f'<div style="display:flex;align-items:baseline;justify-content:space-between;'
                 f'gap:12px;flex-wrap:wrap;margin-top:6px">'
                 f'{detail_html}'
-                f'<span style="flex-shrink:0;color:#828a94;font-size:0.74rem">{f["quarter"]} · {f["filed"]}</span>'
+                f'<span style="flex-shrink:0;color:#828a94;font-size:0.74rem">{date_txt}</span>'
                 f'</div>'
                 f'</div>',
                 unsafe_allow_html=True)
@@ -2853,7 +2863,7 @@ with _tab_body:
                 x=grp["filed"], y=grp["company"], mode="markers",
                 name=label_map.get(ct, ct),
                 marker=dict(color=color_map.get(ct, "#9ca3af"), size=14, symbol="circle"),
-                customdata=grp["quarter"],
+                customdata=grp["quarter"].fillna(""),  # 13F 아닌 행은 quarter 없음 → NaN 대신 빈 문자열
                 hovertemplate="<b>%{y}</b><br>%{x}<br>%{customdata}<extra></extra>",
             ))
         fig6.update_layout(
