@@ -795,6 +795,40 @@ NEW_2026 = [
         "note_eng": "₩1.481T (~$1B) share placement (2026.07.27) | 7,241,564 shares @₩204,500 | Payment 10/30, listing 11/20 (pending)",
         "source": "Naver 공시(주요사항보고서·유상증자결정, 2026.07.27) — Reuters, KED Global 교차확인, DART 원문 미열람",
     },
+    {
+        "ticker": "GENB",
+        "name": "Generate Biomedicines",
+        "sector": "AI 신약개발",
+        "invest_year": 2026,
+        "invest_amt_m": 10.4,
+        "invest_date": "2026-05-15",
+        "badge": "new",
+        "exchange": "NASDAQ",
+        "is_new_alert": True,
+        "alert_date": "2026-05-15",
+        "nvidia_thesis": "AI 신약 설계 — 단백질 구조를 생성형 AI로 설계하는 바이오텍. NVentures(엔비디아 벤처투자) 참여, $10.4M·833,325주",
+        "nvidia_thesis_eng": "AI drug design — biotech generatively designing novel proteins. NVentures (NVIDIA's venture arm) participation, $10.4M · 833,325 shares",
+        "note": "$10.4M 투자 (NVentures, 2026 Q1 13F 공시) | 833,325주 | 2026.02 나스닥 상장(GENB)",
+        "note_eng": "$10.4M investment (NVentures, disclosed in Q1 2026 13F) | 833,325 shares | 2026.02 Nasdaq listing (GENB)",
+        "source": "NVIDIA 13F Q1 2026 (2026.05.15) — Barchart, Dealroom 교차확인",
+    },
+    {
+        "ticker": "SPCX",
+        "name": "SpaceX",
+        "sector": "우주·위성",
+        "invest_year": 2026,
+        "invest_amt_m": 20975.6,
+        "invest_date": "2026-08-14",
+        "badge": "new",
+        "exchange": "NASDAQ",
+        "is_new_alert": True,
+        "alert_date": "2026-08-14",
+        "nvidia_thesis": "2026.01 xAI 시리즈E($20B, 참여금액 비공개) 투자 → 2026.02 SpaceX·xAI 합병으로 지분이 SpaceX Class A주 1억 2,276만주로 전환. 엔비디아 2번째로 큰 보유 종목(6/30 기준 $21.0B)",
+        "nvidia_thesis_eng": "Invested in xAI's $20B Series E (2026.01, NVIDIA's exact amount undisclosed) → converted to 122.76M SpaceX Class A shares via the Feb 2026 SpaceX-xAI merger. NVIDIA's 2nd-largest holding ($21.0B at 6/30)",
+        "note": "10-Q·13F 동시 공시 (2026.08.14) | 122,764,805주 · $20.98B (6/30 기준) | xAI 투자 원금 비공개",
+        "note_eng": "Disclosed via 10-Q + 13F (2026.08.14) | 122,764,805 shares · $20.98B (as of 6/30) | Original xAI investment amount undisclosed",
+        "source": "SEC 13F-HR 원문(acc. 0001045810-26-000065, 2026.08.14) — Bloomberg, CNBC, Fortune 교차확인",
+    },
 ]
 
 # ── 현재 보유 중인 13F 상장 주식 (Q4 2025 기준 + 2026 신규) ──────────────────
@@ -926,16 +960,18 @@ PARTNERSHIPS = [
 
 # ── 현재 13F 보유 (메트릭 카운트 + 툴팁 단일 소스) ────────────────────────────
 # 분기 업데이트 시 이 목록만 수정하면 "N개 종목" 카운트와 13F 툴팁이 자동 반영됨.
-# 주의: 워런트/우선주(IREN·GLW·MRVL·LITE)는 13F 미포함이라 제외. GENB는 비상장이라
-# 시세 카드는 없지만 13F 지분 보유분이라 포함.
+# 주의: 워런트/우선주(IREN·GLW·MRVL·LITE)는 13F 미포함이라 제외.
+# is_new는 "가장 최근 13F(현재 Q2 2026, 2026-08-14 공시)에서 신규 편입"만 True.
+# 분기 갱신 시: 이전 is_new=True 종목들을 False로 내리고, 이번에 새로 잡힌 종목만 True로.
 THIRTEEN_F = [
     {"ticker": "INTC", "name": "Intel",              "is_new": False},
     {"ticker": "CRWV", "name": "CoreWeave",          "is_new": False},
     {"ticker": "SNPS", "name": "Synopsys",           "is_new": False},
-    {"ticker": "COHR", "name": "Coherent Corp",      "is_new": True},
+    {"ticker": "COHR", "name": "Coherent Corp",      "is_new": False},
     {"ticker": "NOK",  "name": "Nokia",              "is_new": False},
     {"ticker": "NBIS", "name": "Nebius Group",       "is_new": False},
-    {"ticker": "GENB", "name": "Generate Bio",       "is_new": True},
+    {"ticker": "GENB", "name": "Generate Bio",       "is_new": False},
+    {"ticker": "SPCX", "name": "SpaceX",             "is_new": True},
 ]
 
 # ── 청산 완료 (과거 13F 보유 후 매도) ────────────────────────────────────────
@@ -1017,6 +1053,16 @@ THESIS_KO = {
         "네이버 세종 GAK 데이터센터에 엔비디아 Vera Rubin·Blackwell 칩을 배치해, 2028년까지 200MW 규모 AI 인프라를 단계적으로 구축합니다. 엔비디아는 제3자배정 유상증자에 참여해 지분 4.5%를 확보합니다.",
         "1조 4,809억원(약 $1B) 제3자배정 유상증자 · 7,241,564주 @204,500원 · 지분 4.5%",
     ),
+    "GENB": (
+        "생성형 AI로 새 단백질 구조를 설계하는 AI 신약개발 바이오텍",
+        "엔비디아 벤처투자 조직 NVentures가 초기 단계에 베팅했습니다. 2026년 2월 나스닥에 상장했고, 천식·항암 등 여러 파이프라인을 임상 진행 중입니다.",
+        "$10.4M 투자 (NVentures) · 833,325주 · 2026.02 나스닥 상장",
+    ),
+    "SPCX": (
+        "일론 머스크의 우주 기업 — 엔비디아 xAI 투자가 지분 전환으로 이어진 케이스",
+        "2026년 1월 엔비디아가 참여한 xAI 시리즈E($20B) 투자가, 2월 SpaceX의 xAI 인수합병으로 SpaceX Class A 주식으로 전환됐습니다. 6월 나스닥 상장 이후 엔비디아 2번째로 큰 보유 종목이 됐습니다.",
+        "10-Q·13F 동시 공시 (2026.08.14) · 122,764,805주 · $20.98B (6/30 기준) · xAI 투자 원금은 비공개",
+    ),
 }
 
 # 영어판 — 동일 3섹션 구조 (In a nutshell / Why NVIDIA invested / Deal structure)
@@ -1086,10 +1132,23 @@ THESIS_EN = {
         "NVIDIA GPUs (Vera Rubin, Blackwell) go into Naver's GAK data center in Sejong, scaling to 200MW of AI infrastructure by 2028. NVIDIA takes a 4.5% stake via a third-party share placement.",
         "₩1.481T (~$1B) third-party placement · 7,241,564 shares @₩204,500 · 4.5% stake",
     ),
+    "GENB": (
+        "An AI drug-discovery biotech designing novel proteins with generative AI",
+        "NVIDIA's venture arm NVentures backed it at an early stage. Listed on Nasdaq in February 2026, with multiple pipelines (asthma, oncology) in clinical trials.",
+        "$10.4M investment (NVentures) · 833,325 shares · 2026.02 Nasdaq listing",
+    ),
+    "SPCX": (
+        "Elon Musk's space company — NVIDIA's xAI bet that converted into an equity stake",
+        "NVIDIA's January 2026 participation in xAI's $20B Series E converted into SpaceX Class A shares when SpaceX acquired xAI in February. Since SpaceX's June Nasdaq listing, it's become NVIDIA's 2nd-largest holding.",
+        "Disclosed via 10-Q + 13F (2026.08.14) · 122,764,805 shares · $20.98B (as of 6/30) · original xAI investment amount undisclosed",
+    ),
 }
 
 # ── 13F 공시 히스토리 (검증된 것만) ─────────────────────────────────────────
 FILINGS_HISTORY = [
+    # 2026 Q2 13F (2026-08-14 접수, acc. 0001045810-26-000065). SEC EDGAR 원문
+    # information_table.xml 직접 대조 완료 — SpaceX 신규 편입 외 기존 7종목 주식수 전량 동일.
+    {"ticker":"SPCX", "company":"SpaceX",            "quarter":"Q3 2026","filed":"2026-08-14","change":"신규 편입 · 122,764,805주 (xAI 투자분, SpaceX·xAI 합병으로 전환)", "change_eng":"New position · 122,764,805 shares (converted from xAI stake via SpaceX-xAI merger)", "change_type":"new","value_m":20975.6},
     # Naver 공시(주요사항보고서·유상증자결정, 2026-07-27) — 13F 대상 아님(한국 상장, 직접 신주 인수).
     # Reuters/KED Global/한국경제 교차확인, DART 원문 문서는 미열람(동적 뷰어라 자동 접근 불가).
     {"ticker":"035420.KS", "company":"Naver",        "quarter":"Q3 2026","filed":"2026-07-27","change":"제3자배정 유상증자 참여 · 4.5% 지분 확보", "change_eng":"Third-party share placement · 4.5% stake", "change_type":"new","value_m":1000.0},
@@ -1102,7 +1161,7 @@ FILINGS_HISTORY = [
     # 2026 Q1 — 13F 공시 (2026-05-15)
     {"ticker":"CRWV", "company":"CoreWeave",         "quarter":"Q1 2026","filed":"2026-05-15","change":"24.3M → 47.2M주 (+95%)",            "change_eng":"24.3M → 47.2M shares (+95%)",              "change_type":"increase", "value_m":3660.0},
     {"ticker":"COHR", "company":"Coherent Corp",     "quarter":"Q1 2026","filed":"2026-05-15","change":"보통주 13F · 7.8M주",               "change_eng":"13F common · 7.8M shares",                 "change_type":"new",      "value_m":1855.0},
-    {"ticker":"GENB", "company":"Generate Biomedicines","quarter":"Q1 2026","filed":"2026-05-15","change":"비상장 지분",                    "change_eng":"Private stake",                            "change_type":"new",      "value_m":10.4},
+    {"ticker":"GENB", "company":"Generate Biomedicines","quarter":"Q1 2026","filed":"2026-05-15","change":"보통주 13F · 833,325주 (2026.02 나스닥 상장)", "change_eng":"13F common · 833,325 shares (2026.02 Nasdaq listing)", "change_type":"new",      "value_m":10.4},
     {"ticker":"MRVL", "company":"Marvell Technology","quarter":"Q1 2026","filed":"2026-03-31","change":"전환우선주 · 전환 시 최대 21.78M주",  "change_eng":"Convertible preferred · up to 21.78M shares","change_type":"new",    "value_m":2000.0},
     {"ticker":"LITE", "company":"Lumentum",          "quarter":"Q1 2026","filed":"2026-03-02","change":"전환우선주 · 전환 시 2.88M주",        "change_eng":"Convertible preferred · 2.88M shares",     "change_type":"new",      "value_m":2000.0},
     # 2025 보유
@@ -1156,6 +1215,7 @@ SECTOR_NAMES = {
     "자율주행 로봇":    {"KOR": "자율주행 로봇",      "ENG": "Autonomous Robot"},
     "AI/음성인식":      {"KOR": "AI/음성인식",        "ENG": "AI/Speech Recognition"},
     "AI 의료영상":      {"KOR": "AI 의료영상",        "ENG": "AI Medical Imaging"},
+    "우주·위성":        {"KOR": "우주·위성",          "ENG": "Space·Satellite"},
 }
 
 def sector_name(s):
@@ -1171,11 +1231,12 @@ SECTOR_GROUP = {
     "통신 인프라": "통신", "AI 소프트웨어": "AI 소프트웨어",
     "산업 로봇": "로봇·피지컬AI", "자율주행": "로봇·피지컬AI", "자율주행 로봇": "로봇·피지컬AI",
     "AI 신약개발": "헬스·바이오 AI", "AI 의료영상": "헬스·바이오 AI", "AI/음성인식": "기타 AI",
+    "우주·위성": "우주·위성",
 }
 CAT_COLORS = {
     "AI 인프라·클라우드": "#a3e635", "광학·광연결": "#f59e0b", "반도체·설계": "#8b5cf6",
     "통신": "#06b6d4", "AI 소프트웨어": "#ec4899", "로봇·피지컬AI": "#22c55e",
-    "헬스·바이오 AI": "#14b8a6", "기타 AI": "#a855f7",
+    "헬스·바이오 AI": "#14b8a6", "기타 AI": "#a855f7", "우주·위성": "#60a5fa",
 }
 CAT_NAMES = {
     "AI 인프라·클라우드": {"KOR": "AI 인프라·클라우드", "ENG": "AI Infra·Cloud"},
@@ -1186,6 +1247,7 @@ CAT_NAMES = {
     "로봇·피지컬AI":     {"KOR": "로봇·피지컬AI",      "ENG": "Robotics·Physical AI"},
     "헬스·바이오 AI":    {"KOR": "헬스·바이오 AI",     "ENG": "Health·Bio AI"},
     "기타 AI":          {"KOR": "기타 AI",           "ENG": "Other AI"},
+    "우주·위성":        {"KOR": "우주·위성",         "ENG": "Space·Satellite"},
 }
 def cat_name(g):
     lang = st.session_state.get("lang", "KOR")

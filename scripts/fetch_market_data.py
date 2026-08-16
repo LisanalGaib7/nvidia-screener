@@ -17,7 +17,8 @@ import sys
 from datetime import date, datetime, timezone
 
 # 비상장 종목 — app.py 에 등장하지만 시세가 없어 스냅샷에서 제외.
-UNLISTED = {"GENB"}
+# (GENB는 2026-02 나스닥 상장으로 UNLISTED에서 제외됨 — 2026-08-16 재확인)
+UNLISTED = set()
 
 
 def load_tickers():
