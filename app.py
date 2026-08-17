@@ -268,7 +268,11 @@ st.markdown("""
   h2 { color: #d0d0d0 !important; font-size: 1.1rem !important; font-weight: 500 !important; letter-spacing: 0.3px !important; }
   h3 { color: #a0a0a0 !important; font-size: 0.8rem !important; font-weight: 600 !important;
        text-transform: uppercase; letter-spacing: 1.4px !important; }
-  p, .stMarkdown p { color: #606060 !important; font-size: 0.88rem; line-height: 1.6; }
+  /* 본문 단락. 이전 #606060은 대비 3.18:1로 WCAG AA(4.5:1) 미달이라 실제로 안 읽혔다.
+     게다가 Streamlit은 위젯 라벨(탭·토글 텍스트)도 <p>로 감싸는데 여기 !important가
+     걸려 있어, 버튼에 지정한 색·크기를 전부 덮어썼다(탭이 13px 의도와 달리 14px로 렌더).
+     위젯 안쪽 <p>는 아래 각 위젯 블록에서 inherit으로 되돌린다. */
+  p, .stMarkdown p { color: #9aa3b0 !important; font-size: 0.88rem; line-height: 1.6; }
 
   /* ── 강조 텍스트 ── */
   .txt-primary   { color: #e8e8e8; }
@@ -420,8 +424,13 @@ st.markdown("""
     position: relative !important;
     transition: color 0.2s ease, border-color 0.2s ease !important;
   }
-  /* 1.61은 라벨을 <p>가 아닌 텍스트 노드로 넣기도 해 색이 자식에서 덮이는 걸 방지 */
-  .st-key-main_tabs button[data-variant="segmented_control"] p { color: inherit !important; font: inherit !important; }
+  /* 라벨 <p>가 전역 p 규칙(#9aa3b0 !important, 14px)에 덮이지 않게 되돌린다.
+     font-size는 inherit이면 버튼이 아니라 중간 마크다운 컨테이너(14px)를 물어오므로 명시. */
+  .st-key-main_tabs button[data-testid^="stBaseButton-segmented_control"] p,
+  .st-key-main_tabs button[data-variant="segmented_control"] p {
+    color: inherit !important; font-family: inherit !important;
+    font-weight: inherit !important; font-size: 0.8125rem !important;
+  }
   .st-key-main_tabs button[data-testid="stBaseButton-segmented_control"]:hover,
   .st-key-main_tabs button[data-variant="segmented_control"]:not([data-selected="true"]):hover {
     color: #c9ced6 !important; background: transparent !important;  /* 기본색을 밝힌 만큼 hover도 위로 */
@@ -458,7 +467,11 @@ st.markdown("""
     border: none !important; border-radius: 4px !important;
     box-shadow: none !important; transition: color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease !important;
   }
-  .st-key-sector_basis button[data-variant="segmented_control"] p { color: inherit !important; font: inherit !important; }
+  .st-key-sector_basis button[data-testid^="stBaseButton-segmented_control"] p,
+  .st-key-sector_basis button[data-variant="segmented_control"] p {
+    color: inherit !important; font-family: inherit !important;
+    font-weight: inherit !important; font-size: 0.78125rem !important;
+  }
   .st-key-sector_basis button[data-testid="stBaseButton-segmented_control"]:hover,
   .st-key-sector_basis button[data-variant="segmented_control"]:not([data-selected="true"]):hover {
     color: #c4ccd6 !important;
