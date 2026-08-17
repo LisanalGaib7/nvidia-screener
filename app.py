@@ -201,6 +201,14 @@ components.html("""
 </script>
 """, height=0)
 
+# ── 강조 예산 (새 UI 요소를 추가할 때 여기부터 볼 것) ────────────────────────
+# 색은 희소할 때만 뜻을 가진다. 브랜드 그린(#76b900)은 아래 두 용도로만 쓴다.
+#   1차   지금 어디에 있나 (탭 활성 밑줄)        → 그린 씀
+#   데이터 상승/하락 (수치, 차트)                 → 그린/레드 씀
+#   2차   무엇을 볼까 (기준 토글, 필터)          → 그린 금지. 표면 밝기 차이로만 선택 표현
+#   3차   설명·캡션·위젯 라벨                     → 그린 금지. 회색 소문자 또는 작은 대문자 눈썹
+# 기본값 조합(캡슐 radius + 채도 100% 채우기 + 굵은 글씨)은 피한다. 결정을 안 한 티가 나고,
+# 2차 요소가 1차보다 강해지는 원인이 된다. 크기·굵기는 조작 요소 > 설명 라벨 순서를 지킬 것.
 st.markdown("""
 <style>
   /* ── 기본 배경 ── */
@@ -433,28 +441,37 @@ st.markdown("""
     pointer-events: none;
   }
 
-  /* sector_basis 토글 — 상단 탭바(밑줄)와는 다른, 작은 필(pill) 스타일 세컨더리 필터 */
+  /* sector_basis 토글 — 세그먼트 트랙(S1, 2026-08-18). 강조 예산 원칙: 브랜드 그린은
+     '지금 어디 있나(탭)'와 '상승' 두 곳에만 쓰고, 2차 필터는 표면 밝기 차이로만 선택
+     상태를 표현한다. 이전 필(캡슐+그린 전면 채우기) 버전은 활성 상태 잉크가 2,618px²로
+     활성 탭 밑줄(91px²)의 29배였고, 그린이 여러 역할을 겸하며 뜻을 잃었었다. */
   .st-key-sector_basis div[data-testid="stButtonGroup"] > div[data-baseweb="button-group"],
   .st-key-sector_basis div[data-testid="stButtonGroup"] > div[role="radiogroup"] {
-    border: none !important; background: transparent !important;
-    gap: 6px !important; padding: 0 !important;
+    display: inline-flex !important; border: 1px solid #1c1f25 !important; background: #101216 !important;
+    border-radius: 6px !important; gap: 2px !important; padding: 3px !important;
   }
   .st-key-sector_basis button[data-testid^="stBaseButton-segmented_control"],
   .st-key-sector_basis button[data-variant="segmented_control"] {
-    color: #9aa3b0 !important; font-size: 0.72rem !important; font-weight: 600 !important;
-    letter-spacing: 0.3px !important; text-transform: none !important;
-    padding: 5px 12px !important; background: #16181c !important;
-    border: 1px solid #2a2d33 !important; border-radius: 14px !important;
-    box-shadow: none !important; transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease !important;
+    color: #9aa3b0 !important; font-size: 0.78125rem !important; font-weight: 500 !important;
+    letter-spacing: 0 !important; text-transform: none !important;
+    padding: 6px 13px !important; background: transparent !important;
+    border: none !important; border-radius: 4px !important;
+    box-shadow: none !important; transition: color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease !important;
   }
   .st-key-sector_basis button[data-variant="segmented_control"] p { color: inherit !important; font: inherit !important; }
   .st-key-sector_basis button[data-testid="stBaseButton-segmented_control"]:hover,
   .st-key-sector_basis button[data-variant="segmented_control"]:not([data-selected="true"]):hover {
-    color: #c4ccd6 !important; border-color: #3a3f47 !important;
+    color: #c4ccd6 !important;
   }
   .st-key-sector_basis button[data-testid="stBaseButton-segmented_controlActive"],
   .st-key-sector_basis button[data-variant="segmented_control"][data-selected="true"] {
-    color: #0d0d0d !important; background: #76b900 !important; border-color: #76b900 !important;
+    color: #f0f1ef !important; font-weight: 600 !important;
+    background: #20242b !important; box-shadow: inset 0 0 0 1px #2b3038 !important;
+  }
+  /* "기준" 라벨을 3차 눈썹으로 — 이전엔 14px로 토글 글자(11.5px)보다 커서 위계가 역전돼 있었음 */
+  .st-key-sector_basis label[data-testid="stWidgetLabel"] p {
+    color: #828a94 !important; font-size: 0.656rem !important; font-weight: 600 !important;
+    letter-spacing: 1.3px !important; text-transform: uppercase !important;
   }
   /* 모바일은 간격을 좁혀 5개를 한 화면에 (360px 가용 328 vs 간격 12px일 때 필요 321).
      예전엔 잘린 탭을 알리려 우측에 '›' 그라데이션을 뒀는데, 이제 안 잘리므로 제거.
