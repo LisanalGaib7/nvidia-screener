@@ -2400,7 +2400,8 @@ for col, label, value, color, extra_html in [
         f'</div>',
         unsafe_allow_html=True)
 
-st.markdown("---")
+# 지표 카드도, 알림 배너도 이미 자체 테두리 박스라 사이 구분선은 과했음(위 탭바 건과 동일 원인).
+st.markdown('<div style="height:26px"></div>', unsafe_allow_html=True)
 
 # ── 🚨 신규 투자 알림 배너 — 최근 5건 (첫 화면 위계: 헤더→요약 카드→알림 순으로 배치) ──
 all_investments = NEW_2026 + CURRENT_HOLDINGS + PARTNERSHIPS
