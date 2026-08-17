@@ -28,7 +28,8 @@ TRANSLATIONS = {
     "last_verified":        {"KOR": f"마지막 검증 {LAST_VERIFIED}",  "ENG": f"Last verified {LAST_VERIFIED}"},
     # 메트릭
     "metric_holdings":      {"KOR": "현재 13F 보유",                "ENG": "13F Holdings"},
-    "metric_invested":      {"KOR": "확인된 투자액",                 "ENG": "Total Invested"},
+    "metric_invested":      {"KOR": "투자 약정액",                   "ENG": "Committed Capital"},
+    "metric_invested_excl": {"KOR": "약정액 미공개 {n}종목 제외",      "ENG": "Excludes {n} holdings with undisclosed cost"},
     "metric_avg_ytd":       {"KOR": "평균 YTD",                     "ENG": "Avg YTD"},
     "metric_near_high":     {"KOR": "52주 신고가 근접",             "ENG": "Near 52W High"},
     "tooltip_13f":          {"KOR": "SEC 13F 공시 확인",             "ENG": "SEC 13F Confirmed"},
@@ -86,6 +87,12 @@ TRANSLATIONS = {
     "perf_yaxis":           {"KOR": "정규화 주가 (100=YTD시작)",      "ENG": "Normalized Price (100=YTD Start)"},
     # 섹터 탭
     "ptd_fmv_note":         {"KOR": "취득원가 아님 · 13F 기준일 지분 평가액", "ENG": "Not acquisition cost · equity value as of 13F reporting date"},
+    "basis_toggle_label":   {"KOR": "기준",                          "ENG": "Basis"},
+    "basis_committed":      {"KOR": "투자 약정액",                    "ENG": "Committed Capital"},
+    "basis_fmv":            {"KOR": "13F 평가액",                     "ENG": "13F Value"},
+    "basis_excl_committed": {"KOR": "약정액 미공개(13F 평가액만 존재): ", "ENG": "Cost undisclosed (13F value only): "},
+    "basis_excl_fmv":       {"KOR": "13F 비대상(워런트·우선주·비13F 상장): ", "ENG": "Not 13F-eligible (warrant/preferred/non-13F): "},
+    "basis_fmv_nbis_note":  {"KOR": "※ Nebius는 보통주만 반영 — 워런트 포함 실제 지분은 9.3%로 더 큼", "ENG": "※ Nebius shown as common stock only — actual stake incl. warrants is 9.3%, larger than shown"},
     "sector_count":         {"KOR": "섹터별 투자액 비중", "ENG": "Investment by Sector"},
     "sector_invest":        {"KOR": "종목별 투자액 비중", "ENG": "Investment by Holding"},
     "vc_toggle":            {"KOR": "이 종목들이 왜 함께 묶였을까요? (밸류체인 보기)", "ENG": "Why are these companies grouped together? (View value chain)"},
@@ -382,8 +389,8 @@ st.markdown("""
     scrollbar-width: none !important;
   }
   .st-key-main_tabs div[data-testid="stButtonGroup"] > div[data-baseweb="button-group"]::-webkit-scrollbar { display: none !important; }
-  button[data-testid="stBaseButton-segmented_control"],
-  button[data-testid="stBaseButton-segmented_controlActive"] {
+  .st-key-main_tabs button[data-testid="stBaseButton-segmented_control"],
+  .st-key-main_tabs button[data-testid="stBaseButton-segmented_controlActive"] {
     color: #828a94 !important;
     font-size: 0.72rem !important; font-weight: 600 !important;
     letter-spacing: 1.6px !important; text-transform: uppercase !important;
@@ -394,11 +401,29 @@ st.markdown("""
     flex-shrink: 0 !important;  /* 자연 폭 유지 → 압축(글자 잘림) 대신 넘치면 가로 스크롤 */
     transition: color 0.2s ease, border-color 0.2s ease !important;
   }
-  button[data-testid="stBaseButton-segmented_control"]:hover { color: #a3a9b3 !important; background: transparent !important; }
-  button[data-testid="stBaseButton-segmented_controlActive"] {
+  .st-key-main_tabs button[data-testid="stBaseButton-segmented_control"]:hover { color: #a3a9b3 !important; background: transparent !important; }
+  .st-key-main_tabs button[data-testid="stBaseButton-segmented_controlActive"] {
     color: #f0f1ef !important;
     background: transparent !important;
     border-bottom: 2px solid #76b900 !important;
+  }
+
+  /* sector_basis 토글 — 상단 탭바(밑줄)와는 다른, 작은 필(pill) 스타일 세컨더리 필터 */
+  .st-key-sector_basis div[data-testid="stButtonGroup"] > div[data-baseweb="button-group"] {
+    border: none !important; background: transparent !important;
+    gap: 6px !important; padding: 0 !important;
+  }
+  .st-key-sector_basis button[data-testid="stBaseButton-segmented_control"],
+  .st-key-sector_basis button[data-testid="stBaseButton-segmented_controlActive"] {
+    color: #9aa3b0 !important; font-size: 0.72rem !important; font-weight: 600 !important;
+    letter-spacing: 0.3px !important; text-transform: none !important;
+    padding: 5px 12px !important; background: #16181c !important;
+    border: 1px solid #2a2d33 !important; border-radius: 14px !important;
+    box-shadow: none !important; transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease !important;
+  }
+  .st-key-sector_basis button[data-testid="stBaseButton-segmented_control"]:hover { color: #c4ccd6 !important; border-color: #3a3f47 !important; }
+  .st-key-sector_basis button[data-testid="stBaseButton-segmented_controlActive"] {
+    color: #0d0d0d !important; background: #76b900 !important; border-color: #76b900 !important;
   }
   /* 모바일: 탭 가로 스크롤 시 우측 그라데이션으로 '더 있음' 암시 */
   @media (max-width: 640px) {
@@ -768,7 +793,8 @@ NEW_2026 = [
         "name": "Coherent Corp",
         "sector": "광학 트랜시버",
         "invest_year": 2026,
-        "invest_amt_m": 1855.0,
+        "invest_amt_m": 2000.0,
+        "fmv_m": 3072.2,  # SEC 13F Q2 2026 원문(acc. 0001045810-26-000065), 6/30 기준 평가액
         "invest_date": "2026-03-02",
         "badge": "new",
         "exchange": "NYSE",
@@ -802,25 +828,26 @@ NEW_2026 = [
         "name": "Generate Biomedicines",
         "sector": "AI 신약개발",
         "invest_year": 2026,
-        "invest_amt_m": 10.4,
+        "invest_amt_m": None,  # NVentures 실제 투자금 $10.4M은 보도치, SEC 원문엔 원가 없음 — 아래는 13F 평가액
+        "fmv_m": 14.1,  # SEC 13F Q2 2026 원문, 6/30 기준 평가액
         "invest_date": "2026-05-15",
         "badge": "new",
         "exchange": "NASDAQ",
         "is_new_alert": True,
         "alert_date": "2026-05-15",
-        "nvidia_thesis": "AI 신약 설계 — 단백질 구조를 생성형 AI로 설계하는 바이오텍. NVentures(엔비디아 벤처투자) 참여, $10.4M·833,325주",
-        "nvidia_thesis_eng": "AI drug design — biotech generatively designing novel proteins. NVentures (NVIDIA's venture arm) participation, $10.4M · 833,325 shares",
-        "note": "$10.4M 투자 (NVentures, 2026 Q1 13F 공시) | 833,325주 | 2026.02 나스닥 상장(GENB)",
-        "note_eng": "$10.4M investment (NVentures, disclosed in Q1 2026 13F) | 833,325 shares | 2026.02 Nasdaq listing (GENB)",
-        "source": "NVIDIA 13F Q1 2026 (2026.05.15) — Barchart, Dealroom 교차확인",
+        "nvidia_thesis": "AI 신약 설계 — 단백질 구조를 생성형 AI로 설계하는 바이오텍. NVentures(엔비디아 벤처투자) 참여, 833,325주(6/30 평가액 $14.1M)",
+        "nvidia_thesis_eng": "AI drug design — biotech generatively designing novel proteins. NVentures (NVIDIA's venture arm) participation, 833,325 shares ($14.1M as of 6/30)",
+        "note": "833,325주 · 13F 평가액 $14.1M (6/30 기준) | NVentures 투자 원금 비공개 | 2026.02 나스닥 상장(GENB)",
+        "note_eng": "833,325 shares · 13F value $14.1M (as of 6/30) | NVentures investment cost undisclosed | 2026.02 Nasdaq listing (GENB)",
+        "source": "SEC 13F-HR 원문(acc. 0001045810-26-000065, 2026.08.14) — Barchart, Dealroom 교차확인",
     },
     {
         "ticker": "SPCX",
         "name": "SpaceX",
         "sector": "우주·위성",
         "invest_year": 2026,
-        "invest_amt_m": 20975.6,
-        "amt_is_fmv": True,  # invest_amt_m이 취득원가가 아니라 6/30 지분 평가액(FMV) — 카드에 각주 표시
+        "invest_amt_m": None,  # xAI 시리즈E 참여 원금 비공개 — 아래는 13F 평가액
+        "fmv_m": 20975.6,  # SEC 13F Q2 2026 원문, 6/30 기준 평가액
         "invest_date": "2026-08-14",
         "badge": "new",
         "exchange": "NASDAQ",
@@ -842,6 +869,7 @@ CURRENT_HOLDINGS = [
         "sector": "반도체/파운드리",
         "invest_year": 2025,
         "invest_amt_m": 5000.0,
+        "fmv_m": 29989.3,  # SEC 13F Q2 2026 원문, 6/30 기준 평가액
         "invest_date": "2025-12-29",
         "badge": "core",
         "exchange": "NASDAQ",
@@ -859,6 +887,7 @@ CURRENT_HOLDINGS = [
         "sector": "EDA/칩 설계",
         "invest_year": 2025,
         "invest_amt_m": 2000.0,
+        "fmv_m": 2150.8,  # SEC 13F Q2 2026 원문, 6/30 기준 평가액
         "invest_date": "2025-12-01",
         "badge": "core",
         "exchange": "NASDAQ",
@@ -876,6 +905,7 @@ CURRENT_HOLDINGS = [
         "sector": "통신 인프라",
         "invest_year": 2025,
         "invest_amt_m": 1000.0,
+        "fmv_m": 2209.7,  # SEC 13F Q2 2026 원문, 6/30 기준 평가액
         "invest_date": "2025-10-28",
         "badge": "core",
         "exchange": "NYSE",
@@ -892,17 +922,18 @@ CURRENT_HOLDINGS = [
         "name": "CoreWeave",
         "sector": "클라우드 GPU",
         "invest_year": 2025,
-        "invest_amt_m": 3660.0,
+        "invest_amt_m": None,  # 2025.03 IPO 참여 금액 미공개 — 아래는 13F 평가액
+        "fmv_m": 4699.6,  # SEC 13F Q2 2026 원문, 6/30 기준 평가액
         "invest_date": "2025-03-28",
         "badge": "core",
         "exchange": "NASDAQ",
         "is_new_alert": True,
         "alert_date": "2026-05-15",
-        "nvidia_thesis": "NVIDIA GPU 특화 하이퍼스케일러 — H100/B200 최대 보유 AI 클라우드. Q1 2026 13F: 47.2M주 ($3.66B), +95% 증가",
-        "nvidia_thesis_eng": "NVIDIA GPU-specialized hyperscaler — largest H100/B200 AI cloud. Q1 2026 13F: 47.2M shares ($3.66B), +95% increase",
-        "note": "13F 지분 +95% 증가 → $3.66B | 47.2M주, 2025.03 IPO 참여 | NVIDIA 전략적 주주·최대 고객",
-        "note_eng": "13F stake +95% → $3.66B | 47.2M shares, 2025.03 IPO | NVIDIA strategic shareholder & top customer",
-        "source": "CoreWeave IPO Filing (2025.03) · SEC 13F Q1 2026 (2026.05.15)",
+        "nvidia_thesis": "NVIDIA GPU 특화 하이퍼스케일러 — H100/B200 최대 보유 AI 클라우드. 47.2M주(Q1 대비 +95% 증가, 이후 변동 없음), 13F 평가액 $4.70B(6/30 기준)",
+        "nvidia_thesis_eng": "NVIDIA GPU-specialized hyperscaler — largest H100/B200 AI cloud. 47.2M shares (+95% vs Q1, unchanged since), 13F value $4.70B (as of 6/30)",
+        "note": "47.2M주 · 13F 평가액 $4.70B (6/30 기준) | 2025.03 IPO 참여, 원금 비공개 | NVIDIA 전략적 주주·최대 고객",
+        "note_eng": "47.2M shares · 13F value $4.70B (as of 6/30) | 2025.03 IPO participation, cost undisclosed | NVIDIA strategic shareholder & top customer",
+        "source": "SEC 13F-HR 원문(acc. 0001045810-26-000065, 2026.08.14) · CoreWeave IPO Filing (2025.03)",
     },
     {
         "ticker": "NBIS",
@@ -910,6 +941,7 @@ CURRENT_HOLDINGS = [
         "sector": "클라우드 GPU",
         "invest_year": 2024,
         "invest_amt_m": 2100.0,
+        "fmv_m": 328.8,  # SEC 13F Q2 2026 원문 — 보통주 1,190,476주만. 워런트 포함 9.3% 지분은 13F 미반영이라 실제보다 작게 보임
         "invest_date": "2026-03-11",
         "badge": "core",
         "exchange": "NASDAQ",
@@ -1034,7 +1066,7 @@ THESIS_KO = {
     "CRWV": (
         "엔비디아 최신 GPU를 가장 많이 보유한 AI 전용 클라우드 회사",
         "엔비디아 H100·B200을 대규모로 굴리는 AI 클라우드로, 엔비디아의 전략적 주주이자 최대 고객입니다.",
-        "Q1 2026 13F: 47.2M주 $3.66B (+95% 증가) · 2025.03 IPO 참여",
+        "47.2M주 · 13F 평가액 $4.70B (6/30 기준) · 2025.03 IPO 참여, 원금 비공개",
     ),
     "NBIS": (
         "엔비디아 시스템을 대규모로 배포하는 풀스택 AI 클라우드 회사",
@@ -1059,7 +1091,7 @@ THESIS_KO = {
     "GENB": (
         "생성형 AI로 새 단백질 구조를 설계하는 AI 신약개발 바이오텍",
         "엔비디아 벤처투자 조직 NVentures가 초기 단계에 베팅했습니다. 2026년 2월 나스닥에 상장했고, 천식·항암 등 여러 파이프라인을 임상 진행 중입니다.",
-        "$10.4M 투자 (NVentures) · 833,325주 · 2026.02 나스닥 상장",
+        "833,325주 · 13F 평가액 $14.1M (6/30 기준) · NVentures 투자 원금 비공개 · 2026.02 나스닥 상장",
     ),
     "SPCX": (
         "일론 머스크의 우주 기업 — 엔비디아 xAI 투자가 지분 전환으로 이어진 케이스",
@@ -1113,7 +1145,7 @@ THESIS_EN = {
     "CRWV": (
         "The AI-dedicated cloud holding the most of NVIDIA's latest GPUs",
         "An AI cloud running NVIDIA H100·B200 at massive scale — NVIDIA's strategic shareholder and top customer.",
-        "Q1 2026 13F: 47.2M shares $3.66B (+95%) · joined 2025.03 IPO",
+        "47.2M shares · 13F value $4.70B (as of 6/30) · joined 2025.03 IPO, cost undisclosed",
     ),
     "NBIS": (
         "A full-stack AI cloud deploying NVIDIA systems at scale",
@@ -1138,7 +1170,7 @@ THESIS_EN = {
     "GENB": (
         "An AI drug-discovery biotech designing novel proteins with generative AI",
         "NVIDIA's venture arm NVentures backed it at an early stage. Listed on Nasdaq in February 2026, with multiple pipelines (asthma, oncology) in clinical trials.",
-        "$10.4M investment (NVentures) · 833,325 shares · 2026.02 Nasdaq listing",
+        "833,325 shares · 13F value $14.1M (as of 6/30) · NVentures investment cost undisclosed · 2026.02 Nasdaq listing",
     ),
     "SPCX": (
         "Elon Musk's space company — NVIDIA's xAI bet that converted into an equity stake",
@@ -1275,15 +1307,17 @@ VC_STAGES = [
     ("통신",             "vc_stage_ext",    "vc_desc_ext"),
 ]
 
-def _valuechain_html(current_only):
+def _valuechain_html(current_only, amt_key="invest_amt_m"):
     """밸류체인 흐름도 — 종목/금액은 런타임 집계(하드코딩 금지), 빈 단계는 회색 점선 처리.
-    파트너십(지분 없음)은 제외 — current_only에 이미 안 들어있음."""
+    파트너십(지분 없음)은 제외 — current_only에 이미 안 들어있음.
+    amt_key: "invest_amt_m"(투자 약정액) 또는 "fmv_m"(13F 평가액) — 두 기준은 서로 다른
+    부분집합의 종목만 커버하므로(각주 금지, [[project-nvda-tracker-invest-amt-mixed-basis]]) 섞지 않는다."""
     agg = {}
     for c in current_only:
-        if not c.get("invest_amt_m"):
+        if not c.get(amt_key):
             continue
         grp = SECTOR_GROUP.get(c["sector"], c["sector"])
-        agg.setdefault(grp, []).append((c["ticker"], c["name"], c["invest_amt_m"]))
+        agg.setdefault(grp, []).append((c["ticker"], c["name"], c[amt_key]))
     boxes = []
     for i, (cat, stage_key, desc_key) in enumerate(VC_STAGES):
         items = agg.get(cat, [])
@@ -1815,7 +1849,7 @@ for c in all_display:
         "price": sd.get("price"), "currency": sd.get("currency", "USD"),
         "daily_pct": sd.get("change_pct"), "ytd_pct": sd.get("ytd_pct"),
         "market_cap": sd.get("market_cap"), "pe_ratio": sd.get("pe_ratio"),
-        "invest_amt_m": c.get("invest_amt_m"), "invest_date": c.get("invest_date", ""),
+        "invest_amt_m": c.get("invest_amt_m"), "fmv_m": c.get("fmv_m"), "invest_date": c.get("invest_date", ""),
     })
 if _csv_rows:
     _csv = pd.DataFrame(_csv_rows).to_csv(index=False).encode("utf-8-sig")
@@ -2276,6 +2310,11 @@ for col, label, value, color, extra_html in [
              key=lambda x: x["invest_amt_m"], reverse=True
          )
      )
+     + (lambda _excl: (
+         f'<div class="tooltip-row" style="opacity:0.6;font-size:0.68rem;margin-top:4px;border-top:1px solid #2a2a2a;padding-top:6px">'
+         f'{t("metric_invested_excl").format(n=len(_excl))}'
+         f'</div>' if _excl else ''
+       ))([c for c in all_display if c["badge"] != "exited" and not c.get("invest_amt_m") and c.get("fmv_m")])
      + '</div>'),
     (m3, t("metric_avg_ytd"), avg_ytd_str,  "#76b900",
      '<div class="metric-tooltip" style="min-width:220px">'
@@ -2374,7 +2413,8 @@ with _tab_body:
     if active_tab == "Portfolio":
         def sort_key(c):
             sd = stock_data.get(c["ticker"],{})
-            if sort_by == t("sb_sort_invest"): return c.get("invest_amt_m") or 0
+            # 카드에 표시되는 값(약정액, 없으면 13F 평가액)과 정렬 기준을 일치시킴
+            if sort_by == t("sb_sort_invest"): return c.get("invest_amt_m") or c.get("fmv_m") or 0
             if sort_by == t("sb_sort_ytd"):    return sd.get("ytd_pct") or -9999
             if sort_by == t("sb_sort_cap"):    return sd.get("market_cap") or 0
             if sort_by == t("sb_sort_daily"):  return sd.get("change_pct") or -9999
@@ -2425,10 +2465,13 @@ with _tab_body:
 
                 price    = sd.get("price")
                 currency = sd.get("currency", "USD")
-                amt      = (f"${c['invest_amt_m']/1000:.1f}B"
-                            if (c.get("invest_amt_m") or 0) >= 1000
-                            else f"${c['invest_amt_m']:.0f}M"
-                            if c.get("invest_amt_m") else "")
+                # 약정액(invest_amt_m) 우선 표시, 없으면 13F 평가액(fmv_m)으로 대체 — 대체 시 각주 표시
+                _amt_val = c.get("invest_amt_m")
+                _amt_is_fmv = not _amt_val and bool(c.get("fmv_m"))
+                if _amt_is_fmv:
+                    _amt_val = c["fmv_m"]
+                amt      = (f"${_amt_val/1000:.1f}B" if (_amt_val or 0) >= 1000
+                            else f"${_amt_val:.0f}M" if _amt_val else "")
 
                 # 52W 바 (데스크탑용 전체 / 모바일용 축약)
                 w52h = sd.get("week52_high"); w52l = sd.get("week52_low")
@@ -2509,7 +2552,7 @@ with _tab_body:
                     f'<div class="pt-detail-body">'
                     f'<div class="ptd-header"><span class="ptd-ticker">{disp_ticker(ticker, c["name"])}</span><span class="ptd-sector">{_sector}</span></div>'
                     + (f'<div class="ptd-label">NVIDIA INVEST</div><div class="ptd-amount">{amt}</div>'
-                       + (f'<div class="ptd-fmv-note">{t("ptd_fmv_note")}</div>' if c.get("amt_is_fmv") else '')
+                       + (f'<div class="ptd-fmv-note">{t("ptd_fmv_note")}</div>' if _amt_is_fmv else '')
                        if amt else '')
                     + _thesis_html
                     + f'<div class="ptd-footer"><span class="ptd-date">{_date}</span><span class="ptd-src">{_src}</span></div>'
@@ -2613,8 +2656,24 @@ with _tab_body:
     # ══ Tab 3 ════════════════════════════════════════════════════════════════════
     elif active_tab == "Sectors":
         current_only = NEW_2026 + CURRENT_HOLDINGS
+        # 투자 약정액과 13F 평가액은 서로 다른 종목 부분집합을 커버하는 별개 기준이라 섞지 않는다
+        # (원인: [[project-nvda-tracker-invest-amt-mixed-basis]]). 토글 하나가 밸류체인+파이 2개를 함께 제어.
+        _basis_label = st.segmented_control(
+            t("basis_toggle_label"), [t("basis_committed"), t("basis_fmv")],
+            default=t("basis_committed"), key="sector_basis"
+        ) or t("basis_committed")
+        amt_key = "fmv_m" if _basis_label == t("basis_fmv") else "invest_amt_m"
+        _other_key = "invest_amt_m" if amt_key == "fmv_m" else "fmv_m"
+        _excluded = [c for c in current_only if not c.get(amt_key) and c.get(_other_key)]
+        if _excluded:
+            _excl_names = ", ".join(f"{c['name']} ({disp_ticker(c['ticker'], c['name'])})" for c in _excluded)
+            _excl_key = "basis_excl_fmv" if amt_key == "fmv_m" else "basis_excl_committed"
+            st.caption(t(_excl_key) + _excl_names)
+        if amt_key == "fmv_m" and any(c["ticker"] == "NBIS" for c in current_only if c.get("fmv_m")):
+            st.caption(t("basis_fmv_nbis_note"))
+
         with st.expander(t("vc_toggle")):
-            st.markdown(_valuechain_html(current_only), unsafe_allow_html=True)
+            st.markdown(_valuechain_html(current_only, amt_key), unsafe_allow_html=True)
         # $ 단위 표기 — B는 소수 2자리, M은 정수(또는 필요시 소수). FILINGS_HISTORY 금액 포맷과 동일 규칙.
         def _fmt_amt(v_m):
             if v_m >= 1000:      return f"${round(v_m/10)/100:.2f}B"
@@ -2625,9 +2684,9 @@ with _tab_body:
         with ca:
             sc_raw = {}; sc_cnt = {}  # 카테고리별 투자액 합 + 종목 수
             for c in current_only:
-                if not c.get("invest_amt_m"): continue
+                if not c.get(amt_key): continue
                 grp = SECTOR_GROUP.get(c["sector"], c["sector"])
-                sc_raw[grp] = sc_raw.get(grp, 0) + c["invest_amt_m"]
+                sc_raw[grp] = sc_raw.get(grp, 0) + c[amt_key]
                 sc_cnt[grp] = sc_cnt.get(grp, 0) + 1
             grps = list(sc_raw.keys())
             sc_labels = [cat_name(g) for g in grps]
@@ -2645,7 +2704,7 @@ with _tab_body:
                 margin=dict(l=0,r=0,t=40,b=0))
             st.plotly_chart(fig3, use_container_width=True, config=PLOTLY_CFG)
         with cb:
-            invest_data = [(c["name"], c["invest_amt_m"]) for c in current_only if c.get("invest_amt_m")]
+            invest_data = [(c["name"], c[amt_key]) for c in current_only if c.get(amt_key)]
             if invest_data:
                 names, amts = zip(*invest_data)
                 fig4 = go.Figure(go.Pie(labels=list(names), values=list(amts),
