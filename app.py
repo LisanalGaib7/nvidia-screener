@@ -379,21 +379,28 @@ st.markdown("""
   }
 
 
-  /* segmented_control(lazy 탭) — 밑줄(underline) 탭. 실제 DOM: stButtonGroup + stBaseButton-segmented_control(Active) */
+  /* ⚠️ segmented_control/pills는 Streamlit 버전마다 내부 DOM이 다르다 — 셀렉터를 반드시 병기할 것.
+       ~1.57 (baseweb):   div[data-baseweb="button-group"] / button[data-testid="stBaseButton-segmented_control(Active)"]
+       1.61~ (react-aria): div[role="radiogroup"]           / button[data-variant="segmented_control"] + [data-selected="true"]
+     한쪽만 쓰면 다른 버전에선 매칭이 0건이라 CSS가 통째로 무시되고 Streamlit 기본 박스 탭이 노출된다
+     (2026-08-17: requirements가 streamlit>=1.40으로 열려 있어 클라우드가 1.61로 올라가며 실제로 발생).
+     그래서 requirements.txt는 버전 고정 — 올릴 땐 로컬에서 이 3곳(탭·기준토글·13F필) 먼저 확인. */
   .st-key-main_tabs div[data-testid="stButtonGroup"] { position: relative !important; }
-  .st-key-main_tabs div[data-testid="stButtonGroup"] > div[data-baseweb="button-group"] {
+  .st-key-main_tabs div[data-testid="stButtonGroup"] > div[data-baseweb="button-group"],
+  .st-key-main_tabs div[data-testid="stButtonGroup"] > div[role="radiogroup"] {
     border: none !important; border-bottom: 1px solid rgba(255,255,255,0.09) !important;
     border-radius: 0 !important; background: transparent !important;
     gap: 22px !important; padding: 0 !important;
     flex-wrap: nowrap !important; overflow-x: auto !important;
     scrollbar-width: none !important;
   }
-  .st-key-main_tabs div[data-testid="stButtonGroup"] > div[data-baseweb="button-group"]::-webkit-scrollbar { display: none !important; }
+  .st-key-main_tabs div[data-testid="stButtonGroup"] > div[data-baseweb="button-group"]::-webkit-scrollbar,
+  .st-key-main_tabs div[data-testid="stButtonGroup"] > div[role="radiogroup"]::-webkit-scrollbar { display: none !important; }
   /* 라벨은 문장형 13px. 대문자+넓은 자간은 폭을 19% 더 먹으면서 정보를 안 늘려
      모바일에서 뒤 두 탭이 화면 밖으로 밀려났었다(375px 가용 343 vs 필요 461).
      대문자는 알림 배너 제목·배지 같은 눈썹 라벨에만 남겨 위계도 분리. */
-  .st-key-main_tabs button[data-testid="stBaseButton-segmented_control"],
-  .st-key-main_tabs button[data-testid="stBaseButton-segmented_controlActive"] {
+  .st-key-main_tabs button[data-testid^="stBaseButton-segmented_control"],
+  .st-key-main_tabs button[data-variant="segmented_control"] {
     color: #828a94 !important;
     font-size: 0.8125rem !important; font-weight: 500 !important;
     letter-spacing: 0 !important; text-transform: none !important;
@@ -405,42 +412,56 @@ st.markdown("""
     position: relative !important;
     transition: color 0.2s ease, border-color 0.2s ease !important;
   }
-  .st-key-main_tabs button[data-testid="stBaseButton-segmented_control"]:hover { color: #a3a9b3 !important; background: transparent !important; }
-  .st-key-main_tabs button[data-testid="stBaseButton-segmented_controlActive"] {
+  /* 1.61은 라벨을 <p>가 아닌 텍스트 노드로 넣기도 해 색이 자식에서 덮이는 걸 방지 */
+  .st-key-main_tabs button[data-variant="segmented_control"] p { color: inherit !important; font: inherit !important; }
+  .st-key-main_tabs button[data-testid="stBaseButton-segmented_control"]:hover,
+  .st-key-main_tabs button[data-variant="segmented_control"]:not([data-selected="true"]):hover {
+    color: #a3a9b3 !important; background: transparent !important;
+  }
+  .st-key-main_tabs button[data-testid="stBaseButton-segmented_controlActive"],
+  .st-key-main_tabs button[data-variant="segmented_control"][data-selected="true"] {
     color: #f0f1ef !important;
     font-weight: 600 !important;
     background: transparent !important;
     border-bottom: 2px solid #76b900 !important;
   }
   /* 활성 밑줄 글로우 — 버튼 자체는 box-shadow:none을 유지해야 하므로 ::after로 얹음 */
-  .st-key-main_tabs button[data-testid="stBaseButton-segmented_controlActive"]::after {
+  .st-key-main_tabs button[data-testid="stBaseButton-segmented_controlActive"]::after,
+  .st-key-main_tabs button[data-variant="segmented_control"][data-selected="true"]::after {
     content: ""; position: absolute; left: 0; right: 0; bottom: -2px; height: 2px;
     background: #76b900; box-shadow: 0 0 10px rgba(118,185,0,0.55);
     pointer-events: none;
   }
 
   /* sector_basis 토글 — 상단 탭바(밑줄)와는 다른, 작은 필(pill) 스타일 세컨더리 필터 */
-  .st-key-sector_basis div[data-testid="stButtonGroup"] > div[data-baseweb="button-group"] {
+  .st-key-sector_basis div[data-testid="stButtonGroup"] > div[data-baseweb="button-group"],
+  .st-key-sector_basis div[data-testid="stButtonGroup"] > div[role="radiogroup"] {
     border: none !important; background: transparent !important;
     gap: 6px !important; padding: 0 !important;
   }
-  .st-key-sector_basis button[data-testid="stBaseButton-segmented_control"],
-  .st-key-sector_basis button[data-testid="stBaseButton-segmented_controlActive"] {
+  .st-key-sector_basis button[data-testid^="stBaseButton-segmented_control"],
+  .st-key-sector_basis button[data-variant="segmented_control"] {
     color: #9aa3b0 !important; font-size: 0.72rem !important; font-weight: 600 !important;
     letter-spacing: 0.3px !important; text-transform: none !important;
     padding: 5px 12px !important; background: #16181c !important;
     border: 1px solid #2a2d33 !important; border-radius: 14px !important;
     box-shadow: none !important; transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease !important;
   }
-  .st-key-sector_basis button[data-testid="stBaseButton-segmented_control"]:hover { color: #c4ccd6 !important; border-color: #3a3f47 !important; }
-  .st-key-sector_basis button[data-testid="stBaseButton-segmented_controlActive"] {
+  .st-key-sector_basis button[data-variant="segmented_control"] p { color: inherit !important; font: inherit !important; }
+  .st-key-sector_basis button[data-testid="stBaseButton-segmented_control"]:hover,
+  .st-key-sector_basis button[data-variant="segmented_control"]:not([data-selected="true"]):hover {
+    color: #c4ccd6 !important; border-color: #3a3f47 !important;
+  }
+  .st-key-sector_basis button[data-testid="stBaseButton-segmented_controlActive"],
+  .st-key-sector_basis button[data-variant="segmented_control"][data-selected="true"] {
     color: #0d0d0d !important; background: #76b900 !important; border-color: #76b900 !important;
   }
   /* 모바일은 간격을 좁혀 5개를 한 화면에 (360px 가용 328 vs 간격 12px일 때 필요 321).
      예전엔 잘린 탭을 알리려 우측에 '›' 그라데이션을 뒀는데, 이제 안 잘리므로 제거.
      더 좁은 화면 대비 가로 스크롤(nowrap + overflow-x:auto)은 안전판으로 남겨둠. */
   @media (max-width: 640px) {
-    .st-key-main_tabs div[data-testid="stButtonGroup"] > div[data-baseweb="button-group"] {
+    .st-key-main_tabs div[data-testid="stButtonGroup"] > div[data-baseweb="button-group"],
+    .st-key-main_tabs div[data-testid="stButtonGroup"] > div[role="radiogroup"] {
       gap: 12px !important;
     }
   }
@@ -2850,15 +2871,21 @@ with _tab_body:
             ".st-key-f13_types [data-testid='stButtonGroup']>div[class]{flex-wrap:wrap !important;gap:6px !important;}"
             ".st-key-f13_types [data-testid='stButtonGroup'] button{flex:0 0 auto !important;max-width:none !important;}"
             ".st-key-f13_types [data-testid='stButtonGroup'] button p{white-space:nowrap !important;overflow:visible !important;text-overflow:clip !important;}"
-            ".st-key-f13_types button[data-testid='stBaseButton-pills']{"
+            # 꺼짐 상태 — 셀렉터 병기(~1.57 testid / 1.61~ data-variant+data-selected). 위 CSS 블록 상단 주석 참고
+            ".st-key-f13_types button[data-testid='stBaseButton-pills'],"
+            ".st-key-f13_types button[data-variant='pills']:not([data-selected='true']){"
             "background:#0c0c0c !important;border-color:#1f1f1f !important;opacity:.55 !important;}"
-            ".st-key-f13_types button[data-testid='stBaseButton-pills'] p{color:#3f4651 !important;}")
+            ".st-key-f13_types button[data-testid='stBaseButton-pills'] p,"
+            ".st-key-f13_types button[data-variant='pills']:not([data-selected='true']) p{color:#3f4651 !important;}")
         for _i, _k in enumerate(_ct_show, start=1):
             _bg, _tx, _bd = _CT_PILL[_k]
-            _sel = (f".st-key-f13_types [data-testid='stButtonGroup']>div>"
-                    f"button:nth-of-type({_i})[data-testid='stBaseButton-pillsActive']")
+            _base = f".st-key-f13_types [data-testid='stButtonGroup']>div>button:nth-of-type({_i})"
+            _sel = (f"{_base}[data-testid='stBaseButton-pillsActive'],"
+                    f"{_base}[data-variant='pills'][data-selected='true']")
+            _sel_p = (f"{_base}[data-testid='stBaseButton-pillsActive'] p,"
+                      f"{_base}[data-variant='pills'][data-selected='true'] p")
             _pill_css += (f"{_sel}{{background:{_bg} !important;border-color:{_bd} !important;}}"
-                          f"{_sel} p{{color:{_tx} !important;}}")
+                          f"{_sel_p}{{color:{_tx} !important;}}")
         _pill_css += "</style>"
         st.markdown(_pill_css, unsafe_allow_html=True)
         def _f13_filters():
