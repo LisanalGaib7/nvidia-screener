@@ -28,8 +28,8 @@ TRANSLATIONS = {
     "last_verified":        {"KOR": f"마지막 검증 {LAST_VERIFIED}",  "ENG": f"Last verified {LAST_VERIFIED}"},
     # 메트릭
     "metric_holdings":      {"KOR": "현재 13F 보유",                "ENG": "13F Holdings"},
-    "metric_invested":      {"KOR": "투자 약정액",                   "ENG": "Committed Capital"},
-    "metric_invested_excl": {"KOR": "약정액 미공개 {n}종목 제외",      "ENG": "Excludes {n} holdings with undisclosed cost"},
+    "metric_invested":      {"KOR": "투자 금액",                     "ENG": "Invested"},
+    "metric_invested_excl": {"KOR": "금액 비공개 {n}곳 제외",          "ENG": "{n} excluded, amount not disclosed"},
     "metric_avg_ytd":       {"KOR": "평균 YTD",                     "ENG": "Avg YTD"},
     "metric_near_high":     {"KOR": "52주 신고가 근접",             "ENG": "Near 52W High"},
     "tooltip_13f":          {"KOR": "SEC 13F 공시 확인",             "ENG": "SEC 13F Confirmed"},
@@ -86,13 +86,13 @@ TRANSLATIONS = {
     "perf_ytd_start":       {"KOR": "YTD 시작",                     "ENG": "YTD Start"},
     "perf_yaxis":           {"KOR": "정규화 주가 (100=YTD시작)",      "ENG": "Normalized Price (100=YTD Start)"},
     # 섹터 탭
-    "ptd_fmv_note":         {"KOR": "취득원가 아님 · 13F 기준일 지분 평가액", "ENG": "Not acquisition cost · equity value as of 13F reporting date"},
+    "ptd_fmv_note":         {"KOR": "투자 금액 비공개 · 6/30 기준 지분 가치", "ENG": "Amount invested not disclosed · stake value as of 6/30"},
     "basis_toggle_label":   {"KOR": "기준",                          "ENG": "Basis"},
-    "basis_committed":      {"KOR": "투자 약정액",                    "ENG": "Committed Capital"},
-    "basis_fmv":            {"KOR": "13F 평가액",                     "ENG": "13F Value"},
-    "basis_excl_committed": {"KOR": "약정액 미공개(13F 평가액만 존재): ", "ENG": "Cost undisclosed (13F value only): "},
-    "basis_excl_fmv":       {"KOR": "13F 비대상(워런트·우선주·비13F 상장): ", "ENG": "Not 13F-eligible (warrant/preferred/non-13F): "},
-    "basis_fmv_nbis_note":  {"KOR": "※ Nebius는 보통주만 반영 — 워런트 포함 실제 지분은 9.3%로 더 큼", "ENG": "※ Nebius shown as common stock only — actual stake incl. warrants is 9.3%, larger than shown"},
+    "basis_committed":      {"KOR": "투자 금액",                      "ENG": "Invested"},
+    "basis_fmv":            {"KOR": "보유 가치",                      "ENG": "Stake Value"},
+    "basis_excl_committed": {"KOR": "금액 비공개로 제외: ",            "ENG": "Excluded, amount not disclosed: "},
+    "basis_excl_fmv":       {"KOR": "13F에 안 잡혀 제외: ",           "ENG": "Excluded, not in 13F: "},
+    "basis_fmv_nbis_note":  {"KOR": "※ NBIS는 보통주만 반영. 워런트까지 넣으면 실제 지분은 9.3%", "ENG": "※ NBIS shows common stock only. Including warrants, the actual stake is 9.3%"},
     "sector_count":         {"KOR": "섹터별 투자액 비중", "ENG": "Investment by Sector"},
     "sector_invest":        {"KOR": "종목별 투자액 비중", "ENG": "Investment by Holding"},
     "vc_toggle":            {"KOR": "이 종목들이 왜 함께 묶였을까요? (밸류체인 보기)", "ENG": "Why are these companies grouped together? (View value chain)"},
@@ -835,10 +835,10 @@ NEW_2026 = [
         "exchange": "NASDAQ",
         "is_new_alert": True,
         "alert_date": "2026-05-15",
-        "nvidia_thesis": "AI 신약 설계 — 단백질 구조를 생성형 AI로 설계하는 바이오텍. NVentures(엔비디아 벤처투자) 참여, 833,325주(6/30 평가액 $14.1M)",
+        "nvidia_thesis": "AI 신약 설계 — 단백질 구조를 생성형 AI로 설계하는 바이오텍. NVentures(엔비디아 벤처투자) 참여, 833,325주(6/30 기준 $14.1M)",
         "nvidia_thesis_eng": "AI drug design — biotech generatively designing novel proteins. NVentures (NVIDIA's venture arm) participation, 833,325 shares ($14.1M as of 6/30)",
-        "note": "833,325주 · 13F 평가액 $14.1M (6/30 기준) | NVentures 투자 원금 비공개 | 2026.02 나스닥 상장(GENB)",
-        "note_eng": "833,325 shares · 13F value $14.1M (as of 6/30) | NVentures investment cost undisclosed | 2026.02 Nasdaq listing (GENB)",
+        "note": "833,325주 · 6/30 기준 $14.1M | NVentures 투자 금액은 비공개 | 2026.02 나스닥 상장(GENB)",
+        "note_eng": "833,325 shares · $14.1M as of 6/30 | NVentures investment amount not disclosed | 2026.02 Nasdaq listing (GENB)",
         "source": "SEC 13F-HR 원문(acc. 0001045810-26-000065, 2026.08.14) — Barchart, Dealroom 교차확인",
     },
     {
@@ -929,10 +929,10 @@ CURRENT_HOLDINGS = [
         "exchange": "NASDAQ",
         "is_new_alert": True,
         "alert_date": "2026-05-15",
-        "nvidia_thesis": "NVIDIA GPU 특화 하이퍼스케일러 — H100/B200 최대 보유 AI 클라우드. 47.2M주(Q1 대비 +95% 증가, 이후 변동 없음), 13F 평가액 $4.70B(6/30 기준)",
+        "nvidia_thesis": "NVIDIA GPU 특화 하이퍼스케일러 — H100/B200 최대 보유 AI 클라우드. 47.2M주(Q1 대비 +95% 증가, 이후 변동 없음), 6/30 기준 $4.70B",
         "nvidia_thesis_eng": "NVIDIA GPU-specialized hyperscaler — largest H100/B200 AI cloud. 47.2M shares (+95% vs Q1, unchanged since), 13F value $4.70B (as of 6/30)",
-        "note": "47.2M주 · 13F 평가액 $4.70B (6/30 기준) | 2025.03 IPO 참여, 원금 비공개 | NVIDIA 전략적 주주·최대 고객",
-        "note_eng": "47.2M shares · 13F value $4.70B (as of 6/30) | 2025.03 IPO participation, cost undisclosed | NVIDIA strategic shareholder & top customer",
+        "note": "47.2M주 · 6/30 기준 $4.70B | 2025.03 IPO 참여, 투자 금액은 비공개 | NVIDIA 전략적 주주·최대 고객",
+        "note_eng": "47.2M shares · $4.70B as of 6/30 | 2025.03 IPO participation, amount not disclosed | NVIDIA strategic shareholder & top customer",
         "source": "SEC 13F-HR 원문(acc. 0001045810-26-000065, 2026.08.14) · CoreWeave IPO Filing (2025.03)",
     },
     {
@@ -1066,7 +1066,7 @@ THESIS_KO = {
     "CRWV": (
         "엔비디아 최신 GPU를 가장 많이 보유한 AI 전용 클라우드 회사",
         "엔비디아 H100·B200을 대규모로 굴리는 AI 클라우드로, 엔비디아의 전략적 주주이자 최대 고객입니다.",
-        "47.2M주 · 13F 평가액 $4.70B (6/30 기준) · 2025.03 IPO 참여, 원금 비공개",
+        "47.2M주 · 6/30 기준 $4.70B · 2025.03 IPO 참여, 투자 금액은 비공개",
     ),
     "NBIS": (
         "엔비디아 시스템을 대규모로 배포하는 풀스택 AI 클라우드 회사",
@@ -1091,7 +1091,7 @@ THESIS_KO = {
     "GENB": (
         "생성형 AI로 새 단백질 구조를 설계하는 AI 신약개발 바이오텍",
         "엔비디아 벤처투자 조직 NVentures가 초기 단계에 베팅했습니다. 2026년 2월 나스닥에 상장했고, 천식·항암 등 여러 파이프라인을 임상 진행 중입니다.",
-        "833,325주 · 13F 평가액 $14.1M (6/30 기준) · NVentures 투자 원금 비공개 · 2026.02 나스닥 상장",
+        "833,325주 · 6/30 기준 $14.1M · NVentures 투자 금액은 비공개 · 2026.02 나스닥 상장",
     ),
     "SPCX": (
         "일론 머스크의 우주 기업 — 엔비디아 xAI 투자가 지분 전환으로 이어진 케이스",
@@ -1145,7 +1145,7 @@ THESIS_EN = {
     "CRWV": (
         "The AI-dedicated cloud holding the most of NVIDIA's latest GPUs",
         "An AI cloud running NVIDIA H100·B200 at massive scale — NVIDIA's strategic shareholder and top customer.",
-        "47.2M shares · 13F value $4.70B (as of 6/30) · joined 2025.03 IPO, cost undisclosed",
+        "47.2M shares · $4.70B as of 6/30 · joined 2025.03 IPO, amount not disclosed",
     ),
     "NBIS": (
         "A full-stack AI cloud deploying NVIDIA systems at scale",
@@ -1170,7 +1170,7 @@ THESIS_EN = {
     "GENB": (
         "An AI drug-discovery biotech designing novel proteins with generative AI",
         "NVIDIA's venture arm NVentures backed it at an early stage. Listed on Nasdaq in February 2026, with multiple pipelines (asthma, oncology) in clinical trials.",
-        "833,325 shares · 13F value $14.1M (as of 6/30) · NVentures investment cost undisclosed · 2026.02 Nasdaq listing",
+        "833,325 shares · $14.1M as of 6/30 · NVentures investment amount not disclosed · 2026.02 Nasdaq listing",
     ),
     "SPCX": (
         "Elon Musk's space company — NVIDIA's xAI bet that converted into an equity stake",
@@ -2666,7 +2666,7 @@ with _tab_body:
         _other_key = "invest_amt_m" if amt_key == "fmv_m" else "fmv_m"
         _excluded = [c for c in current_only if not c.get(amt_key) and c.get(_other_key)]
         if _excluded:
-            _excl_names = ", ".join(f"{c['name']} ({disp_ticker(c['ticker'], c['name'])})" for c in _excluded)
+            _excl_names = ", ".join(disp_ticker(c["ticker"], c["name"]) for c in _excluded)
             _excl_key = "basis_excl_fmv" if amt_key == "fmv_m" else "basis_excl_committed"
             st.caption(t(_excl_key) + _excl_names)
         if amt_key == "fmv_m" and any(c["ticker"] == "NBIS" for c in current_only if c.get("fmv_m")):
