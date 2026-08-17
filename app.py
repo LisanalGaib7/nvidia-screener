@@ -401,7 +401,7 @@ st.markdown("""
      대문자는 알림 배너 제목·배지 같은 눈썹 라벨에만 남겨 위계도 분리. */
   .st-key-main_tabs button[data-testid^="stBaseButton-segmented_control"],
   .st-key-main_tabs button[data-variant="segmented_control"] {
-    color: #828a94 !important;
+    color: #9aa3b0 !important;  /* 대비 7.87:1 — 탭바 전체를 '조작 요소'로 인식시키려 한 단계 밝힘 */
     font-size: 0.8125rem !important; font-weight: 500 !important;
     letter-spacing: 0 !important; text-transform: none !important;
     padding: 13px 1px !important; min-height: 44px !important;  /* 터치 타깃 하한 */
@@ -416,7 +416,7 @@ st.markdown("""
   .st-key-main_tabs button[data-variant="segmented_control"] p { color: inherit !important; font: inherit !important; }
   .st-key-main_tabs button[data-testid="stBaseButton-segmented_control"]:hover,
   .st-key-main_tabs button[data-variant="segmented_control"]:not([data-selected="true"]):hover {
-    color: #a3a9b3 !important; background: transparent !important;
+    color: #c9ced6 !important; background: transparent !important;  /* 기본색을 밝힌 만큼 hover도 위로 */
   }
   .st-key-main_tabs button[data-testid="stBaseButton-segmented_controlActive"],
   .st-key-main_tabs button[data-variant="segmented_control"][data-selected="true"] {
@@ -688,11 +688,15 @@ st.markdown("""
 
     /* ── 포트폴리오 카드 레이아웃 (모바일) ── */
     .ptable-header { display: none; }
+    /* 좌측 색 바(그룹 accent)는 뺐다 — 카드 15개가 색 3가지뿐이라 정보량 0이었고,
+       바로 위 섹션 헤더 바·카드 내 NEW/CORE 배지와 중복돼 장식으로만 소비되며
+       탭바 대비 화면 잉크를 100배 넘게 차지해 정작 조작 요소인 탭이 묻혔음(375px 실측
+       카드 바 합계 10,464px² vs 활성 탭 밑줄 105px²). 구분은 섹션 헤더+배지로 충분.
+       (--accent 변수 자체는 데스크탑 표 다른 곳에서 참조 안 해 인라인 style도 무해하게 방치) */
     .ptable-row {
       display: block !important;
       background: #0e0e0e;
       border: 1px solid #1e1e1e;
-      border-left: 3px solid var(--accent, #333);
       border-radius: 4px;
       padding: 12px 14px;
       margin-bottom: 8px;
@@ -2406,7 +2410,6 @@ recent_5 = sorted(
 )[:5]
 _cur_lang = st.session_state.lang
 if recent_5:
-    latest_year = recent_5[0].get("alert_date","")[:4]
     _alert_items = []
     for c in recent_5:
         # 배너 전용 문구가 있으면 그것을 쓰고, 없으면 note 첫 조각으로 폴백
@@ -2424,12 +2427,15 @@ if recent_5:
     items_html = "".join(_alert_items)
     st.markdown(
         f'<div class="alert-banner">'
-        f'<div class="alert-title">{"Recent Investments" if _cur_lang=="ENG" else "최신 투자 알림"}&nbsp;·&nbsp;{latest_year}</div>'
+        f'<div class="alert-title">{"Recent Investments" if _cur_lang=="ENG" else "최신 투자 알림"}</div>'
         f'{items_html}'
         f'</div>',
         unsafe_allow_html=True)
 
-st.markdown("---")  # 알림 배너 ↔ 탭 구분
+# 여기 있던 구분선(---)은 제거했다. 탭바 21px 위에 놓여 탭바 자신의 하단 헤어라인과
+# 근접 헤어라인 2개를 만들어, 탭바가 '조작 요소'가 아니라 '또 하나의 구분선'으로 읽혔음.
+# 배너와의 분리는 여백만으로 충분하다(탭바 하단 헤어라인이 콘텐츠 경계 역할).
+st.markdown('<div style="height:26px"></div>', unsafe_allow_html=True)
 
 # ── 탭 ───────────────────────────────────────────────────────────────────────
 # st.tabs는 모든 탭을 한 번에 렌더(차트 5개 동시) → 모바일 로딩 출렁임.
