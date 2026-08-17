@@ -731,6 +731,8 @@ NEW_2026 = [
         "exchange": "NASDAQ",
         "is_new_alert": True,
         "alert_date": "2026-05-07",
+        "alert_desc": "$2.1B 워런트 (최대)",
+        "alert_desc_eng": "$2.1B warrants (max)",
         "nvidia_thesis": "AI 데이터센터 5GW 구축. 워런트 방식 최대 $2.1B (30M주 @$70), 5년 $3.4B GPU 클라우드 서비스 계약 병행",
         "nvidia_thesis_eng": "5GW AI Data Center buildout. Warrant-based up to $2.1B (30M shares @$70), paired with a 5-year $3.4B GPU cloud services agreement",
         "note": "최대 $2.1B 워런트 (2026.05.07) | 5GW AI 인프라 배포 | $3.4B 클라우드 서비스 계약",
@@ -817,6 +819,8 @@ NEW_2026 = [
         "exchange": "KOSPI",
         "is_new_alert": True,
         "alert_date": "2026-07-27",
+        "alert_desc": "$1B 유상증자 (1.48조원)",
+        "alert_desc_eng": "$1B share placement (₩1.48T)",
         "nvidia_thesis": "세종 GAK 데이터센터에 엔비디아 GPU 배치, 2028년까지 200MW AI 인프라 구축. 제3자배정 유상증자 참여로 지분 4.5% 확보",
         "nvidia_thesis_eng": "NVIDIA GPUs deployed at Naver's Sejong GAK data center, scaling to 200MW AI infrastructure by 2028. NVIDIA takes a 4.5% stake via third-party share placement",
         "note": "1조 4,809억원(~$1B) 유상증자 (2026.07.27) | 7,241,564주 @204,500원 | 납입 10/30·상장 11/20 예정",
@@ -835,6 +839,8 @@ NEW_2026 = [
         "exchange": "NASDAQ",
         "is_new_alert": True,
         "alert_date": "2026-05-15",
+        "alert_desc": "지분 가치 $14.1M",
+        "alert_desc_eng": "Stake value $14.1M",
         "nvidia_thesis": "단백질 구조를 생성형 AI로 설계하는 AI 신약개발 바이오텍. NVentures(엔비디아 벤처투자) 참여, 833,325주(6/30 기준 $14.1M)",
         "nvidia_thesis_eng": "An AI drug-discovery biotech designing novel proteins with generative AI. NVentures (NVIDIA's venture arm) participation, 833,325 shares ($14.1M as of 6/30)",
         "note": "833,325주 · 6/30 기준 $14.1M | NVentures 투자 금액은 비공개 | 2026.02 나스닥 상장(GENB)",
@@ -853,6 +859,8 @@ NEW_2026 = [
         "exchange": "NASDAQ",
         "is_new_alert": True,
         "alert_date": "2026-08-14",
+        "alert_desc": "지분 가치 $21.0B, xAI 투자분 전환",
+        "alert_desc_eng": "Stake value $21.0B, converted from xAI",
         "nvidia_thesis": "2026.01 xAI 시리즈E($20B, 참여금액 비공개) 투자 → 2026.02 SpaceX·xAI 합병으로 지분이 SpaceX Class A주 1억 2,276만주로 전환. 엔비디아 2번째로 큰 보유 종목(6/30 기준 $21.0B)",
         "nvidia_thesis_eng": "Invested in xAI's $20B Series E (2026.01, NVIDIA's exact amount undisclosed) → converted to 122.76M SpaceX Class A shares via the Feb 2026 SpaceX-xAI merger. NVIDIA's 2nd-largest holding ($21.0B at 6/30)",
         "note": "$21.0B 지분 (xAI 투자분 전환) | 122,764,805주 · 6/30 기준 | 10-Q·13F 동시 공시 (2026.08.14) | xAI 투자 원금 비공개",
@@ -929,6 +937,8 @@ CURRENT_HOLDINGS = [
         "exchange": "NASDAQ",
         "is_new_alert": True,
         "alert_date": "2026-05-15",
+        "alert_desc": "지분 가치 $4.70B",
+        "alert_desc_eng": "Stake value $4.70B",
         "nvidia_thesis": "NVIDIA GPU 특화 하이퍼스케일러, H100/B200 최대 보유 AI 클라우드. 47.2M주(Q1 대비 +95% 증가, 이후 변동 없음), 6/30 기준 $4.70B",
         "nvidia_thesis_eng": "NVIDIA GPU-specialized hyperscaler, the largest H100/B200 AI cloud. 47.2M shares (+95% vs Q1, unchanged since), $4.70B as of 6/30",
         "note": "47.2M주 · 6/30 기준 $4.70B | 2025.03 IPO 참여, 투자 금액은 비공개 | NVIDIA 전략적 주주·최대 고객",
@@ -2369,9 +2379,12 @@ if recent_5:
     latest_year = recent_5[0].get("alert_date","")[:4]
     _alert_items = []
     for c in recent_5:
-        _raw = (c.get("note_eng") or c["note"]) if _cur_lang == "ENG" else c["note"]
-        # note 첫 조각에서 날짜 든 괄호 통째 제거 (비날짜 괄호 '(+95% 증가)'는 유지)
-        _desc = re.sub(r'\s*\([^)]*20\d{2}[.\-]\d[^)]*\)', '', _raw.split("|")[0].strip()).strip()
+        # 배너 전용 문구가 있으면 그것을 쓰고, 없으면 note 첫 조각으로 폴백
+        _desc = (c.get("alert_desc_eng") or c.get("alert_desc")) if _cur_lang == "ENG" else c.get("alert_desc")
+        if not _desc:
+            _raw = (c.get("note_eng") or c["note"]) if _cur_lang == "ENG" else c["note"]
+            # note 첫 조각에서 날짜 든 괄호 통째 제거 (비날짜 괄호 '(+95% 증가)'는 유지)
+            _desc = re.sub(r'\s*\([^)]*20\d{2}[.\-]\d[^)]*\)', '', _raw.split("|")[0].strip()).strip()
         _alert_items.append(
             f'<div class="alert-item">'
             f'<span class="alert-date">{c.get("alert_date","")}</span>'
