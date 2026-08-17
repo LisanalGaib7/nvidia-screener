@@ -389,23 +389,34 @@ st.markdown("""
     scrollbar-width: none !important;
   }
   .st-key-main_tabs div[data-testid="stButtonGroup"] > div[data-baseweb="button-group"]::-webkit-scrollbar { display: none !important; }
+  /* 라벨은 문장형 13px. 대문자+넓은 자간은 폭을 19% 더 먹으면서 정보를 안 늘려
+     모바일에서 뒤 두 탭이 화면 밖으로 밀려났었다(375px 가용 343 vs 필요 461).
+     대문자는 알림 배너 제목·배지 같은 눈썹 라벨에만 남겨 위계도 분리. */
   .st-key-main_tabs button[data-testid="stBaseButton-segmented_control"],
   .st-key-main_tabs button[data-testid="stBaseButton-segmented_controlActive"] {
     color: #828a94 !important;
-    font-size: 0.72rem !important; font-weight: 600 !important;
-    letter-spacing: 1.6px !important; text-transform: uppercase !important;
-    padding: 11px 2px !important;
+    font-size: 0.8125rem !important; font-weight: 500 !important;
+    letter-spacing: 0 !important; text-transform: none !important;
+    padding: 13px 1px !important; min-height: 44px !important;  /* 터치 타깃 하한 */
     background: transparent !important; border: none !important;
     border-bottom: 2px solid transparent !important;
     border-radius: 0 !important; box-shadow: none !important; white-space: nowrap !important;
     flex-shrink: 0 !important;  /* 자연 폭 유지 → 압축(글자 잘림) 대신 넘치면 가로 스크롤 */
+    position: relative !important;
     transition: color 0.2s ease, border-color 0.2s ease !important;
   }
   .st-key-main_tabs button[data-testid="stBaseButton-segmented_control"]:hover { color: #a3a9b3 !important; background: transparent !important; }
   .st-key-main_tabs button[data-testid="stBaseButton-segmented_controlActive"] {
     color: #f0f1ef !important;
+    font-weight: 600 !important;
     background: transparent !important;
     border-bottom: 2px solid #76b900 !important;
+  }
+  /* 활성 밑줄 글로우 — 버튼 자체는 box-shadow:none을 유지해야 하므로 ::after로 얹음 */
+  .st-key-main_tabs button[data-testid="stBaseButton-segmented_controlActive"]::after {
+    content: ""; position: absolute; left: 0; right: 0; bottom: -2px; height: 2px;
+    background: #76b900; box-shadow: 0 0 10px rgba(118,185,0,0.55);
+    pointer-events: none;
   }
 
   /* sector_basis 토글 — 상단 탭바(밑줄)와는 다른, 작은 필(pill) 스타일 세컨더리 필터 */
@@ -425,14 +436,12 @@ st.markdown("""
   .st-key-sector_basis button[data-testid="stBaseButton-segmented_controlActive"] {
     color: #0d0d0d !important; background: #76b900 !important; border-color: #76b900 !important;
   }
-  /* 모바일: 탭 가로 스크롤 시 우측 그라데이션으로 '더 있음' 암시 */
+  /* 모바일은 간격을 좁혀 5개를 한 화면에 (360px 가용 328 vs 간격 12px일 때 필요 321).
+     예전엔 잘린 탭을 알리려 우측에 '›' 그라데이션을 뒀는데, 이제 안 잘리므로 제거.
+     더 좁은 화면 대비 가로 스크롤(nowrap + overflow-x:auto)은 안전판으로 남겨둠. */
   @media (max-width: 640px) {
-    .st-key-main_tabs div[data-testid="stButtonGroup"]::after {
-      content: "\\203A"; position: absolute; top: 0; right: 0; bottom: 8px;
-      width: 46px; pointer-events: none; z-index: 1;
-      display: flex; align-items: center; justify-content: flex-end; padding-right: 8px;
-      color: #76b900; font-size: 22px; font-weight: 700; line-height: 1;
-      background: linear-gradient(to right, rgba(8,8,8,0), #080808 70%) !important;
+    .st-key-main_tabs div[data-testid="stButtonGroup"] > div[data-baseweb="button-group"] {
+      gap: 12px !important;
     }
   }
 
