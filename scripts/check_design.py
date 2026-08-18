@@ -38,7 +38,10 @@ DATAVIZ = {
     "#a3e635", "#f59e0b", "#8b5cf6", "#06b6d4", "#ec4899",
     "#14b8a6", "#a855f7", "#60a5fa",
 }
-ALLOWED_HEX = NEUTRALS | SEMANTIC | DATAVIZ
+# 배지 틴트 짝(badge tint pair) — SEMANTIC 색을 18% 알파 배경으로 쓸 때 그 위에서
+# 읽히는 밝은 글자색. 중복이 아니라 SEMANTIC 각 항목의 필수 짝꿍(DESIGN.md 참고).
+BADGE_TINTS = {"#4ade80", "#7ab8f5", "#f08a8a", "#a5a8f5", "#b0b8c2"}
+ALLOWED_HEX = NEUTRALS | SEMANTIC | DATAVIZ | BADGE_TINTS
 
 ALLOWED_RADII = {"3px", "6px", "10px"}
 MAX_WEIGHT = 600

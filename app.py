@@ -2396,7 +2396,7 @@ for col, label, value, color, extra_html in [
      + "".join(
          f'<div class="tooltip-row">'
          f'<span class="tooltip-ticker">{disp_ticker(c["ticker"], c["name"])}</span>'
-         f'<span class="tooltip-name" style="color:{"#76b900" if ytd>=0 else "#e05050"}">'
+         f'<span class="tooltip-name" style="color:{"#76b900" if ytd>=0 else "#e05656"}">'
          f'{"▲" if ytd>=0 else "▼"}{abs(ytd):.1f}%</span></div>'
          for c, ytd in sorted(
              [(c, stock_data[c["ticker"]].get("ytd_pct"))
@@ -2722,7 +2722,7 @@ with _tab_body:
             df_ytd = pd.DataFrame(ytd_data).sort_values("ytd", ascending=True)
             fig2 = go.Figure(go.Bar(
                 x=df_ytd["ytd"], y=df_ytd["ticker"], orientation="h",
-                marker_color=["#22c55e" if v>=0 else "#ef4444" for v in df_ytd["ytd"]],
+                marker_color=["#22c55e" if v>=0 else "#e05656" for v in df_ytd["ytd"]],
                 text=[f"{v:+.0f}%" for v in df_ytd["ytd"]], textposition="outside", cliponaxis=False,
                 textfont=dict(color="#ffffff"),
                 hoverinfo="skip",  # 막대 끝 라벨로 값이 이미 보임 → 호버 제거(소수점 버그도 해소)
@@ -2809,8 +2809,8 @@ with _tab_body:
         if sel_c:
             sd = stock_data.get(sel_t,{})
             _chg = sd.get("change_pct"); _ytd = sd.get("ytd_pct")
-            _chg_c = "#22c55e" if (_chg or 0) >= 0 else "#ef4444"
-            _ytd_c = "#22c55e" if (_ytd or 0) >= 0 else "#ef4444"
+            _chg_c = "#22c55e" if (_chg or 0) >= 0 else "#e05656"
+            _ytd_c = "#22c55e" if (_ytd or 0) >= 0 else "#e05656"
             def _metric_card(label, value_html, top_color):
                 return (f'<div style="background:#0e0e0e;border:1px solid #2a2d33;border-top:2px solid {top_color};'
                         f'border-radius: 6px;padding:16px 20px;height:100%">'
@@ -2895,7 +2895,7 @@ with _tab_body:
         _CT_PILL = {
             "new":      ("rgba(34,197,94,.16)",   "#4ade80", "rgba(34,197,94,.55)"),
             "increase": ("rgba(74,144,217,.18)",  "#7ab8f5", "rgba(74,144,217,.55)"),
-            "decrease": ("rgba(239,68,68,.18)",   "#f08a8a", "rgba(239,68,68,.55)"),
+            "decrease": ("rgba(224,86,86,.18)",   "#f08a8a", "rgba(224,86,86,.55)"),
             "exit":     ("rgba(139,148,158,.18)", "#b0b8c2", "rgba(139,148,158,.5)"),
             "hold":     ("rgba(99,102,241,.18)",  "#a5a8f5", "rgba(99,102,241,.5)"),
         }
@@ -3001,7 +3001,7 @@ with _tab_body:
 
         st.markdown(f"### {t('timeline_title')}")
         df_f = pd.DataFrame(FILINGS_HISTORY)
-        color_map  = {"new":"#22c55e","increase":"#4a90d9","decrease":"#ef4444","exit":"#6b7280","hold":"#3b82f6"}
+        color_map  = {"new":"#22c55e","increase":"#4a90d9","decrease":"#e05656","exit":"#6b7280","hold":"#3b82f6"}
         label_map  = {
             "new":      t("change_new"),
             "increase": t("change_increase"),
