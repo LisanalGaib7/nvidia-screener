@@ -213,7 +213,7 @@ st.markdown("""
   .stApp, .main, section[data-testid="stSidebar"] > div:first-child {
     background-color: #080808;
   }
-  section[data-testid="stSidebar"] { background-color: #0c0c0c; border-right: 1px solid #1a1a1a; }
+  section[data-testid="stSidebar"] { background-color: #0e0e0e; border-right: 1px solid #1a1a1a; }
 
   /* ── 사이드바 펼침 토글 (접힘 상태에서만 노출 = 주로 모바일) ── */
   /* Streamlit 1.57: 컨트롤은 button[data-testid="stExpandSidebarButton"] 자체,
@@ -223,7 +223,7 @@ st.markdown("""
   [data-testid="collapsedControl"] button {
     width: 40px !important;
     height: 40px !important;
-    border-radius: 9px !important;
+    border-radius: 10px !important;  /* radius-lg로 수렴(이전 9px) */
     background: #0e0e0e !important;
     border: 1.5px solid #76b900 !important;
     animation: sb-pulse 1.6s ease-in-out infinite;
@@ -262,9 +262,9 @@ st.markdown("""
 
   /* ── 타이포그래피 ── */
   html, body, [class*="css"] { font-family: 'Inter', 'SF Pro Display', system-ui, sans-serif; }
-  h1 { color: #f0f0f0 !important; font-size: 1.7rem !important; font-weight: 600 !important; letter-spacing: -0.5px !important; }
+  h1 { color: #f0f1ef !important; font-size: 1.7rem !important; font-weight: 600 !important; letter-spacing: -0.5px !important; }
   h2 { color: #d0d0d0 !important; font-size: 1.1rem !important; font-weight: 500 !important; letter-spacing: 0.3px !important; }
-  h3 { color: #a0a0a0 !important; font-size: 0.8rem !important; font-weight: 600 !important;
+  h3 { color: #9aa3b0 !important; font-size: 0.8rem !important; font-weight: 600 !important;
        text-transform: uppercase; letter-spacing: 1.4px !important; }
   /* 본문 단락. 이전 #606060은 대비 3.18:1로 WCAG AA(4.5:1) 미달이라 실제로 안 읽혔다.
      게다가 Streamlit은 위젯 라벨(탭·토글 텍스트)도 <p>로 감싸는데 여기 !important가
@@ -289,7 +289,7 @@ st.markdown("""
     background: #0e0e0e;
     border: 1px solid #2a2200;
     border-left: 3px solid #c87f00;
-    border-radius: 4px;
+    border-radius: 6px;
     padding: 14px 20px;
     margin-bottom: 20px;
     animation: banner-snap 0.25s cubic-bezier(0.22, 1, 0.36, 1) both;
@@ -297,32 +297,32 @@ st.markdown("""
   .alert-title { color: #c87f00; font-size: 0.7rem; font-weight: 600;
                  letter-spacing: 1.8px; text-transform: uppercase; margin: 0 0 10px; }
   .alert-item  { display: flex; align-items: baseline; gap: 10px; padding: 7px 0; font-size: 0.84rem; line-height: 1.5; }
-  .alert-item + .alert-item { border-top: 1px solid #1c1c1c; }
+  .alert-item + .alert-item { border-top: 1px solid #1a1a1a; }
   .alert-date  { color: #7a8290; font-size: 0.72rem; min-width: 82px; flex-shrink: 0; font-variant-numeric: tabular-nums; }
   .alert-co    { color: #e0e0e0; font-weight: 600; }
   .alert-desc  { color: #9aa3b0; }
 
   /* ── 배지 ── */
   .badge-core    { background: transparent; color: #4a90d9; border: 1px solid #1e3a5f;
-                   border-radius: 2px; padding: 1px 7px; font-size: 0.65rem; font-weight: 600;
+                   border-radius: 3px; padding: 1px 7px; font-size: 0.65rem; font-weight: 600;
                    letter-spacing: 1px; text-transform: uppercase; }
   .badge-new     { background: transparent; color: #c87f00; border: 1px solid #3d2600;
-                   border-radius: 2px; padding: 1px 7px; font-size: 0.65rem; font-weight: 600;
+                   border-radius: 3px; padding: 1px 7px; font-size: 0.65rem; font-weight: 600;
                    letter-spacing: 1px; text-transform: uppercase; }
   .badge-seed    { background: transparent; color: #76b900; border: 1px solid #2a3f00;
-                   border-radius: 2px; padding: 1px 7px; font-size: 0.65rem; font-weight: 600;
+                   border-radius: 3px; padding: 1px 7px; font-size: 0.65rem; font-weight: 600;
                    letter-spacing: 1px; text-transform: uppercase; }
   /* badge-watch/partner/exited 이전 색(#555/#7c5cbf/#333)은 10.4px bold라 large-text
      예외(14pt bold 이상)에 못 들어가는데 대비가 각각 2.69/3.95/1.59:1로 AA 미달이었다.
      동일 색감을 유지하면서 4.5:1 이상으로 교체(2026-08-18). */
   .badge-watch   { background: transparent; color: #828a94; border: 1px solid #222;
-                   border-radius: 2px; padding: 1px 7px; font-size: 0.65rem; font-weight: 600;
+                   border-radius: 3px; padding: 1px 7px; font-size: 0.65rem; font-weight: 600;
                    letter-spacing: 1px; text-transform: uppercase; }
   .badge-partner { background: transparent; color: #9370d8; border: 1px solid #2a1a4a;
-                   border-radius: 2px; padding: 1px 7px; font-size: 0.65rem; font-weight: 600;
+                   border-radius: 3px; padding: 1px 7px; font-size: 0.65rem; font-weight: 600;
                    letter-spacing: 1px; text-transform: uppercase; }
   .badge-exited  { background: transparent; color: #828a94; border: 1px solid #1a1a1a;
-                   border-radius: 2px; padding: 1px 7px; font-size: 0.65rem; font-weight: 600;
+                   border-radius: 3px; padding: 1px 7px; font-size: 0.65rem; font-weight: 600;
                    letter-spacing: 1px; text-transform: uppercase; text-decoration: line-through; }
 
   /* ── 수익률 색상 ── */
@@ -344,7 +344,7 @@ st.markdown("""
   /* ── 13F 공시 카드 ── */
   .filing-row {
     background: #0e0e0e;
-    border: 1px solid #181818;
+    border: 1px solid #14161a;
     border-radius: 3px;
     padding: 10px 16px;
     margin-bottom: 4px;
@@ -360,18 +360,18 @@ st.markdown("""
   div[data-testid="stMetricLabel"] { color: #828a94 !important; font-size: 0.68rem !important;
                                      text-transform: uppercase; letter-spacing: 1px; }
   div[data-testid="stMetric"] {
-    background: linear-gradient(160deg, #0f0f0f, #0b0b0b) !important;
-    border: 1px solid #1e1e1e !important;
-    border-top: 1px solid #2a2a2a !important;
-    border-radius: 4px; padding: 18px !important;
+    background: linear-gradient(160deg, #0e0e0e, #080808) !important;
+    border: 1px solid #1a1a1a !important;
+    border-top: 1px solid #2a2d33 !important;
+    border-radius: 6px; padding: 18px !important;
   }
 
   /* ── 팝오버 ── */
   div[data-testid="stPopover"] button {
     background: transparent !important;
-    border: 1px solid #2e2e2e !important;
+    border: 1px solid #2a2d33 !important;
     color: #828a94 !important;
-    border-radius: 2px !important;
+    border-radius: 3px !important;
     font-size: 0.68rem !important;
     letter-spacing: 0.8px;
     padding: 2px 8px !important;
@@ -383,9 +383,9 @@ st.markdown("""
     color: #76b900 !important;
   }
   div[data-testid="stPopoverBody"] {
-    background: #101010 !important;
-    border: 1px solid #242424 !important;
-    border-radius: 4px !important;
+    background: #0e0e0e !important;
+    border: 1px solid #20242b !important;
+    border-radius: 6px !important;
     padding: 16px !important;
     min-width: 320px !important;
     max-width: 400px !important;
@@ -434,7 +434,7 @@ st.markdown("""
   }
   .st-key-main_tabs button[data-testid="stBaseButton-segmented_control"]:hover,
   .st-key-main_tabs button[data-variant="segmented_control"]:not([data-selected="true"]):hover {
-    color: #c9ced6 !important; background: transparent !important;  /* 기본색을 밝힌 만큼 hover도 위로 */
+    color: #c3c9d1 !important; background: transparent !important;  /* 기본색을 밝힌 만큼 hover도 위로 */
   }
   .st-key-main_tabs button[data-testid="stBaseButton-segmented_controlActive"],
   .st-key-main_tabs button[data-variant="segmented_control"][data-selected="true"] {
@@ -457,7 +457,7 @@ st.markdown("""
      활성 탭 밑줄(91px²)의 29배였고, 그린이 여러 역할을 겸하며 뜻을 잃었었다. */
   .st-key-sector_basis div[data-testid="stButtonGroup"] > div[data-baseweb="button-group"],
   .st-key-sector_basis div[data-testid="stButtonGroup"] > div[role="radiogroup"] {
-    display: inline-flex !important; border: 1px solid #1c1f25 !important; background: #101216 !important;
+    display: inline-flex !important; border: 1px solid #1a1a1a !important; background: #0e0e0e !important;
     border-radius: 6px !important; gap: 2px !important; padding: 3px !important;
   }
   .st-key-sector_basis button[data-testid^="stBaseButton-segmented_control"],
@@ -465,7 +465,7 @@ st.markdown("""
     color: #9aa3b0 !important; font-size: 0.78125rem !important; font-weight: 500 !important;
     letter-spacing: 0 !important; text-transform: none !important;
     padding: 6px 13px !important; background: transparent !important;
-    border: none !important; border-radius: 4px !important;
+    border: none !important; border-radius: 6px !important;
     box-shadow: none !important; transition: color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease !important;
   }
   .st-key-sector_basis button[data-testid^="stBaseButton-segmented_control"] p,
@@ -475,12 +475,12 @@ st.markdown("""
   }
   .st-key-sector_basis button[data-testid="stBaseButton-segmented_control"]:hover,
   .st-key-sector_basis button[data-variant="segmented_control"]:not([data-selected="true"]):hover {
-    color: #c4ccd6 !important;
+    color: #c3c9d1 !important;
   }
   .st-key-sector_basis button[data-testid="stBaseButton-segmented_controlActive"],
   .st-key-sector_basis button[data-variant="segmented_control"][data-selected="true"] {
     color: #f0f1ef !important; font-weight: 600 !important;
-    background: #20242b !important; box-shadow: inset 0 0 0 1px #2b3038 !important;
+    background: #20242b !important; box-shadow: inset 0 0 0 1px #2a2d33 !important;
   }
   /* "기준" 라벨을 3차 눈썹으로 — 이전엔 14px로 토글 글자(11.5px)보다 커서 위계가 역전돼 있었음 */
   .st-key-sector_basis label[data-testid="stWidgetLabel"] p {
@@ -508,7 +508,7 @@ st.markdown("""
   /* 섹터 탭 — 데이터센터 밸류체인 흐름도 (expander 안, 파이차트 위) */
   .vc-flow { display: flex; flex-wrap: wrap; align-items: stretch; gap: 0; }
   .vc-box {
-    border: 1.5px solid; border-radius: 8px; padding: 12px 14px; min-width: 140px;
+    border: 1.5px solid; border-radius: 10px; padding: 12px 14px; min-width: 140px;  /* radius-lg로 수렴(이전 8px) */
     flex: 1 1 140px; background: rgba(255,255,255,0.015);
   }
   .vc-box-empty { border-style: dashed; }
@@ -532,60 +532,59 @@ st.markdown("""
 
   /* ── 사이드바 텍스트 ── */
   .stSidebar h2, .stSidebar h3 { color: #e0e0e0 !important; }
-  .stSidebar p, .stSidebar label { color: #909090 !important; }
-  .stSidebar li { color: #909090 !important; }
-  .stSidebar .stSelectbox label, .stSidebar .stMultiSelect label { color: #909090 !important; font-size:0.72rem !important; letter-spacing:0.8px; text-transform:uppercase; }
+  .stSidebar p, .stSidebar label { color: #828a94 !important; }
+  .stSidebar li { color: #828a94 !important; }
+  .stSidebar .stSelectbox label, .stSidebar .stMultiSelect label { color: #828a94 !important; font-size:0.72rem !important; letter-spacing:0.8px; text-transform:uppercase; }
 
   /* ── 버튼 (일반 + 다운로드 통일) ── */
   .stButton > button, .stDownloadButton > button {
-                       background: transparent !important; border: 1px solid #242424 !important;
+                       background: transparent !important; border: 1px solid #20242b !important;
                        color: #828a94 !important; border-radius: 3px !important; font-size: 0.75rem !important;
                        letter-spacing: 0.5px; transition: all 0.2s; font-weight: 400 !important; }
   .stButton > button:hover, .stDownloadButton > button:hover {
                        border-color: #76b900 !important; color: #76b900 !important; }
 
-  /* ── 언어 토글 st.pills — 선택 = 오렌지 ── */
-  [data-testid="stSidebar"] [data-testid="stPills"] {
-    gap: 6px !important;
+  /* ── 언어 토글(KOR/ENG) — 세그먼트 트랙(2026-08-18, sector_basis와 동일 어휘로 통일) ──
+     이전엔 캡슐(radius 20px) + weight 800 + 자간 2px + 선택 시 오렌지 그라디언트 풀칠로
+     금지 목록 3개(캡슐, 굵기, 자간)를 동시 위반했었다. 언어 선택은 2차 필터와 같은 성격
+     (강조 예산상 브랜드색·상태색을 안 쓰는 등급)이라 다른 토글들과 같은 트랙 스타일로 교체.
+     셀렉터는 구/신 Streamlit 버전 병기(위 segmented_control 블록 상단 주석 참고). */
+  .st-key-lang_pills [data-testid="stButtonGroup"] > div[data-baseweb="button-group"],
+  .st-key-lang_pills [data-testid="stButtonGroup"] > div[role="radiogroup"] {
+    display: inline-flex !important; border: 1px solid #1c1f25 !important; background: #14161a !important;
+    border-radius: 6px !important; gap: 2px !important; padding: 3px !important;
   }
-  [data-testid="stSidebar"] [data-testid="stPills"] button {
-    border-radius: 20px !important;
-    font-size: 0.7rem !important;
-    font-weight: 800 !important;
-    letter-spacing: 2px !important;
-    padding: 5px 18px !important;
-    transition: all 0.18s ease !important;
-    border: 1px solid #2a2a2a !important;
-    background: transparent !important;
-    color: #828a94 !important;
+  .st-key-lang_pills button[data-testid^="stBaseButton-pills"],
+  .st-key-lang_pills button[data-variant="pills"] {
+    color: #9aa3b0 !important; font-size: 0.72rem !important; font-weight: 500 !important;
+    letter-spacing: 0.3px !important; text-transform: none !important;
+    padding: 5px 14px !important; background: transparent !important;
+    border: none !important; border-radius: 6px !important;
+    box-shadow: none !important; transition: color 0.2s ease, background 0.2s ease !important;
   }
-  [data-testid="stSidebar"] [data-testid="stPills"] button:hover {
-    border-color: #c87f00 !important;
-    color: #c87f00 !important;
+  .st-key-lang_pills button[data-variant="pills"] p { color: inherit !important; font: inherit !important; }
+  .st-key-lang_pills button[data-testid="stBaseButton-pills"]:hover,
+  .st-key-lang_pills button[data-variant="pills"]:not([data-selected="true"]):hover {
+    color: #c4ccd6 !important;
   }
-  /* 선택된 pill — aria-pressed="true" or data-selected */
-  [data-testid="stSidebar"] [data-testid="stPills"] button[aria-pressed="true"],
-  [data-testid="stSidebar"] [data-testid="stPills"] button[data-selected="true"],
-  [data-testid="stSidebar"] [data-testid="stPills"] button.selected,
-  [data-testid="stSidebar"] [data-testid="stPills"] [data-active="true"] button {
-    background: linear-gradient(135deg, #d4920a, #b87000) !important;
-    border-color: #c87f00 !important;
-    color: #060606 !important;
-    box-shadow: 0 0 14px rgba(200,127,0,0.45) !important;
+  .st-key-lang_pills button[data-testid="stBaseButton-pillsActive"],
+  .st-key-lang_pills button[data-variant="pills"][data-selected="true"] {
+    color: #f0f1ef !important; font-weight: 600 !important;
+    background: #20242b !important; box-shadow: inset 0 0 0 1px #2b3038 !important;
   }
 
   /* ── 입력 필드 ── */
   .stTextInput input, .stTextArea textarea, .stSelectbox div[data-baseweb="select"] {
-    background: #0e0e0e !important; border: 1px solid #1e1e1e !important;
+    background: #0e0e0e !important; border: 1px solid #1a1a1a !important;
     border-radius: 3px !important; color: #c0c0c0 !important; font-size: 0.85rem !important; }
 
   /* ── 구분선 ── */
-  hr { border-color: #181818 !important; margin: 20px 0 !important; }
+  hr { border-color: #14161a !important; margin: 20px 0 !important; }
 
   /* ── 요약 배지 칩 ── */
   .ticker-chip {
     background: #0e0e0e;
-    border: 1px solid #1e1e1e;
+    border: 1px solid #1a1a1a;
     border-radius: 3px;
     padding: 10px 12px;
     text-align: center;
@@ -596,32 +595,32 @@ st.markdown("""
   /* ── 스크롤바 ── */
   ::-webkit-scrollbar { width: 4px; }
   ::-webkit-scrollbar-track { background: #080808; }
-  ::-webkit-scrollbar-thumb { background: #222; border-radius: 2px; }
+  ::-webkit-scrollbar-thumb { background: #222; border-radius: 3px; }
 
   /* ── 포트폴리오 테이블 (데스크탑 그리드) ── */
   .ptable-header {
     display: grid;
     grid-template-columns: 2.8fr 1fr 1.1fr 1.1fr 1.1fr 0.8fr 1.4fr;
     padding: 0 4px 8px;
-    border-bottom: 1px solid #1e1e1e;
+    border-bottom: 1px solid #1a1a1a;
     gap: 6px;
   }
-  .ptable-header > span { color: #909090; font-size: 0.8rem; font-weight: 500; }
+  .ptable-header > span { color: #828a94; font-size: 0.8rem; font-weight: 500; }
   .ptable-row {
     display: grid;
     grid-template-columns: 2.8fr 1fr 1.1fr 1.1fr 1.1fr 0.8fr 1.4fr;
     align-items: center;
     padding: 10px 4px;
-    border-bottom: 1px solid #141414;
+    border-bottom: 1px solid #14161a;
     gap: 6px;
   }
-  .ptable-row:hover { background: #0d0d0d; border-radius: 3px; }
+  .ptable-row:hover { background: #0e0e0e; border-radius: 3px; }
 
   /* detail 펼치기 버튼 */
   .pt-detail details > summary {
     color: #828a94; font-size: 0.68rem; letter-spacing: 0.8px;
-    text-transform: uppercase; border: 1px solid #2e2e2e;
-    border-radius: 2px; padding: 2px 8px; cursor: pointer;
+    text-transform: uppercase; border: 1px solid #2a2d33;
+    border-radius: 3px; padding: 2px 8px; cursor: pointer;
     list-style: none; display: inline-block; transition: all 0.15s; user-select: none;
   }
   .pt-detail details > summary::-webkit-details-marker { display: none; }
@@ -631,15 +630,15 @@ st.markdown("""
   /* pt-detail-body: 기본 숨김 */
   .pt-detail-body {
     display: none;
-    background: #101010; border: 1px solid #242424;
-    border-radius: 4px; padding: 16px 18px;
+    background: #0e0e0e; border: 1px solid #20242b;
+    border-radius: 6px; padding: 16px 18px;
     min-width: 300px; max-width: 360px;
   }
   /* detail body 내부 구조 */
   .ptd-header {
     display: flex; align-items: center; gap: 8px;
     margin-bottom: 10px; padding-bottom: 10px;
-    border-bottom: 1px solid #1e1e1e;
+    border-bottom: 1px solid #1a1a1a;
   }
   .ptd-ticker { color: #76b900; font-size: 0.85rem; font-weight: 700; letter-spacing: 0.8px; }
   .ptd-sector { color: #8b949e; font-size: 0.68rem; }
@@ -650,7 +649,7 @@ st.markdown("""
   .ptd-thesis { color: #b0b0b0; font-size: 0.8rem; line-height: 1.7; margin-bottom: 10px; }
   .ptd-summary { color: #e8e8e8; font-size: 0.85rem; font-weight: 500; line-height: 1.6; margin-bottom: 12px; }
   .ptd-footer { display: flex; justify-content: space-between; align-items: flex-start;
-                padding-top: 8px; border-top: 1px solid #1e1e1e; gap: 8px; flex-wrap: wrap; }
+                padding-top: 8px; border-top: 1px solid #1a1a1a; gap: 8px; flex-wrap: wrap; }
   .ptd-date   { color: #828a94; font-size: 0.65rem; white-space: nowrap; }
   .ptd-src    { color: #828a94; font-size: 0.62rem; text-align: right; }
 
@@ -727,8 +726,8 @@ st.markdown("""
     .ptable-row {
       display: block !important;
       background: #0e0e0e;
-      border: 1px solid #1e1e1e;
-      border-radius: 4px;
+      border: 1px solid #1a1a1a;
+      border-radius: 6px;
       padding: 12px 14px;
       margin-bottom: 8px;
     }
@@ -1705,18 +1704,18 @@ def ts_to_str(ts):
 def _quote_badge(is_live):
     """시세 행 값 — LIVE(초록)/CLOSED(회색) 배지 + Finnhub."""
     _css = ("background:rgba(118,185,0,.16);color:#9ee23a" if is_live
-            else "background:#20262e;color:#8b949e")
+            else "background:#20242b;color:#8b949e")
     return (f"<span style='font-size:10px;font-weight:600;letter-spacing:0.5px;"
             f"padding:1px 6px;border-radius:3px;margin-right:7px;{_css}'>"
             f"{'LIVE' if is_live else 'CLOSED'}</span>Finnhub")
 
 def _sidebar_data_html(quote_v, asof_date):
     """사이드바 '데이터' 섹션 = 출처+실시간 통합 블록. 폰트는 네이티브 위젯과 통일(Source Sans 상속,
-    별도 font-family 지정 안 함). 헤더=보이는 '정렬 기준'과 동일(14px·#909090·weight400). 행은
+    별도 font-family 지정 안 함). 헤더=보이는 '정렬 기준'과 동일(14px·#828a94·weight400). 행은
     13.6px(네이티브 값 '투자금액'과 동일; 값 칸 ~200px라 최장 'SEC EDGAR 13F · NVIDIA IR' 172px로
-    한 줄 OK)+nowrap. 라벨 #909090 / 값 #f9fafb. 면책=섹션 마지막 줄, 그 아래 구분선으로 버튼과 분리.
+    한 줄 OK)+nowrap. 라벨 #828a94 / 값 #f9fafb. 면책=섹션 마지막 줄, 그 아래 구분선으로 버튼과 분리.
     quote_v = 시세 행 값(HTML)."""
-    _k = "flex:0 0 56px;font-size:13.6px;color:#909090"
+    _k = "flex:0 0 56px;font-size:13.6px;color:#828a94"
     _v = ("flex:1;font-size:13.6px;color:#f9fafb;line-height:1.4;"
           "white-space:nowrap;overflow:hidden;text-overflow:ellipsis")
     def _row(k, v):
@@ -1724,13 +1723,13 @@ def _sidebar_data_html(quote_v, asof_date):
                 f"<div style='{_k}'>{k}</div><div style='{_v}'>{v}</div></div>")
     return (
         "<div>"
-        "<div style='font-size:14px;font-weight:400;color:#909090;margin:2px 0 10px'>"
+        "<div style='font-size:14px;font-weight:400;color:#828a94;margin:2px 0 10px'>"
         f"{t('sb_data_title')}</div>"
         + _row(t('sb_row_quote'), quote_v)
         + _row(t('sb_row_filing'), "SEC EDGAR 13F · NVIDIA IR")
         + _row(t('sb_row_fund'), f"{t('sb_fund_snap_v')}{asof_date}")
         + f"<div style='font-size:13.6px;color:#c87f00;margin-top:10px'>{t('sb_disclaimer')}</div>"
-        + "<hr style='border:0;border-top:0.5px solid #1b2026;margin:13px 0 2px'>"
+        + "<hr style='border:0;border-top:0.5px solid #20242b;margin:13px 0 2px'>"
         + "</div>"
     )
 
@@ -1808,17 +1807,17 @@ with st.sidebar:
         f'<div style="display:flex;gap:8px;margin-top:8px">'
         f'<a href="https://twitter.com/intent/tweet?url={_url}&text={_text}" target="_blank" '
         f'style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;'
-        f'background:#0e0e0e;border:1px solid #2a2a2a;border-radius:4px;padding:8px;'
-        f'color:#909090;font-size:0.72rem;font-weight:600;letter-spacing:0.8px;text-decoration:none;'
+        f'background:#0e0e0e;border:1px solid #2a2d33;border-radius: 6px;padding:8px;'
+        f'color:#828a94;font-size:0.72rem;font-weight:600;letter-spacing:0.8px;text-decoration:none;'
         f'transition:all 0.15s" onmouseover="this.style.borderColor=\'#e7e7e7\';this.style.color=\'#e7e7e7\'" '
-        f'onmouseout="this.style.borderColor=\'#2a2a2a\';this.style.color=\'#909090\'">'
+        f'onmouseout="this.style.borderColor=\'#2a2d33\';this.style.color=\'#828a94\'">'
         f'𝕏 &nbsp;SHARE</a>'
         f'<a href="https://t.me/share/url?url={_url}&text={_text}" target="_blank" '
         f'style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;'
-        f'background:#0e0e0e;border:1px solid #2a2a2a;border-radius:4px;padding:8px;'
-        f'color:#909090;font-size:0.72rem;font-weight:600;letter-spacing:0.8px;text-decoration:none;'
+        f'background:#0e0e0e;border:1px solid #2a2d33;border-radius: 6px;padding:8px;'
+        f'color:#828a94;font-size:0.72rem;font-weight:600;letter-spacing:0.8px;text-decoration:none;'
         f'transition:all 0.15s" onmouseover="this.style.borderColor=\'#2aabee\';this.style.color=\'#2aabee\'" '
-        f'onmouseout="this.style.borderColor=\'#2a2a2a\';this.style.color=\'#909090\'">'
+        f'onmouseout="this.style.borderColor=\'#2a2d33\';this.style.color=\'#828a94\'">'
         f'✈ &nbsp;TELEGRAM</a>'
         f'</div>',
         unsafe_allow_html=True)
@@ -2304,10 +2303,10 @@ st.markdown("""
   top: calc(100% + 8px);
   left: 0;
   z-index: 999;
-  background: #141414;
-  border: 1px solid #2a2a2a;
+  background: #14161a;
+  border: 1px solid #2a2d33;
   border-top: 2px solid #76b900;
-  border-radius: 4px;
+  border-radius: 6px;
   padding: 12px 16px;
   min-width: 200px;
   max-width: calc(100vw - 24px);  /* 모바일 viewport 초과 방지 안전판 */
@@ -2386,7 +2385,7 @@ for col, label, value, color, extra_html in [
          )
      )
      + (lambda _excl: (
-         f'<div class="tooltip-row" style="opacity:0.6;font-size:0.68rem;margin-top:4px;border-top:1px solid #2a2a2a;padding-top:6px">'
+         f'<div class="tooltip-row" style="opacity:0.6;font-size:0.68rem;margin-top:4px;border-top:1px solid #2a2d33;padding-top:6px">'
          f'{t("metric_invested_excl").format(n=len(_excl))}'
          f'</div>' if _excl else ''
        ))([c for c in all_display if c["badge"] != "exited" and not c.get("invest_amt_m") and c.get("fmv_m")])
@@ -2421,8 +2420,8 @@ for col, label, value, color, extra_html in [
      + '</div>'),
 ]:
     col.markdown(
-        f'<div class="metric-box" style="background:#0e0e0e;border:1px solid #2a2a2a;border-top:2px solid {color};'
-        f'border-radius:4px;padding:18px 20px;margin-bottom:4px">'
+        f'<div class="metric-box" style="background:#0e0e0e;border:1px solid #2a2d33;border-top:2px solid {color};'
+        f'border-radius: 6px;padding:18px 20px;margin-bottom:4px">'
         f'<div style="color:#8b949e;font-size:0.72rem;font-weight:500;letter-spacing:1.2px;'
         f'text-transform:uppercase;margin-bottom:8px">{label}</div>'
         f'<div style="color:{color};font-size:1.6rem;font-weight:600;letter-spacing:-0.5px;line-height:1">'
@@ -2517,7 +2516,7 @@ with _tab_body:
             else:                                   accent = "#4a90d9"
             st.markdown(
                 f'<div style="display:flex;align-items:center;gap:14px;margin:32px 0 18px">'
-                f'<div style="width:3px;height:22px;background:{accent};border-radius:2px;flex-shrink:0"></div>'
+                f'<div style="width:3px;height:22px;background:{accent};border-radius: 3px;flex-shrink:0"></div>'
                 f'<span style="color:#d0d0d0;font-size:0.95rem;font-weight:600;letter-spacing:0.4px">{group_title}</span>'
                 f'<div style="flex:1;height:1px;background:#1a1a1a"></div>'
                 f'</div>',
@@ -2561,17 +2560,17 @@ with _tab_body:
                     bar52_desk = (
                         f'<div style="font-size:0.68rem;color:#9aa3b0">'
                         f'{fmt_price(w52l,currency)}'
-                        f'<span style="color:#2a2a2a"> – </span>'
+                        f'<span style="color:#2a2d33"> – </span>'
                         f'{fmt_price(w52h,currency)}<br>'
-                        f'<div style="background:#1a1a1a;border-radius:2px;height:3px;margin-top:3px">'
-                        f'<div style="background:#76b900;width:{pp:.0f}%;height:3px;border-radius:2px"></div>'
+                        f'<div style="background:#1a1a1a;border-radius: 3px;height:3px;margin-top:3px">'
+                        f'<div style="background:#76b900;width:{pp:.0f}%;height:3px;border-radius: 3px"></div>'
                         f'</div></div>'
                     )
                     bar52_mob = (f'<span style="color:#76b900;font-size:0.82rem;font-weight:500">'
                                  f'{pp:.0f}%</span>'
                                  )
                 else:
-                    bar52_desk = bar52_mob = '<span style="color:#2a2a2a">—</span>'
+                    bar52_desk = bar52_mob = '<span style="color:#2a2d33">—</span>'
 
                 _thesis  = ((c.get("nvidia_thesis_eng") or c["nvidia_thesis"])
                             if lang == "ENG" else c["nvidia_thesis"])
@@ -2594,8 +2593,8 @@ with _tab_body:
                 price_h  = f'<span style="color:#c0c0c0;font-weight:500">{fmt_price(price,currency)}</span>'
                 daily_h  = fmt_pct(sd.get("change_pct"))
                 ytd_h    = fmt_pct(sd.get("ytd_pct"))
-                cap_h    = f'<span style="color:#a0a0a0">{fmt_cap(sd.get("market_cap"),currency,usdjpy,usdkrw)}</span>'
-                pe_h     = f'<span style="color:#a0a0a0">{fmt_ratio(sd.get("pe_ratio"))}</span>'
+                cap_h    = f'<span style="color:#9aa3b0">{fmt_cap(sd.get("market_cap"),currency,usdjpy,usdkrw)}</span>'
+                pe_h     = f'<span style="color:#9aa3b0">{fmt_ratio(sd.get("pe_ratio"))}</span>'
                 amt_h    = (f'<span style="color:#c87f00;font-size:0.75rem;font-weight:600">{amt}</span>'
                             if amt else "")
                 amt_big  = (f'<div style="color:#c87f00;font-size:1rem;font-weight:600;margin-bottom:10px">{amt}</div>'
@@ -2685,7 +2684,7 @@ with _tab_body:
         # 벤치마크 비교선 (NVDA 본주 · SOXX 반도체 ETF) — 점선으로 구분
         _bench_style = {
             "NVDA": ("NVDA", "#76b900"),
-            "SOXX": ("SOXX 반도체 ETF" if st.session_state.lang=="KOR" else "SOXX (Semis ETF)", "#888888"),
+            "SOXX": ("SOXX 반도체 ETF" if st.session_state.lang=="KOR" else "SOXX (Semis ETF)", "#828a94"),
         }
         for _btk, (_blabel, _bcolor) in _bench_style.items():
             _bq = benchmarks.get(_btk)
@@ -2708,7 +2707,7 @@ with _tab_body:
         _legend = (dict(bgcolor="rgba(31,41,55,0.5)", orientation="h", yanchor="top", y=-0.12, x=0, font=dict(size=10))
                    if is_mobile else
                    dict(bgcolor="rgba(31,41,55,0.3)", orientation="v", yanchor="top", y=1, xanchor="left", x=1.01, font=dict(size=11)))
-        fig.update_layout(template="plotly_dark", paper_bgcolor="#111827", plot_bgcolor="#111827",
+        fig.update_layout(template="plotly_dark", paper_bgcolor="#1a1a1a", plot_bgcolor="#1a1a1a",
                           height=520, yaxis_title="YTD Return (%)" if st.session_state.lang=="ENG" else "YTD 수익률 (%)",
                           yaxis_ticksuffix="%", yaxis_hoverformat="+.0f",
                           legend=_legend, dragmode=False,
@@ -2728,7 +2727,7 @@ with _tab_body:
                 textfont=dict(color="#ffffff"),
                 hoverinfo="skip",  # 막대 끝 라벨로 값이 이미 보임 → 호버 제거(소수점 버그도 해소)
             ))
-            fig2.update_layout(template="plotly_dark", paper_bgcolor="#111827", plot_bgcolor="#111827",
+            fig2.update_layout(template="plotly_dark", paper_bgcolor="#1a1a1a", plot_bgcolor="#1a1a1a",
                                 height=max(300,len(df_ytd)*38), xaxis_title="YTD (%)",
                                 xaxis_hoverformat="+.0f", dragmode=False,
                                 margin=dict(l=0,r=60,t=10,b=0))
@@ -2779,7 +2778,7 @@ with _tab_body:
                 text=[_fmt_amt(sc_raw[g]) for g in grps],
                 customdata=[sc_cnt[g] for g in grps],
                 hovertemplate=f"%{{label}}<br>%{{text}} · %{{customdata}}{_holdings_word}<extra></extra>"))
-            fig3.update_layout(template="plotly_dark",paper_bgcolor="#111827",
+            fig3.update_layout(template="plotly_dark",paper_bgcolor="#1a1a1a",
                 title=t("sector_count"),title_font_color="#f9fafb",height=420, dragmode=False,
                 legend=dict(orientation="h",y=-0.05,x=0.5,xanchor="center",font=dict(size=10)),
                 margin=dict(l=0,r=0,t=40,b=0))
@@ -2793,7 +2792,7 @@ with _tab_body:
                     hole=0.4, textposition="inside", textinfo="percent",
                     text=[_fmt_amt(a) for a in amts],
                     hovertemplate="%{label}<br>%{text}<extra></extra>"))
-                fig4.update_layout(template="plotly_dark",paper_bgcolor="#111827",
+                fig4.update_layout(template="plotly_dark",paper_bgcolor="#1a1a1a",
                     title=t("sector_invest"),title_font_color="#f9fafb",height=420, dragmode=False,
                     legend=dict(orientation="h",y=-0.05,x=0.5,xanchor="center",font=dict(size=10)),
                     margin=dict(l=0,r=0,t=40,b=0))
@@ -2813,8 +2812,8 @@ with _tab_body:
             _chg_c = "#22c55e" if (_chg or 0) >= 0 else "#ef4444"
             _ytd_c = "#22c55e" if (_ytd or 0) >= 0 else "#ef4444"
             def _metric_card(label, value_html, top_color):
-                return (f'<div style="background:#0e0e0e;border:1px solid #2a2a2a;border-top:2px solid {top_color};'
-                        f'border-radius:4px;padding:16px 20px;height:100%">'
+                return (f'<div style="background:#0e0e0e;border:1px solid #2a2d33;border-top:2px solid {top_color};'
+                        f'border-radius: 6px;padding:16px 20px;height:100%">'
                         f'<div style="color:#8b949e;font-size:0.7rem;font-weight:600;letter-spacing:1.2px;'
                         f'text-transform:uppercase;margin-bottom:8px">{label}</div>'
                         f'<div style="font-size:1.7rem;font-weight:600;letter-spacing:-0.5px;line-height:1">{value_html}</div>'
@@ -2847,7 +2846,7 @@ with _tab_body:
                 st.markdown(f"""<div class="news-card">
                   <div class="news-title">{lk}{title}{lke}</div>
                   <div class="news-meta">{pub_str} · {provider}</div>
-                  {"<div style='color:#9ca3af;font-size:0.8rem;margin-top:4px'>" + summary[:160] + "…</div>" if summary else ""}
+                  {"<div style='color:#9aa3b0;font-size:0.8rem;margin-top:4px'>" + summary[:160] + "…</div>" if summary else ""}
                 </div>""", unsafe_allow_html=True)
             if shown == 0: st.info(t("no_news"))
 
@@ -2904,7 +2903,7 @@ with _tab_body:
         _ct_show = ["new", "increase", "decrease", "exit"]
         # 변동 유형 필 색상 동적 주입: key 기반 .st-key-f13_types 스코프, 모양=카드 배지와 동일(4px), 위치(nth)별 켜짐색·공통 꺼짐색
         _pill_css = ("<style>"
-            ".st-key-f13_types [data-testid='stButtonGroup'] button{border-radius:4px !important;}"
+            ".st-key-f13_types [data-testid='stButtonGroup'] button{border-radius: 6px !important;}"
             # 좁은 필터 열: 줄바꿈 허용 + 자연폭(라벨 truncation 방지)
             ".st-key-f13_types [data-testid='stButtonGroup']>div[class]{flex-wrap:wrap !important;gap:6px !important;}"
             ".st-key-f13_types [data-testid='stButtonGroup'] button{flex:0 0 auto !important;max-width:none !important;}"
@@ -2914,7 +2913,7 @@ with _tab_body:
             # 떨어졌었다(2026-08-18). 배경은 어둡게, 글자는 text-meta로 개별 지정해 대비 확보(5.6:1).
             ".st-key-f13_types button[data-testid='stBaseButton-pills'],"
             ".st-key-f13_types button[data-variant='pills']:not([data-selected='true']){"
-            "background:#0c0c0c !important;border-color:#1f1f1f !important;}"
+            "background:#0e0e0e !important;border-color:#1a1a1a !important;}"
             ".st-key-f13_types button[data-testid='stBaseButton-pills'] p,"
             ".st-key-f13_types button[data-variant='pills']:not([data-selected='true']) p{color:#828a94 !important;}")
         for _i, _k in enumerate(_ct_show, start=1):
@@ -2973,7 +2972,7 @@ with _tab_body:
             amt_html = (f'<span style="margin-left:auto;flex-shrink:0;color:{amt_color};'
                         f'font-weight:700;font-size:0.95rem">{amt}</span>') if amt else ""
             detail = (f.get("change_eng") or f["change"]) if st.session_state.lang == "ENG" else f["change"]
-            detail_html = (f'<span style="color:#c4ccd6;font-size:0.82rem">{detail}</span>'
+            detail_html = (f'<span style="color:#c3c9d1;font-size:0.82rem">{detail}</span>'
                            if detail else "<span></span>")
             # 13F 보고 기준 분기가 있는 행만 "Q2 2026 기준" 식으로 붙임 — 없으면 공시일만
             # ("Q2 2026 · 2026-08-14"처럼 라벨 없이 붙이면 분기·날짜 관계가 안 읽혀 오독 유발).
@@ -2987,7 +2986,7 @@ with _tab_body:
                 # 1줄: 배지 · 회사(티커) ······ 금액
                 f'<div style="display:flex;align-items:baseline;gap:10px">'
                 f'<span style="flex-shrink:0;background:{pill_bg};color:{pill_tx};font-size:0.7rem;'
-                f'font-weight:600;padding:2px 8px;border-radius:4px">{badge}</span>'
+                f'font-weight:600;padding:2px 8px;border-radius: 6px">{badge}</span>'
                 f'<span style="color:#f9fafb;font-weight:600;font-size:0.95rem">{f["company"]} ({disp_ticker(f["ticker"], f["company"])})</span>'
                 f'{amt_html}'
                 f'</div>'
@@ -3015,14 +3014,14 @@ with _tab_body:
             fig6.add_trace(go.Scatter(
                 x=grp["filed"], y=grp["company"], mode="markers",
                 name=label_map.get(ct, ct),
-                marker=dict(color=color_map.get(ct, "#9ca3af"), size=14, symbol="circle"),
+                marker=dict(color=color_map.get(ct, "#9aa3b0"), size=14, symbol="circle"),
                 customdata=grp["quarter"].fillna(""),  # 13F 아닌 행은 quarter 없음 → NaN 대신 빈 문자열
                 hovertemplate="<b>%{y}</b><br>%{x}<br>%{customdata}<extra></extra>",
             ))
         fig6.update_layout(
-            template="plotly_dark", paper_bgcolor="#111827", plot_bgcolor="#111827",
+            template="plotly_dark", paper_bgcolor="#1a1a1a", plot_bgcolor="#1a1a1a",
             height=500, xaxis_title=t("filings_xaxis"), dragmode=False,
-            legend=dict(bgcolor="#1f2937", orientation="h", y=1.12,
+            legend=dict(bgcolor="#20242b", orientation="h", y=1.12,
                         itemsizing="constant", traceorder="normal"),
             margin=dict(l=0, r=0, t=40, b=0),
         )
@@ -3138,7 +3137,7 @@ with st.expander("Admin", expanded=False):
                     <div class="news-card">
                       <div style="display:flex;justify-content:space-between">
                         <span style="color:#f9fafb;font-weight:600">{_cat}</span>
-                        <span style="color:#9ca3af;font-size:0.78rem">{_time} · {_name}</span>
+                        <span style="color:#9aa3b0;font-size:0.78rem">{_time} · {_name}</span>
                       </div>
                       <div style="color:#fbbf24;font-size:0.85rem;margin:4px 0">{stars}</div>
                       <div style="color:#d1d5db;font-size:0.88rem">{_text}</div>
