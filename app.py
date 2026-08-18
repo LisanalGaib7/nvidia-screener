@@ -263,7 +263,7 @@ st.markdown("""
   /* ── 타이포그래피 ── */
   html, body, [class*="css"] { font-family: 'Inter', 'SF Pro Display', system-ui, sans-serif; }
   h1 { color: #f0f1ef !important; font-size: 1.7rem !important; font-weight: 600 !important; letter-spacing: -0.5px !important; }
-  h2 { color: #d0d0d0 !important; font-size: 1.1rem !important; font-weight: 500 !important; letter-spacing: 0.3px !important; }
+  h2 { color: #c3c9d1 !important; font-size: 1.1rem !important; font-weight: 500 !important; letter-spacing: 0.3px !important; }
   h3 { color: #9aa3b0 !important; font-size: 0.8rem !important; font-weight: 600 !important;
        text-transform: uppercase; letter-spacing: 1.4px !important; }
   /* 본문 단락. 이전 #606060은 대비 3.18:1로 WCAG AA(4.5:1) 미달이라 실제로 안 읽혔다.
@@ -273,7 +273,7 @@ st.markdown("""
   p, .stMarkdown p { color: #9aa3b0 !important; font-size: 0.88rem; line-height: 1.6; }
 
   /* ── 강조 텍스트 ── */
-  .txt-primary   { color: #e8e8e8; }
+  .txt-primary   { color: #f0f1ef; }
   .txt-secondary { color: #9aa3b0; }
   .txt-accent    { color: #76b900; font-weight: 600; }
   .txt-gold      { color: #c87f00; font-weight: 600; }
@@ -298,8 +298,8 @@ st.markdown("""
                  letter-spacing: 1.8px; text-transform: uppercase; margin: 0 0 10px; }
   .alert-item  { display: flex; align-items: baseline; gap: 10px; padding: 7px 0; font-size: 0.84rem; line-height: 1.5; }
   .alert-item + .alert-item { border-top: 1px solid #1a1a1a; }
-  .alert-date  { color: #7a8290; font-size: 0.72rem; min-width: 82px; flex-shrink: 0; font-variant-numeric: tabular-nums; }
-  .alert-co    { color: #e0e0e0; font-weight: 600; }
+  .alert-date  { color: #828a94; font-size: 0.72rem; min-width: 82px; flex-shrink: 0; font-variant-numeric: tabular-nums; }
+  .alert-co    { color: #f0f1ef; font-weight: 600; }
   .alert-desc  { color: #9aa3b0; }
 
   /* ── 배지 ── */
@@ -338,7 +338,7 @@ st.markdown("""
     padding: 12px 16px;
     margin-bottom: 6px;
   }
-  .news-title { color: #d0d0d0; font-size: 0.88rem; font-weight: 500; line-height: 1.4; }
+  .news-title { color: #c3c9d1; font-size: 0.88rem; font-weight: 500; line-height: 1.4; }
   .news-meta  { color: #828a94; font-size: 0.72rem; margin-top: 4px; letter-spacing: 0.3px; }
 
   /* ── 13F 공시 카드 ── */
@@ -521,7 +521,7 @@ st.markdown("""
   .vc-arrow { align-self: center; flex: 0 0 auto; width: 28px; height: 20px; position: relative; }
   .vc-arrow::after {
     content: "\\2192"; position: absolute; left: 50%; top: 50%;
-    transform: translate(-50%, -50%); color: #8b93a0; font-size: 16px;
+    transform: translate(-50%, -50%); color: #828a94; font-size: 16px;
   }
   @media (max-width: 640px) {
     .vc-flow { flex-direction: column; }
@@ -531,7 +531,7 @@ st.markdown("""
   }
 
   /* ── 사이드바 텍스트 ── */
-  .stSidebar h2, .stSidebar h3 { color: #e0e0e0 !important; }
+  .stSidebar h2, .stSidebar h3 { color: #f0f1ef !important; }
   .stSidebar p, .stSidebar label { color: #828a94 !important; }
   .stSidebar li { color: #828a94 !important; }
   .stSidebar .stSelectbox label, .stSidebar .stMultiSelect label { color: #828a94 !important; font-size:0.72rem !important; letter-spacing:0.8px; text-transform:uppercase; }
@@ -565,7 +565,7 @@ st.markdown("""
   .st-key-lang_pills button[data-variant="pills"] p { color: inherit !important; font: inherit !important; }
   .st-key-lang_pills button[data-testid="stBaseButton-pills"]:hover,
   .st-key-lang_pills button[data-variant="pills"]:not([data-selected="true"]):hover {
-    color: #c4ccd6 !important;
+    color: #c3c9d1 !important;
   }
   .st-key-lang_pills button[data-testid="stBaseButton-pillsActive"],
   .st-key-lang_pills button[data-variant="pills"][data-selected="true"] {
@@ -576,7 +576,7 @@ st.markdown("""
   /* ── 입력 필드 ── */
   .stTextInput input, .stTextArea textarea, .stSelectbox div[data-baseweb="select"] {
     background: #0e0e0e !important; border: 1px solid #1a1a1a !important;
-    border-radius: 3px !important; color: #c0c0c0 !important; font-size: 0.85rem !important; }
+    border-radius: 3px !important; color: #c3c9d1 !important; font-size: 0.85rem !important; }
 
   /* ── 구분선 ── */
   hr { border-color: #14161a !important; margin: 20px 0 !important; }
@@ -646,8 +646,8 @@ st.markdown("""
                 letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 4px; }
   .ptd-amount { color: #c87f00; font-size: 1.05rem; font-weight: 600; margin-bottom: 2px; }
   .ptd-fmv-note { color: #828a94; font-size: 0.62rem; margin-bottom: 10px; }
-  .ptd-thesis { color: #b0b0b0; font-size: 0.8rem; line-height: 1.7; margin-bottom: 10px; }
-  .ptd-summary { color: #e8e8e8; font-size: 0.85rem; font-weight: 500; line-height: 1.6; margin-bottom: 12px; }
+  .ptd-thesis { color: #9aa3b0; font-size: 0.8rem; line-height: 1.7; margin-bottom: 10px; }
+  .ptd-summary { color: #f0f1ef; font-size: 0.85rem; font-weight: 500; line-height: 1.6; margin-bottom: 12px; }
   .ptd-footer { display: flex; justify-content: space-between; align-items: flex-start;
                 padding-top: 8px; border-top: 1px solid #1a1a1a; gap: 8px; flex-wrap: wrap; }
   .ptd-date   { color: #828a94; font-size: 0.65rem; white-space: nowrap; }
@@ -1713,10 +1713,10 @@ def _sidebar_data_html(quote_v, asof_date):
     """사이드바 '데이터' 섹션 = 출처+실시간 통합 블록. 폰트는 네이티브 위젯과 통일(Source Sans 상속,
     별도 font-family 지정 안 함). 헤더=보이는 '정렬 기준'과 동일(14px·#828a94·weight400). 행은
     13.6px(네이티브 값 '투자금액'과 동일; 값 칸 ~200px라 최장 'SEC EDGAR 13F · NVIDIA IR' 172px로
-    한 줄 OK)+nowrap. 라벨 #828a94 / 값 #f9fafb. 면책=섹션 마지막 줄, 그 아래 구분선으로 버튼과 분리.
+    한 줄 OK)+nowrap. 라벨 #828a94 / 값 #f0f1ef. 면책=섹션 마지막 줄, 그 아래 구분선으로 버튼과 분리.
     quote_v = 시세 행 값(HTML)."""
     _k = "flex:0 0 56px;font-size:13.6px;color:#828a94"
-    _v = ("flex:1;font-size:13.6px;color:#f9fafb;line-height:1.4;"
+    _v = ("flex:1;font-size:13.6px;color:#f0f1ef;line-height:1.4;"
           "white-space:nowrap;overflow:hidden;text-overflow:ellipsis")
     def _row(k, v):
         return (f"<div style='display:flex;align-items:baseline;gap:8px;margin:8px 0'>"
@@ -1809,7 +1809,7 @@ with st.sidebar:
         f'style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;'
         f'background:#0e0e0e;border:1px solid #2a2d33;border-radius: 6px;padding:8px;'
         f'color:#828a94;font-size:0.72rem;font-weight:600;letter-spacing:0.8px;text-decoration:none;'
-        f'transition:all 0.15s" onmouseover="this.style.borderColor=\'#e7e7e7\';this.style.color=\'#e7e7e7\'" '
+        f'transition:all 0.15s" onmouseover="this.style.borderColor=\'#f0f1ef\';this.style.color=\'#f0f1ef\'" '
         f'onmouseout="this.style.borderColor=\'#2a2d33\';this.style.color=\'#828a94\'">'
         f'𝕏 &nbsp;SHARE</a>'
         f'<a href="https://t.me/share/url?url={_url}&text={_text}" target="_blank" '
@@ -2517,7 +2517,7 @@ with _tab_body:
             st.markdown(
                 f'<div style="display:flex;align-items:center;gap:14px;margin:32px 0 18px">'
                 f'<div style="width:3px;height:22px;background:{accent};border-radius: 3px;flex-shrink:0"></div>'
-                f'<span style="color:#d0d0d0;font-size:0.95rem;font-weight:600;letter-spacing:0.4px">{group_title}</span>'
+                f'<span style="color:#c3c9d1;font-size:0.95rem;font-weight:600;letter-spacing:0.4px">{group_title}</span>'
                 f'<div style="flex:1;height:1px;background:#1a1a1a"></div>'
                 f'</div>',
                 unsafe_allow_html=True)
@@ -2590,7 +2590,7 @@ with _tab_body:
                 else:
                     _thesis_html = ('<div class="ptd-label">WHY NVIDIA</div>'
                                     f'<div class="ptd-thesis">{_thesis}</div>')
-                price_h  = f'<span style="color:#c0c0c0;font-weight:500">{fmt_price(price,currency)}</span>'
+                price_h  = f'<span style="color:#c3c9d1;font-weight:500">{fmt_price(price,currency)}</span>'
                 daily_h  = fmt_pct(sd.get("change_pct"))
                 ytd_h    = fmt_pct(sd.get("ytd_pct"))
                 cap_h    = f'<span style="color:#9aa3b0">{fmt_cap(sd.get("market_cap"),currency,usdjpy,usdkrw)}</span>'
@@ -2608,7 +2608,7 @@ with _tab_body:
                 row_html = (
                     f'<div class="ptable-row" style="--accent:{accent}">'
                     f'<div class="pt-company">'
-                    f'<div><span style="color:#e8e8e8;font-weight:500">{c["name"]}</span>'
+                    f'<div><span style="color:#f0f1ef;font-weight:500">{c["name"]}</span>'
                     f'<span style="color:#9aa3b0;font-size:0.75rem;margin-left:6px">{disp_ticker(ticker, c["name"])}</span></div>'
                     f'<div style="display:flex;align-items:center;flex-wrap:wrap;gap:5px;margin-top:4px">'
                     f'{_badge}<span style="color:#9aa3b0;font-size:0.7rem">{_sector}</span>{amt_h}</div>'
@@ -2651,7 +2651,7 @@ with _tab_body:
             _hint = ("Showing key holdings. Tap a legend item to add/remove; double-tap to isolate one." if is_mobile
                      else "Tap a legend item to show/hide it; double-click to view only that one.")
         st.markdown(
-            f'<div style="color:#e5e7eb;font-size:0.85rem;margin:-6px 0 10px">{_hint}</div>',
+            f'<div style="color:#f0f1ef;font-size:0.85rem;margin:-6px 0 10px">{_hint}</div>',
             unsafe_allow_html=True)
         # 파트너십(지분 없음)은 수익률 차트에서 제외 — NVIDIA 실제 보유분만
         chart_items = [c for c in all_display
@@ -2702,7 +2702,7 @@ with _tab_body:
                 line=dict(color=_bcolor, width=2, dash="dot"),
                 hovertemplate=f"<b>{_blabel}</b><br>%{{y:+.0f}}%<extra></extra>",
             ))
-        fig.add_hline(y=0, line_dash="dash", line_color="#6b7280", annotation_text="0%")
+        fig.add_hline(y=0, line_dash="dash", line_color="#828a94", annotation_text="0%")
         # 범례: 데스크톱=우측 세로 / 모바일=하단 가로(티커라 자동 여러 열)
         _legend = (dict(bgcolor="rgba(31,41,55,0.5)", orientation="h", yanchor="top", y=-0.12, x=0, font=dict(size=10))
                    if is_mobile else
@@ -2724,7 +2724,7 @@ with _tab_body:
                 x=df_ytd["ytd"], y=df_ytd["ticker"], orientation="h",
                 marker_color=["#22c55e" if v>=0 else "#e05656" for v in df_ytd["ytd"]],
                 text=[f"{v:+.0f}%" for v in df_ytd["ytd"]], textposition="outside", cliponaxis=False,
-                textfont=dict(color="#ffffff"),
+                textfont=dict(color="#f0f1ef"),
                 hoverinfo="skip",  # 막대 끝 라벨로 값이 이미 보임 → 호버 제거(소수점 버그도 해소)
             ))
             fig2.update_layout(template="plotly_dark", paper_bgcolor="#1a1a1a", plot_bgcolor="#1a1a1a",
@@ -2773,13 +2773,13 @@ with _tab_body:
             # customdata는 pie trace에서 중첩 배열 인덱싱(%{customdata[0]})이 해석 안 되는 Plotly 3.x
             # 버그가 있어 평면 배열만 사용 — 금액은 text에 미리 포맷해 넣음.
             fig3 = go.Figure(go.Pie(labels=sc_labels, values=[sc_raw[g] for g in grps],
-                marker_colors=[CAT_COLORS.get(g,"#6b7280") for g in grps], hole=0.4,
+                marker_colors=[CAT_COLORS.get(g,"#828a94") for g in grps], hole=0.4,
                 textposition="inside", textinfo="percent",
                 text=[_fmt_amt(sc_raw[g]) for g in grps],
                 customdata=[sc_cnt[g] for g in grps],
                 hovertemplate=f"%{{label}}<br>%{{text}} · %{{customdata}}{_holdings_word}<extra></extra>"))
             fig3.update_layout(template="plotly_dark",paper_bgcolor="#1a1a1a",
-                title=t("sector_count"),title_font_color="#f9fafb",height=420, dragmode=False,
+                title=t("sector_count"),title_font_color="#f0f1ef",height=420, dragmode=False,
                 legend=dict(orientation="h",y=-0.05,x=0.5,xanchor="center",font=dict(size=10)),
                 margin=dict(l=0,r=0,t=40,b=0))
             st.plotly_chart(fig3, use_container_width=True, config=PLOTLY_CFG)
@@ -2793,7 +2793,7 @@ with _tab_body:
                     text=[_fmt_amt(a) for a in amts],
                     hovertemplate="%{label}<br>%{text}<extra></extra>"))
                 fig4.update_layout(template="plotly_dark",paper_bgcolor="#1a1a1a",
-                    title=t("sector_invest"),title_font_color="#f9fafb",height=420, dragmode=False,
+                    title=t("sector_invest"),title_font_color="#f0f1ef",height=420, dragmode=False,
                     legend=dict(orientation="h",y=-0.05,x=0.5,xanchor="center",font=dict(size=10)),
                     margin=dict(l=0,r=0,t=40,b=0))
                 st.plotly_chart(fig4, use_container_width=True, config=PLOTLY_CFG)
@@ -2821,7 +2821,7 @@ with _tab_body:
             n1,n2,n3 = st.columns(3)
             with n1:
                 st.markdown(_metric_card(t("news_price"),
-                    f'<span style="color:#e8e8e8">{fmt_price(sd.get("price"), sd.get("currency","USD"))}</span>',
+                    f'<span style="color:#f0f1ef">{fmt_price(sd.get("price"), sd.get("currency","USD"))}</span>',
                     "#76b900"), unsafe_allow_html=True)
             with n2:
                 st.markdown(_metric_card(t("news_daily"), fmt_pct(_chg), _chg_c), unsafe_allow_html=True)
@@ -2862,10 +2862,10 @@ with _tab_body:
             border-radius: 10px !important;
             background: rgba(255,255,255,0.025) !important;
           }
-          [data-testid="stExpander"] [data-testid="stWidgetLabel"] p { color: #e5e7eb !important; font-weight: 500 !important; }
-          [data-testid="stExpander"] button[data-testid="stBaseButton-secondary"] p { color: #e5e7eb !important; font-weight: 500 !important; }
-          .f13-filter-title { color:#e5e7eb; font-weight:600; font-size:0.95rem; margin:0 0 8px; }
-          [data-testid="stWidgetLabel"] p { color:#cbd5e1 !important; }
+          [data-testid="stExpander"] [data-testid="stWidgetLabel"] p { color: #f0f1ef !important; font-weight: 500 !important; }
+          [data-testid="stExpander"] button[data-testid="stBaseButton-secondary"] p { color: #f0f1ef !important; font-weight: 500 !important; }
+          .f13-filter-title { color:#f0f1ef; font-weight:600; font-size:0.95rem; margin:0 0 8px; }
+          [data-testid="stWidgetLabel"] p { color:#c3c9d1 !important; }
           @media (min-width: 769px) {
             /* 필터 열(=제목 칩 보유 열)만 sticky — 긴 카드 리스트 스크롤 시 따라옴. 다른 컬럼 비영향 */
             div[data-testid="stColumn"]:has(.f13-filter-title) {
@@ -2987,7 +2987,7 @@ with _tab_body:
                 f'<div style="display:flex;align-items:baseline;gap:10px">'
                 f'<span style="flex-shrink:0;background:{pill_bg};color:{pill_tx};font-size:0.7rem;'
                 f'font-weight:600;padding:2px 8px;border-radius: 6px">{badge}</span>'
-                f'<span style="color:#f9fafb;font-weight:600;font-size:0.95rem">{f["company"]} ({disp_ticker(f["ticker"], f["company"])})</span>'
+                f'<span style="color:#f0f1ef;font-weight:600;font-size:0.95rem">{f["company"]} ({disp_ticker(f["ticker"], f["company"])})</span>'
                 f'{amt_html}'
                 f'</div>'
                 # 2줄: 설명(좌) ····· 분기·날짜(우)
@@ -3001,7 +3001,7 @@ with _tab_body:
 
         st.markdown(f"### {t('timeline_title')}")
         df_f = pd.DataFrame(FILINGS_HISTORY)
-        color_map  = {"new":"#22c55e","increase":"#4a90d9","decrease":"#e05656","exit":"#6b7280","hold":"#3b82f6"}
+        color_map  = {"new":"#22c55e","increase":"#4a90d9","decrease":"#e05656","exit":"#828a94","hold":"#3b82f6"}
         label_map  = {
             "new":      t("change_new"),
             "increase": t("change_increase"),
@@ -3136,11 +3136,11 @@ with st.expander("Admin", expanded=False):
                     st.markdown(f"""
                     <div class="news-card">
                       <div style="display:flex;justify-content:space-between">
-                        <span style="color:#f9fafb;font-weight:600">{_cat}</span>
+                        <span style="color:#f0f1ef;font-weight:600">{_cat}</span>
                         <span style="color:#9aa3b0;font-size:0.78rem">{_time} · {_name}</span>
                       </div>
                       <div style="color:#fbbf24;font-size:0.85rem;margin:4px 0">{stars}</div>
-                      <div style="color:#d1d5db;font-size:0.88rem">{_text}</div>
+                      <div style="color:#c3c9d1;font-size:0.88rem">{_text}</div>
                     </div>""", unsafe_allow_html=True)
 
 # ── 푸터 ─────────────────────────────────────────────────────────────────────
