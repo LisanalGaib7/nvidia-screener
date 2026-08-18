@@ -53,6 +53,9 @@ ALLOWED_HEX = (NEUTRALS | SEMANTIC | DATAVIZ | BADGE_TINTS | BADGE_BORDER_TINTS
 
 ALLOWED_RADII = {"3px", "6px", "10px"}
 MAX_WEIGHT = 600
+# 자간 3단계(0/0.3/0.8px) + 광학 보정 예외(-0.5px, 대형 숫자·h1) +
+# 브랜드 워드마크 예외(1px, .nv-title — 픽셀 폰트 가독성, DESIGN.md 참고)
+ALLOWED_SPACING = {"0", "0.3px", "0.8px", "-0.5px", "1px"}
 
 
 def to6(h: str) -> str:
@@ -123,7 +126,13 @@ def main() -> int:
     if bad_radii:
         problems.append(f"[반경 위반] {bad_radii} — 허용값 {sorted(ALLOWED_RADII)}만 사용")
 
-    # 5) 캡슐(半-height) 힌트 — radius가 padding 높이의 절반 이상으로 보이는 큰 값
+    # 5) 자간 스케일 밖 값
+    spacings = {s.rstrip(".") for s in re.findall(r"letter-spacing:\s*(-?\.?\d+(?:\.\d+)?px|0)\b", src)}
+    bad_spacing = sorted(spacings - ALLOWED_SPACING)
+    if bad_spacing:
+        problems.append(f"[자간 위반] {bad_spacing} — 허용값 {sorted(ALLOWED_SPACING)}만 사용")
+
+    # 6) 캡슐(半-height) 힌트 — radius가 padding 높이의 절반 이상으로 보이는 큰 값
     capsule_like = re.findall(r"border-radius:\s*(1[2-9]\d?px|[2-9]\d\dpx)", src)
     if capsule_like:
         problems.append(f"[캡슐 의심] border-radius {sorted(set(capsule_like))} — 2차 이하 컨트롤 금지 대상인지 확인")
