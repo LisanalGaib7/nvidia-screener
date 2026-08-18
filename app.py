@@ -312,13 +312,16 @@ st.markdown("""
   .badge-seed    { background: transparent; color: #76b900; border: 1px solid #2a3f00;
                    border-radius: 2px; padding: 1px 7px; font-size: 0.65rem; font-weight: 600;
                    letter-spacing: 1px; text-transform: uppercase; }
-  .badge-watch   { background: transparent; color: #555; border: 1px solid #222;
+  /* badge-watch/partner/exited 이전 색(#555/#7c5cbf/#333)은 10.4px bold라 large-text
+     예외(14pt bold 이상)에 못 들어가는데 대비가 각각 2.69/3.95/1.59:1로 AA 미달이었다.
+     동일 색감을 유지하면서 4.5:1 이상으로 교체(2026-08-18). */
+  .badge-watch   { background: transparent; color: #828a94; border: 1px solid #222;
                    border-radius: 2px; padding: 1px 7px; font-size: 0.65rem; font-weight: 600;
                    letter-spacing: 1px; text-transform: uppercase; }
-  .badge-partner { background: transparent; color: #7c5cbf; border: 1px solid #2a1a4a;
+  .badge-partner { background: transparent; color: #9370d8; border: 1px solid #2a1a4a;
                    border-radius: 2px; padding: 1px 7px; font-size: 0.65rem; font-weight: 600;
                    letter-spacing: 1px; text-transform: uppercase; }
-  .badge-exited  { background: transparent; color: #333; border: 1px solid #1a1a1a;
+  .badge-exited  { background: transparent; color: #828a94; border: 1px solid #1a1a1a;
                    border-radius: 2px; padding: 1px 7px; font-size: 0.65rem; font-weight: 600;
                    letter-spacing: 1px; text-transform: uppercase; text-decoration: line-through; }
 
@@ -336,7 +339,7 @@ st.markdown("""
     margin-bottom: 6px;
   }
   .news-title { color: #d0d0d0; font-size: 0.88rem; font-weight: 500; line-height: 1.4; }
-  .news-meta  { color: #3a3a3a; font-size: 0.72rem; margin-top: 4px; letter-spacing: 0.3px; }
+  .news-meta  { color: #828a94; font-size: 0.72rem; margin-top: 4px; letter-spacing: 0.3px; }
 
   /* ── 13F 공시 카드 ── */
   .filing-row {
@@ -354,7 +357,7 @@ st.markdown("""
 
   /* ── 지표 카드 ── */
   div[data-testid="stMetricValue"] { color: #76b900 !important; font-size: 1.6rem !important; font-weight: 600 !important; letter-spacing: -0.5px; }
-  div[data-testid="stMetricLabel"] { color: #404040 !important; font-size: 0.68rem !important;
+  div[data-testid="stMetricLabel"] { color: #828a94 !important; font-size: 0.68rem !important;
                                      text-transform: uppercase; letter-spacing: 1px; }
   div[data-testid="stMetric"] {
     background: linear-gradient(160deg, #0f0f0f, #0b0b0b) !important;
@@ -367,7 +370,7 @@ st.markdown("""
   div[data-testid="stPopover"] button {
     background: transparent !important;
     border: 1px solid #2e2e2e !important;
-    color: #707070 !important;
+    color: #828a94 !important;
     border-radius: 2px !important;
     font-size: 0.68rem !important;
     letter-spacing: 0.8px;
@@ -536,7 +539,7 @@ st.markdown("""
   /* ── 버튼 (일반 + 다운로드 통일) ── */
   .stButton > button, .stDownloadButton > button {
                        background: transparent !important; border: 1px solid #242424 !important;
-                       color: #505050 !important; border-radius: 3px !important; font-size: 0.75rem !important;
+                       color: #828a94 !important; border-radius: 3px !important; font-size: 0.75rem !important;
                        letter-spacing: 0.5px; transition: all 0.2s; font-weight: 400 !important; }
   .stButton > button:hover, .stDownloadButton > button:hover {
                        border-color: #76b900 !important; color: #76b900 !important; }
@@ -554,7 +557,7 @@ st.markdown("""
     transition: all 0.18s ease !important;
     border: 1px solid #2a2a2a !important;
     background: transparent !important;
-    color: #404040 !important;
+    color: #828a94 !important;
   }
   [data-testid="stSidebar"] [data-testid="stPills"] button:hover {
     border-color: #c87f00 !important;
@@ -588,7 +591,7 @@ st.markdown("""
     text-align: center;
   }
   .ticker-chip .t  { font-size: 0.9rem; font-weight: 600; letter-spacing: 0.5px; }
-  .ticker-chip .amt { font-size: 0.7rem; color: #404040; margin-top: 3px; letter-spacing: 0.3px; }
+  .ticker-chip .amt { font-size: 0.7rem; color: #828a94; margin-top: 3px; letter-spacing: 0.3px; }
 
   /* ── 스크롤바 ── */
   ::-webkit-scrollbar { width: 4px; }
@@ -616,7 +619,7 @@ st.markdown("""
 
   /* detail 펼치기 버튼 */
   .pt-detail details > summary {
-    color: #505050; font-size: 0.68rem; letter-spacing: 0.8px;
+    color: #828a94; font-size: 0.68rem; letter-spacing: 0.8px;
     text-transform: uppercase; border: 1px solid #2e2e2e;
     border-radius: 2px; padding: 2px 8px; cursor: pointer;
     list-style: none; display: inline-block; transition: all 0.15s; user-select: none;
@@ -640,7 +643,7 @@ st.markdown("""
   }
   .ptd-ticker { color: #76b900; font-size: 0.85rem; font-weight: 700; letter-spacing: 0.8px; }
   .ptd-sector { color: #8b949e; font-size: 0.68rem; }
-  .ptd-label  { color: #3a3a3a; font-size: 0.58rem; font-weight: 600;
+  .ptd-label  { color: #828a94; font-size: 0.58rem; font-weight: 600;
                 letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 4px; }
   .ptd-amount { color: #c87f00; font-size: 1.05rem; font-weight: 600; margin-bottom: 2px; }
   .ptd-fmv-note { color: #828a94; font-size: 0.62rem; margin-bottom: 10px; }
@@ -648,8 +651,8 @@ st.markdown("""
   .ptd-summary { color: #e8e8e8; font-size: 0.85rem; font-weight: 500; line-height: 1.6; margin-bottom: 12px; }
   .ptd-footer { display: flex; justify-content: space-between; align-items: flex-start;
                 padding-top: 8px; border-top: 1px solid #1e1e1e; gap: 8px; flex-wrap: wrap; }
-  .ptd-date   { color: #505050; font-size: 0.65rem; white-space: nowrap; }
-  .ptd-src    { color: #3a3a3a; font-size: 0.62rem; text-align: right; }
+  .ptd-date   { color: #828a94; font-size: 0.65rem; white-space: nowrap; }
+  .ptd-src    { color: #828a94; font-size: 0.62rem; text-align: right; }
 
   /* ── 데스크탑 전용: hover 팝업 ───────────────────────────── */
   @media screen and (min-width: 769px) {
@@ -674,7 +677,7 @@ st.markdown("""
   /* 모바일 전용 요소 — 데스크탑에서 숨김 */
   .pt-stats, .pt-meta { display: none; }
   .pt-stat-label {
-    color: #404040; font-size: 0.6rem; letter-spacing: 0.8px;
+    color: #828a94; font-size: 0.6rem; letter-spacing: 0.8px;
     text-transform: uppercase; display: block; margin-bottom: 3px;
   }
 
@@ -1775,11 +1778,11 @@ with st.sidebar:
   <div class="tag-guide-desc">{t("tag_seed_desc")}</div>
 </div>
 <div class="tag-guide-row">
-  <div class="tag-guide-name" style="color:#7c5cbf">PARTNER</div>
+  <div class="tag-guide-name" style="color:#9370d8">PARTNER</div>
   <div class="tag-guide-desc">{t("tag_partner_desc")}</div>
 </div>
 <div class="tag-guide-row">
-  <div class="tag-guide-name" style="color:#333">EXITED</div>
+  <div class="tag-guide-name" style="color:#828a94">EXITED</div>
   <div class="tag-guide-desc">{t("tag_exited_desc")}</div>
 </div>
 """, unsafe_allow_html=True)
@@ -2252,13 +2255,13 @@ if VISITOR_BADGE:
 </script>
 """.replace("HTML_FULL", _json.dumps(
         '<span class="nv-vis-full">'
-        + '<span style="color:#3a4048"> · </span>'.join(
+        + '<span style="color:#828a94"> · </span>'.join(
             f'<span class="{"nv-vis-on" if i == 0 and _vis_on >= VIS_MIN_ONLINE else "nv-vis-tot"}">{v}</span>'
             for i, v in enumerate(_vf))
         + '</span>')
 ).replace("HTML_MINI", _json.dumps(
         '<span class="nv-vis-mini">'
-        + '<span style="color:#3a4048"> · </span>'.join(
+        + '<span style="color:#828a94"> · </span>'.join(
             f'<span class="{"nv-vis-on" if i == 0 and _vis_on >= VIS_MIN_ONLINE else "nv-vis-tot"}">{v}</span>'
             for i, v in enumerate(_vm))
         + '</span>')
@@ -2907,11 +2910,13 @@ with _tab_body:
             ".st-key-f13_types [data-testid='stButtonGroup'] button{flex:0 0 auto !important;max-width:none !important;}"
             ".st-key-f13_types [data-testid='stButtonGroup'] button p{white-space:nowrap !important;overflow:visible !important;text-overflow:clip !important;}"
             # 꺼짐 상태 — 셀렉터 병기(~1.57 testid / 1.61~ data-variant+data-selected). 위 CSS 블록 상단 주석 참고
+            # opacity로 통째 흐리게 하던 이전 방식은 배경+글자를 같이 죽여 대비 1.37:1까지
+            # 떨어졌었다(2026-08-18). 배경은 어둡게, 글자는 text-meta로 개별 지정해 대비 확보(5.6:1).
             ".st-key-f13_types button[data-testid='stBaseButton-pills'],"
             ".st-key-f13_types button[data-variant='pills']:not([data-selected='true']){"
-            "background:#0c0c0c !important;border-color:#1f1f1f !important;opacity:.55 !important;}"
+            "background:#0c0c0c !important;border-color:#1f1f1f !important;}"
             ".st-key-f13_types button[data-testid='stBaseButton-pills'] p,"
-            ".st-key-f13_types button[data-variant='pills']:not([data-selected='true']) p{color:#3f4651 !important;}")
+            ".st-key-f13_types button[data-variant='pills']:not([data-selected='true']) p{color:#828a94 !important;}")
         for _i, _k in enumerate(_ct_show, start=1):
             _bg, _tx, _bd = _CT_PILL[_k]
             _base = f".st-key-f13_types [data-testid='stButtonGroup']>div>button:nth-of-type({_i})"
@@ -3142,7 +3147,7 @@ with st.expander("Admin", expanded=False):
 # ── 푸터 ─────────────────────────────────────────────────────────────────────
 st.markdown("---")
 st.markdown(
-    f"<div style='text-align:center;color:#2a2a2a;font-size:0.72rem;letter-spacing:0.5px'>"
+    f"<div style='text-align:center;color:#828a94;font-size:0.72rem;letter-spacing:0.5px'>"
     f"SEC EDGAR 13F &nbsp;·&nbsp; NVIDIA IR &nbsp;·&nbsp; Bloomberg &nbsp;·&nbsp; Reuters &nbsp;·&nbsp; FT &nbsp;·&nbsp; WSJ"
     f"&nbsp;&nbsp;|&nbsp;&nbsp;{t('footer_live') if _live_meta.get('live') else t('footer_delay')}"
     f"&nbsp;&nbsp;|&nbsp;&nbsp;{datetime.now().strftime('%Y-%m-%d %H:%M')}"
