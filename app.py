@@ -634,24 +634,35 @@ st.markdown("""
     border-radius: 6px; padding: 16px 18px;
     min-width: 300px; max-width: 360px;
   }
-  /* detail body 내부 구조 */
+  /* detail body 내부 구조 — 라운드 8(2026-08-19): 폭 660px까지 늘어난 채 340px 전용
+     크기로 렌더되던 문제 수정. 크기 7종(9.28~16.8px) -> 5종(10/11/13/15/20, 타이포
+     스케일 첫 적용). 강조 예산 예외: 이 패널 내부에 한해 섹션 라벨에 accent를 쓰는
+     대신 티커가 accent를 내줌(패널 안 초록이 티커·구조 두 역할로 갈라지는 걸 방지,
+     DESIGN.md 참고). */
   .ptd-header {
     display: flex; align-items: center; gap: 8px;
-    margin-bottom: 10px; padding-bottom: 10px;
-    border-bottom: 1px solid #1a1a1a;
+    margin-bottom: 12px;
   }
-  .ptd-ticker { color: #76b900; font-size: 0.85rem; font-weight: 600; letter-spacing: 0.3px; }  /* 색으로 이미 강조되므로 700→600 */
-  .ptd-sector { color: #8b949e; font-size: 0.68rem; }
-  .ptd-label  { color: #828a94; font-size: 0.58rem; font-weight: 600;
-                letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 4px; }
-  .ptd-amount { color: #c87f00; font-size: 1.05rem; font-weight: 600; margin-bottom: 2px; }
-  .ptd-fmv-note { color: #828a94; font-size: 0.62rem; margin-bottom: 10px; }
-  .ptd-thesis { color: #9aa3b0; font-size: 0.8rem; line-height: 1.7; margin-bottom: 10px; }
-  .ptd-summary { color: #f0f1ef; font-size: 0.85rem; font-weight: 500; line-height: 1.6; margin-bottom: 12px; }
+  .ptd-ticker { color: #f0f1ef; font-size: 0.9375rem; font-weight: 600; }
+  .ptd-sector { color: #828a94; font-size: 0.6875rem; }
+  .ptd-hero {
+    background: #14161a; border: 1px solid #2a2d33;
+    border-radius: 6px; padding: 12px; margin-bottom: 12px;
+  }
+  .ptd-hero .ptd-label { color: #828a94; }
+  .ptd-block { margin-bottom: 12px; }
+  .ptd-block:last-of-type { margin-bottom: 0; }
+  .ptd-block .ptd-label { color: #76b900; }
+  .ptd-label  { font-size: 0.625rem; font-weight: 600;
+                letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 5px; }
+  .ptd-amount { color: #c87f00; font-size: 1.25rem; font-weight: 600; }
+  .ptd-fmv-note { color: #828a94; font-size: 0.6875rem; margin-top: 2px; }
+  .ptd-thesis { color: #9aa3b0; font-size: 0.8125rem; line-height: 1.6; }
+  .ptd-summary { color: #f0f1ef; font-size: 0.8125rem; font-weight: 500; line-height: 1.6; }
   .ptd-footer { display: flex; justify-content: space-between; align-items: flex-start;
-                padding-top: 8px; border-top: 1px solid #1a1a1a; gap: 8px; flex-wrap: wrap; }
-  .ptd-date   { color: #828a94; font-size: 0.65rem; white-space: nowrap; }
-  .ptd-src    { color: #828a94; font-size: 0.62rem; text-align: right; }
+                padding-top: 10px; margin-top: 12px; border-top: 1px solid #1a1a1a; gap: 8px; flex-wrap: wrap; }
+  .ptd-date   { color: #828a94; font-size: 0.6875rem; white-space: nowrap; }
+  .ptd-src    { color: #828a94; font-size: 0.6875rem; text-align: right; }
 
   /* ── 데스크탑 전용: hover 팝업 ───────────────────────────── */
   @media screen and (min-width: 769px) {
@@ -762,7 +773,7 @@ st.markdown("""
     /* 클릭해서 <details open> 되면 형제 body 표시 */
     .pt-detail details[open] ~ .pt-detail-body {
       display: block;
-      max-width: 100%;
+      max-width: 520px;
       margin-top: 8px;
     }
   }
@@ -1100,52 +1111,52 @@ THESIS_KO = {
     "IREN": (
         "엔비디아 GPU로 돌아가는 5GW급 AI 데이터센터를 짓는 회사",
         "늘어나는 AI 연산 수요를 감당할 대형 데이터센터 파트너가 필요했고, IREN이 그 인프라를 맡습니다. GPU 클라우드 서비스도 5년간 함께 제공합니다.",
-        "워런트 방식 최대 $2.1B (30M주 @$70) · 5년 $3.4B GPU 클라우드 계약 병행",
+        "최대 $2.1B 워런트 (3,000만주, 주당 $70) · 5년 $3.4B GPU 클라우드 계약",
     ),
     "GLW": (
         "엔비디아 AI 데이터센터에 들어가는 광섬유를 미국에서 생산하는 회사",
         "데이터센터 간 광연결 수요가 폭증하는데, 코닝이 미국 내 생산을 책임집니다. 새 공장 3곳(노스캐롤라이나·텍사스)으로 미국 광학 생산을 10배 늘립니다.",
-        "$500M 선불 워런트 (행사가 $180) · 최대 $3.2B · 일자리 3,000개",
+        "$500M 선불 워런트 (행사가 $180) · 최대 $3.2B",
     ),
     "MRVL": (
         "엔비디아 GPU와 한 랙에서 초고속으로 연결되는 맞춤형 AI 칩을 만드는 회사",
         "엔비디아 차세대 GPU(Rubin)·CPU(Vera)와 마벨 칩을 같은 랙에서 1.8TB/s로 묶는 'NVLink Fusion' 기술을 함께 만듭니다. 빛으로 데이터를 나르는 실리콘 포토닉스도 공동 개발합니다.",
-        "$2B 투자 · NVLink Fusion 파트너십 · 실리콘 포토닉스·5G/6G 공동 R&D",
+        "$2B 투자 · NVLink Fusion 파트너십 · 실리콘 포토닉스와 5G/6G 공동 R&D",
     ),
     "LITE": (
         "AI 데이터센터 광통신에 쓰는 레이저·포토닉스 부품을 만드는 회사",
         "광연결의 핵심인 고급 레이저 부품을 루멘텀이 독점 공급합니다. 미국 내 새 생산시설(fab)도 짓습니다.",
-        "$2B 우선주 사모 (2,876,415주 @$695.31) · 멀티빌리언 구매 약정 포함",
+        "$2B 우선주 사모 (288만주, 주당 $695.31) · 수십억 달러 구매 약정",
     ),
     "COHR": (
         "AI 데이터센터의 초고속 광신호 송수신 장치(트랜시버)를 만드는 회사",
         "데이터센터 광연결 속도가 800G·1.6T로 빨라지는데, 코히런트가 그 트랜시버를 공급합니다. 미국 내 제조도 늘립니다.",
-        "$2B 투자 · 광학 네트워킹 제품 구매 약정 포함",
+        "$2B 투자 · 광학 네트워킹 제품 구매 약정",
     ),
     "INTC": (
         "엔비디아 GPU와 인텔 CPU를 한 칩에 합친 제품을 함께 만드는 회사",
         "인텔 x86 CPU와 엔비디아 GPU를 '칩렛'으로 묶어 AI 데이터센터·PC용 통합 칩을 개발합니다. 엔비디아가 직접 지분 4%를 사들인 몇 안 되는 사례입니다.",
-        "$5B 직접 지분투자 (4%, 214.7M주 @$23.28)",
+        "$5B 직접 지분투자 (2.1억주, 주당 $23.28) · 지분 4%",
     ),
     "SNPS": (
         "반도체 설계를 자동화하는 소프트웨어(EDA)를 만드는 회사",
         "칩 설계 과정을 AI로 자동화하고 클라우드로 가속합니다. 엔비디아 칩을 더 빠르게 설계하는 데 핵심입니다.",
-        "$2B 사모 발행 (@$414.79/주)",
+        "$2B 사모 발행 (주당 $414.79)",
     ),
     "NOK": (
         "엔비디아 GPU를 통신 기지국에 넣어 AI 이동통신망을 만드는 회사",
         "노키아 5G/6G 기지국(RAN)에 엔비디아 GPU를 통합해, AI가 돌아가는 차세대 통신 인프라를 개발합니다.",
-        "$1B 투자 · 2.9% 지분 (@$6.01/주)",
+        "$1B 투자 (주당 $6.01) · 지분 2.9%",
     ),
     "CRWV": (
         "엔비디아 최신 GPU를 가장 많이 보유한 AI 전용 클라우드 회사",
         "엔비디아 H100·B200을 대규모로 굴리는 AI 클라우드로, 엔비디아의 전략적 주주이자 최대 고객입니다.",
-        "47.2M주 · 6/30 기준 $4.70B · 2025.03 IPO 참여, 투자 금액은 비공개",
+        "4,720만주 보유 · 2025.03 IPO 참여",
     ),
     "NBIS": (
         "엔비디아 시스템을 대규모로 배포하는 풀스택 AI 클라우드 회사",
         "2030년까지 5GW 규모의 엔비디아 시스템을 깔기로 했습니다. 엔비디아가 2024년부터 두 차례 투자한 핵심 파트너입니다.",
-        "$2B 추가 투자 (2026.03) + $100M (2024.12) = 누적 $2.1B",
+        "누적 $2.1B 투자 (2024.12 $100M + 2026.03 $2B 추가)",
     ),
     "PLTR": (
         "기업·정부용 'Sovereign AI 운영체제'를 엔비디아와 함께 만드는 회사",
@@ -1160,17 +1171,19 @@ THESIS_KO = {
     "035420.KS": (
         "세종시에 엔비디아 GPU로 AI 데이터센터를 함께 짓는 한국 인터넷 기업",
         "네이버 세종 GAK 데이터센터에 엔비디아 Vera Rubin·Blackwell 칩을 배치해, 2028년까지 200MW 규모 AI 인프라를 단계적으로 구축합니다. 엔비디아는 제3자배정 유상증자에 참여해 지분 4.5%를 확보합니다.",
-        "1조 4,809억원(약 $1B) 제3자배정 유상증자 · 7,241,564주 @204,500원 · 지분 4.5%",
+        "1조 4,809억원 제3자배정 유상증자 (724만주, 주당 204,500원) · 지분 4.5%",
     ),
     "GENB": (
         "생성형 AI로 새 단백질 구조를 설계하는 AI 신약개발 바이오텍",
         "엔비디아 벤처투자 조직 NVentures가 초기 단계에 베팅했습니다. 2026년 2월 나스닥에 상장했고, 천식·항암 등 여러 파이프라인을 임상 진행 중입니다.",
-        "833,325주 · 6/30 기준 $14.1M · NVentures 투자 금액은 비공개 · 2026.02 나스닥 상장",
+        # 13F 원 주수 833,325 · 6/30 평가액 $14.1M · NVentures 투자 원금 비공개
+        "83만주 보유 · 2026.02 나스닥 상장",
     ),
     "SPCX": (
         "일론 머스크의 우주 기업. 엔비디아 xAI 투자가 지분 전환으로 이어진 케이스",
         "2026년 1월 엔비디아가 참여한 xAI 시리즈E($20B) 투자가, 2월 SpaceX의 xAI 인수합병으로 SpaceX Class A 주식으로 전환됐습니다. 6월 나스닥 상장 이후 엔비디아 2번째로 큰 보유 종목이 됐습니다.",
-        "10-Q·13F 동시 공시 (2026.08.14) · 122,764,805주 · $20.98B (6/30 기준) · xAI 투자 원금은 비공개",
+        # 13F 원 주수 122,764,805 · 6/30 평가액 $20.98B · 10-Q·13F 동시 공시 2026.08.14 · xAI 투자 원금 비공개
+        "1.2억주 보유 (xAI 투자분 전환)",
     ),
 }
 
@@ -2580,16 +2593,16 @@ with _tab_body:
                     _L = (("In a nutshell", "Why NVIDIA invested", "Deal structure") if lang == "ENG"
                           else ("한 줄 요약", "왜 NVIDIA가 투자했나", "투자 구조"))
                     _thesis_html = (
-                        f'<div class="ptd-label">{_L[0]}</div>'
-                        f'<div class="ptd-summary">{_tk3[0]}</div>'
-                        f'<div class="ptd-label">{_L[1]}</div>'
-                        f'<div class="ptd-thesis">{_tk3[1]}</div>'
-                        f'<div class="ptd-label">{_L[2]}</div>'
-                        f'<div class="ptd-thesis">{_tk3[2]}</div>'
+                        f'<div class="ptd-block"><div class="ptd-label">{_L[0]}</div>'
+                        f'<div class="ptd-summary">{_tk3[0]}</div></div>'
+                        f'<div class="ptd-block"><div class="ptd-label">{_L[1]}</div>'
+                        f'<div class="ptd-thesis">{_tk3[1]}</div></div>'
+                        f'<div class="ptd-block"><div class="ptd-label">{_L[2]}</div>'
+                        f'<div class="ptd-thesis">{_tk3[2]}</div></div>'
                     )
                 else:
-                    _thesis_html = ('<div class="ptd-label">WHY NVIDIA</div>'
-                                    f'<div class="ptd-thesis">{_thesis}</div>')
+                    _thesis_html = ('<div class="ptd-block"><div class="ptd-label">WHY NVIDIA</div>'
+                                    f'<div class="ptd-thesis">{_thesis}</div></div>')
                 price_h  = f'<span style="color:#c3c9d1;font-weight:500">{fmt_price(price,currency)}</span>'
                 daily_h  = fmt_pct(sd.get("change_pct"))
                 ytd_h    = fmt_pct(sd.get("ytd_pct"))
@@ -2631,8 +2644,9 @@ with _tab_body:
                     f'<details><summary>{detail_lbl}</summary></details>'
                     f'<div class="pt-detail-body">'
                     f'<div class="ptd-header"><span class="ptd-ticker">{disp_ticker(ticker, c["name"])}</span><span class="ptd-sector">{_sector}</span></div>'
-                    + (f'<div class="ptd-label">NVIDIA INVEST</div><div class="ptd-amount">{amt}</div>'
+                    + (f'<div class="ptd-hero"><div class="ptd-label">NVIDIA INVEST</div><div class="ptd-amount">{amt}</div>'
                        + (f'<div class="ptd-fmv-note">{t("ptd_fmv_note")}</div>' if _amt_is_fmv else '')
+                       + '</div>'
                        if amt else '')
                     + _thesis_html
                     + f'<div class="ptd-footer"><span class="ptd-date">{_date}</span><span class="ptd-src">{_src}</span></div>'
