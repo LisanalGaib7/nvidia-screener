@@ -326,7 +326,7 @@ st.markdown("""
 
   /* ── 수익률 색상 ── */
   .positive { color: #5a9e3a; font-weight: 600; }
-  .negative { color: #a03030; font-weight: 600; }
+  .negative { color: #e05656; font-weight: 600; }  /* 이전 #a03030은 배경 대비 2.8:1로 AA 미달, 13F 감소색과 통일 */
 
   /* ── 뉴스 카드 ── */
   .news-card {
