@@ -315,7 +315,7 @@ st.markdown("""
   /* badge-watch/partner/exited 이전 색(#555/#7c5cbf/#333)은 10.4px bold라 large-text
      예외(14pt bold 이상)에 못 들어가는데 대비가 각각 2.69/3.95/1.59:1로 AA 미달이었다.
      동일 색감을 유지하면서 4.5:1 이상으로 교체(2026-08-18). */
-  .badge-watch   { background: transparent; color: #828a94; border: 1px solid #222;
+  .badge-watch   { background: transparent; color: #828a94; border: 1px solid #1a1a1a;
                    border-radius: 3px; padding: 1px 7px; font-size: 0.65rem; font-weight: 600;
                    letter-spacing: 1px; text-transform: uppercase; }
   .badge-partner { background: transparent; color: #9370d8; border: 1px solid #2a1a4a;
@@ -551,7 +551,7 @@ st.markdown("""
      셀렉터는 구/신 Streamlit 버전 병기(위 segmented_control 블록 상단 주석 참고). */
   .st-key-lang_pills [data-testid="stButtonGroup"] > div[data-baseweb="button-group"],
   .st-key-lang_pills [data-testid="stButtonGroup"] > div[role="radiogroup"] {
-    display: inline-flex !important; border: 1px solid #1c1f25 !important; background: #14161a !important;
+    display: inline-flex !important; border: 1px solid #1a1a1a !important; background: #0e0e0e !important;
     border-radius: 6px !important; gap: 2px !important; padding: 3px !important;
   }
   .st-key-lang_pills button[data-testid^="stBaseButton-pills"],
@@ -570,7 +570,7 @@ st.markdown("""
   .st-key-lang_pills button[data-testid="stBaseButton-pillsActive"],
   .st-key-lang_pills button[data-variant="pills"][data-selected="true"] {
     color: #f0f1ef !important; font-weight: 600 !important;
-    background: #20242b !important; box-shadow: inset 0 0 0 1px #2b3038 !important;
+    background: #20242b !important; box-shadow: inset 0 0 0 1px #2a2d33 !important;
   }
 
   /* ── 입력 필드 ── */
@@ -595,7 +595,7 @@ st.markdown("""
   /* ── 스크롤바 ── */
   ::-webkit-scrollbar { width: 4px; }
   ::-webkit-scrollbar-track { background: #080808; }
-  ::-webkit-scrollbar-thumb { background: #222; border-radius: 3px; }
+  ::-webkit-scrollbar-thumb { background: #2a2d33; border-radius: 3px; }
 
   /* ── 포트폴리오 테이블 (데스크탑 그리드) ── */
   .ptable-header {
@@ -640,7 +640,7 @@ st.markdown("""
     margin-bottom: 10px; padding-bottom: 10px;
     border-bottom: 1px solid #1a1a1a;
   }
-  .ptd-ticker { color: #76b900; font-size: 0.85rem; font-weight: 700; letter-spacing: 0.8px; }
+  .ptd-ticker { color: #76b900; font-size: 0.85rem; font-weight: 600; letter-spacing: 0.8px; }  /* 색으로 이미 강조되므로 700→600 */
   .ptd-sector { color: #8b949e; font-size: 0.68rem; }
   .ptd-label  { color: #828a94; font-size: 0.58rem; font-weight: 600;
                 letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 4px; }
@@ -1407,7 +1407,7 @@ def _valuechain_html(current_only, amt_key="invest_amt_m"):
             tk_html = ""
             empty_cls = " vc-box-empty"
         boxes.append(
-            f'<div class="vc-box{empty_cls}" style="border-color:{color if items else "#3a3f47"}">'
+            f'<div class="vc-box{empty_cls}" style="border-color:{color if items else "#2a2d33"}">'
             f'<div class="vc-stage-lbl">{t(stage_key)}</div>'
             f'<div class="vc-name" style="color:{color if items else "#828a94"}">{cat_name(cat)}</div>'
             f'{amt_html}{tk_html}'
@@ -1761,7 +1761,7 @@ with st.sidebar:
         st.markdown(f"""
 <style>
 .tag-guide-row {{ margin: 10px 0; }}
-.tag-guide-name {{ font-size: 0.72rem; font-weight: 700; letter-spacing: 1px; margin-bottom: 3px; }}
+.tag-guide-name {{ font-size: 0.72rem; font-weight: 600; letter-spacing: 1px; margin-bottom: 3px; }}
 .tag-guide-desc {{ font-size: 0.75rem; color: #9aa3b0 !important; line-height: 1.5; }}
 </style>
 <div class="tag-guide-row">
@@ -1969,7 +1969,7 @@ if True:
 .nv-header {
   max-width: 100%;
 }
-.nv-logo {
+.nv-logo {  /* 브랜드 워드마크 예외 — 굵기 규칙(최대 600) 적용 안 함, DESIGN.md 참고 */
   font-size: 1.3rem;
   font-weight: 900;
   font-family: 'Inter', system-ui, sans-serif;
@@ -2365,7 +2365,7 @@ for col, label, value, color, extra_html in [
      + "".join(
          f'<div class="tooltip-row"><span class="tooltip-ticker">{disp_ticker(h["ticker"], h["name"])}</span>'
          f'<span class="tooltip-name">'
-         + ('<span style="color:#c87f00;font-size:0.6rem;font-weight:700;margin-right:5px">NEW</span>' if h["is_new"] else '')
+         + ('<span style="color:#c87f00;font-size:0.6rem;font-weight:600;margin-right:5px">NEW</span>' if h["is_new"] else '')
          + f'{h["name"]}</span></div>'
          for h in THIRTEEN_F
        )
@@ -2512,7 +2512,7 @@ with _tab_body:
             if not group_items: continue
             if group_title == t("group_new"):     accent = "#76b900"
             elif group_title == t("group_partner"): accent = "#c87f00"
-            elif group_title == t("group_exited"):  accent = "#3a3a3a"
+            elif group_title == t("group_exited"):  accent = "#2a2d33"
             else:                                   accent = "#4a90d9"
             st.markdown(
                 f'<div style="display:flex;align-items:center;gap:14px;margin:32px 0 18px">'
@@ -2970,7 +2970,7 @@ with _tab_body:
             else:            amt = f"${v:g}M"
             amt_color = "#8b949e" if ctype == "exit" else "#76b900"
             amt_html = (f'<span style="margin-left:auto;flex-shrink:0;color:{amt_color};'
-                        f'font-weight:700;font-size:0.95rem">{amt}</span>') if amt else ""
+                        f'font-weight:600;font-size:0.95rem">{amt}</span>') if amt else ""
             detail = (f.get("change_eng") or f["change"]) if st.session_state.lang == "ENG" else f["change"]
             detail_html = (f'<span style="color:#c3c9d1;font-size:0.82rem">{detail}</span>'
                            if detail else "<span></span>")
@@ -3001,7 +3001,7 @@ with _tab_body:
 
         st.markdown(f"### {t('timeline_title')}")
         df_f = pd.DataFrame(FILINGS_HISTORY)
-        color_map  = {"new":"#22c55e","increase":"#4a90d9","decrease":"#e05656","exit":"#828a94","hold":"#3b82f6"}
+        color_map  = {"new":"#22c55e","increase":"#4a90d9","decrease":"#e05656","exit":"#828a94","hold":"#6366f1"}  # filing-hold와 통일(이전 #3b82f6는 같은 뜻의 별개 값)
         label_map  = {
             "new":      t("change_new"),
             "increase": t("change_increase"),
