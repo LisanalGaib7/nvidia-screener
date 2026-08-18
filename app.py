@@ -110,7 +110,7 @@ TRANSLATIONS = {
     # 사이드바 데이터
     "sb_data_sources":      {"KOR": "데이터 출처",                   "ENG": "Data Sources"},
     "sb_media":             {"KOR": "글로벌 주요 언론 교차검증",       "ENG": "Global Media Cross-verification"},
-    "sb_disclaimer":        {"KOR": "⚠️ 투자 조언 아님",              "ENG": "⚠️ Not Financial Advice"},
+    "sb_disclaimer":        {"KOR": "투자 조언 아님",              "ENG": "Not Financial Advice"},
     # 통합 '데이터' 섹션 (라벨:값)
     "sb_data_title":        {"KOR": "데이터",                       "ENG": "DATA"},
     "sb_row_quote":         {"KOR": "시세",                         "ENG": "Quotes"},
@@ -1042,8 +1042,8 @@ PARTNERSHIPS = [
         "alert_date": "2025-10-01",
         "nvidia_thesis": "Sovereign AI OS: NVIDIA Blackwell Ultra 하드웨어 + Palantir AIP·Ontology 풀스택. Jensen: \"세계에서 가장 중요한 엔터프라이즈 스택\"",
         "nvidia_thesis_eng": "Sovereign AI OS: NVIDIA Blackwell Ultra hardware + Palantir AIP·Ontology full-stack. Jensen: \"The single most important enterprise stack in the world\"",
-        "note": "⚠️ 지분투자 아님 | Sovereign AI OS 공동 제품 (온프레미스·에어갭 AI 배포) | NVIDIA 모델 → AIP 제공",
-        "note_eng": "⚠️ No equity investment | Sovereign AI OS joint product (on-prem & air-gapped AI deployment) | NVIDIA models via AIP",
+        "note": "지분투자 아님 | Sovereign AI OS 공동 제품 (온프레미스·에어갭 AI 배포) | NVIDIA 모델 → AIP 제공",
+        "note_eng": "No equity investment | Sovereign AI OS joint product (on-prem & air-gapped AI deployment) | NVIDIA models via AIP",
         "source": "NVIDIA Newsroom, Palantir IR",
     },
     {
@@ -1059,8 +1059,8 @@ PARTNERSHIPS = [
         "alert_date": "2025-12-01",
         "nvidia_thesis": "Physical AI 산업 로봇. Isaac Sim 디지털 트윈, Jetson 온로봇 컴퓨터 탑재. FANUC 주가 +9.4% 급등",
         "nvidia_thesis_eng": "Physical AI industrial robots. Isaac Sim digital twin, Jetson on-robot computer integration. FANUC stock +9.4% surge on announcement",
-        "note": "⚠️ 지분투자 아님 | Physical AI 파트너십 (2025.12.01) | Isaac Sim + Jetson 통합",
-        "note_eng": "⚠️ No equity investment | Physical AI partnership (2025.12.01) | Isaac Sim + Jetson integration",
+        "note": "지분투자 아님 | Physical AI 파트너십 (2025.12.01) | Isaac Sim + Jetson 통합",
+        "note_eng": "No equity investment | Physical AI partnership (2025.12.01) | Isaac Sim + Jetson integration",
         "source": "NVIDIA Newsroom, Bloomberg (2025.12.01)",
     },
 ]
@@ -1148,12 +1148,12 @@ THESIS_KO = {
     "PLTR": (
         "기업·정부용 'Sovereign AI 운영체제'를 엔비디아와 함께 만드는 회사",
         "엔비디아 Blackwell Ultra 하드웨어 위에 팔란티어 AIP·온톨로지를 얹어, 외부망과 분리된(온프레미스·에어갭) AI를 통째로 제공합니다. 젠슨 황이 '세계에서 가장 중요한 엔터프라이즈 스택'이라 부른 협력입니다.",
-        "⚠️ 지분투자 아님 · 공동 제품 파트너십 (엔비디아 모델 → AIP 제공)",
+        "지분투자 아님 · 공동 제품 파트너십 (엔비디아 모델 → AIP 제공)",
     ),
     "6954.T": (
         "엔비디아 AI를 산업용 로봇에 넣는 일본 로봇 회사",
         "엔비디아 Isaac Sim으로 로봇을 가상에서 훈련(디지털 트윈)하고, Jetson 컴퓨터를 로봇에 탑재해 'Physical AI'를 구현합니다. 발표 당일 주가가 +9.4% 뛰었습니다.",
-        "⚠️ 지분투자 아님 · Physical AI 파트너십 · Isaac Sim + Jetson 통합",
+        "지분투자 아님 · Physical AI 파트너십 · Isaac Sim + Jetson 통합",
     ),
     "035420.KS": (
         "세종시에 엔비디아 GPU로 AI 데이터센터를 함께 짓는 한국 인터넷 기업",
@@ -1227,12 +1227,12 @@ THESIS_EN = {
     "PLTR": (
         "Co-builds a 'Sovereign AI operating system' for enterprises & governments with NVIDIA",
         "Stacks Palantir AIP·Ontology on NVIDIA Blackwell Ultra hardware to deliver fully self-contained (on-prem & air-gapped) AI. Jensen Huang called it 'the single most important enterprise stack in the world.'",
-        "⚠️ Not an equity investment · joint product partnership (NVIDIA models via AIP)",
+        "Not an equity investment · joint product partnership (NVIDIA models via AIP)",
     ),
     "6954.T": (
         "A Japanese robotics company putting NVIDIA AI into industrial robots",
         "Trains robots virtually with NVIDIA Isaac Sim (digital twin) and embeds Jetson on-robot computers to realize 'Physical AI.' FANUC stock jumped +9.4% on the announcement.",
-        "⚠️ Not an equity investment · Physical AI partnership · Isaac Sim + Jetson integration",
+        "Not an equity investment · Physical AI partnership · Isaac Sim + Jetson integration",
     ),
     "035420.KS": (
         "A Korean internet company co-building an NVIDIA-powered AI data center in Sejong",
@@ -2643,11 +2643,11 @@ with _tab_body:
     elif active_tab == "Performance":
         st.markdown(f"### {t('perf_title')}")
         if st.session_state.lang == "KOR":
-            _hint = ("💡 주요 종목만 표시 중이에요. 범례에서 종목을 탭해 추가/제거, 더블탭하면 그 종목만 볼 수 있어요." if is_mobile
-                     else "💡 범례에서 종목을 탭하면 켜고 끌 수 있고, 더블클릭하면 그 종목만 볼 수 있어요.")
+            _hint = ("주요 종목만 표시 중이에요. 범례에서 종목을 탭해 추가/제거, 더블탭하면 그 종목만 볼 수 있어요." if is_mobile
+                     else "범례에서 종목을 탭하면 켜고 끌 수 있고, 더블클릭하면 그 종목만 볼 수 있어요.")
         else:
-            _hint = ("💡 Showing key holdings. Tap a legend item to add/remove; double-tap to isolate one." if is_mobile
-                     else "💡 Tap a legend item to show/hide it; double-click to view only that one.")
+            _hint = ("Showing key holdings. Tap a legend item to add/remove; double-tap to isolate one." if is_mobile
+                     else "Tap a legend item to show/hide it; double-click to view only that one.")
         st.markdown(
             f'<div style="color:#e5e7eb;font-size:0.85rem;margin:-6px 0 10px">{_hint}</div>',
             unsafe_allow_html=True)
@@ -2940,13 +2940,13 @@ with _tab_body:
 
         # 데스크톱: 필터 좌(sticky) / 카드 우 2단 · 모바일: 접이식 + 전폭
         if is_mobile:
-            with st.expander("🔍 " + ("필터" if _kor else "Filter"), expanded=False):
+            with st.expander(("필터" if _kor else "Filter"), expanded=False):
                 sel_cos, sel_ct_keys = _f13_filters()
             _list = st.container()
         else:
             _cf, _cl = st.columns([1, 1.9], gap="large")
             with _cf:
-                st.markdown(f'<div class="f13-filter-title">🔍 {"필터" if _kor else "Filter"}</div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="f13-filter-title">{"필터" if _kor else "Filter"}</div>', unsafe_allow_html=True)
                 sel_cos, sel_ct_keys = _f13_filters()
             _list = _cl
 
