@@ -263,9 +263,9 @@ st.markdown("""
   /* ── 타이포그래피 ── */
   html, body, [class*="css"] { font-family: 'Inter', 'SF Pro Display', system-ui, sans-serif; }
   h1 { color: #f0f1ef !important; font-size: 1.7rem !important; font-weight: 600 !important; letter-spacing: -0.5px !important; }
-  h2 { color: #c3c9d1 !important; font-size: 1.1rem !important; font-weight: 500 !important; letter-spacing: 0.3px !important; }
+  h2 { color: #c3c9d1 !important; font-size: 1.1rem !important; font-weight: 500 !important; letter-spacing: 0 !important; }
   h3 { color: #9aa3b0 !important; font-size: 0.8rem !important; font-weight: 600 !important;
-       text-transform: uppercase; letter-spacing: 1.4px !important; }
+       letter-spacing: 0.3px !important; }
   /* 본문 단락. 이전 #606060은 대비 3.18:1로 WCAG AA(4.5:1) 미달이라 실제로 안 읽혔다.
      게다가 Streamlit은 위젯 라벨(탭·토글 텍스트)도 <p>로 감싸는데 여기 !important가
      걸려 있어, 버튼에 지정한 색·크기를 전부 덮어썼다(탭이 13px 의도와 달리 14px로 렌더).
@@ -295,7 +295,7 @@ st.markdown("""
     animation: banner-snap 0.25s cubic-bezier(0.22, 1, 0.36, 1) both;
   }
   .alert-title { color: #c87f00; font-size: 0.7rem; font-weight: 600;
-                 letter-spacing: 1.8px; text-transform: uppercase; margin: 0 0 10px; }
+                 letter-spacing: 0.8px; text-transform: uppercase; margin: 0 0 10px; }
   .alert-item  { display: flex; align-items: baseline; gap: 10px; padding: 7px 0; font-size: 0.84rem; line-height: 1.5; }
   .alert-item + .alert-item { border-top: 1px solid #1a1a1a; }
   .alert-date  { color: #828a94; font-size: 0.72rem; min-width: 82px; flex-shrink: 0; font-variant-numeric: tabular-nums; }
@@ -305,25 +305,25 @@ st.markdown("""
   /* ── 배지 ── */
   .badge-core    { background: transparent; color: #4a90d9; border: 1px solid #1e3a5f;
                    border-radius: 3px; padding: 1px 7px; font-size: 0.65rem; font-weight: 600;
-                   letter-spacing: 1px; text-transform: uppercase; }
+                   letter-spacing: 0.8px; text-transform: uppercase; }
   .badge-new     { background: transparent; color: #c87f00; border: 1px solid #3d2600;
                    border-radius: 3px; padding: 1px 7px; font-size: 0.65rem; font-weight: 600;
-                   letter-spacing: 1px; text-transform: uppercase; }
+                   letter-spacing: 0.8px; text-transform: uppercase; }
   .badge-seed    { background: transparent; color: #76b900; border: 1px solid #2a3f00;
                    border-radius: 3px; padding: 1px 7px; font-size: 0.65rem; font-weight: 600;
-                   letter-spacing: 1px; text-transform: uppercase; }
+                   letter-spacing: 0.8px; text-transform: uppercase; }
   /* badge-watch/partner/exited 이전 색(#555/#7c5cbf/#333)은 10.4px bold라 large-text
      예외(14pt bold 이상)에 못 들어가는데 대비가 각각 2.69/3.95/1.59:1로 AA 미달이었다.
      동일 색감을 유지하면서 4.5:1 이상으로 교체(2026-08-18). */
   .badge-watch   { background: transparent; color: #828a94; border: 1px solid #1a1a1a;
                    border-radius: 3px; padding: 1px 7px; font-size: 0.65rem; font-weight: 600;
-                   letter-spacing: 1px; text-transform: uppercase; }
+                   letter-spacing: 0.8px; text-transform: uppercase; }
   .badge-partner { background: transparent; color: #9370d8; border: 1px solid #2a1a4a;
                    border-radius: 3px; padding: 1px 7px; font-size: 0.65rem; font-weight: 600;
-                   letter-spacing: 1px; text-transform: uppercase; }
+                   letter-spacing: 0.8px; text-transform: uppercase; }
   .badge-exited  { background: transparent; color: #828a94; border: 1px solid #1a1a1a;
                    border-radius: 3px; padding: 1px 7px; font-size: 0.65rem; font-weight: 600;
-                   letter-spacing: 1px; text-transform: uppercase; text-decoration: line-through; }
+                   letter-spacing: 0.8px; text-transform: uppercase; text-decoration: line-through; }
 
   /* ── 수익률 색상 ── */
   .positive { color: #5a9e3a; font-weight: 600; }
@@ -358,7 +358,7 @@ st.markdown("""
   /* ── 지표 카드 ── */
   div[data-testid="stMetricValue"] { color: #76b900 !important; font-size: 1.6rem !important; font-weight: 600 !important; letter-spacing: -0.5px; }
   div[data-testid="stMetricLabel"] { color: #828a94 !important; font-size: 0.68rem !important;
-                                     text-transform: uppercase; letter-spacing: 1px; }
+                                     text-transform: uppercase; letter-spacing: 0.8px; }
   div[data-testid="stMetric"] {
     background: linear-gradient(160deg, #0e0e0e, #080808) !important;
     border: 1px solid #1a1a1a !important;
@@ -485,7 +485,7 @@ st.markdown("""
   /* "기준" 라벨을 3차 눈썹으로 — 이전엔 14px로 토글 글자(11.5px)보다 커서 위계가 역전돼 있었음 */
   .st-key-sector_basis label[data-testid="stWidgetLabel"] p {
     color: #828a94 !important; font-size: 0.656rem !important; font-weight: 600 !important;
-    letter-spacing: 1.3px !important; text-transform: uppercase !important;
+    letter-spacing: 0.8px !important; text-transform: uppercase !important;
   }
   /* 모바일은 간격을 좁혀 5개를 한 화면에 (360px 가용 328 vs 간격 12px일 때 필요 321).
      예전엔 잘린 탭을 알리려 우측에 '›' 그라데이션을 뒀는데, 이제 안 잘리므로 제거.
@@ -512,7 +512,7 @@ st.markdown("""
     flex: 1 1 140px; background: rgba(255,255,255,0.015);
   }
   .vc-box-empty { border-style: dashed; }
-  .vc-stage-lbl { font-size: 9px; color: #828a94; text-transform: uppercase; letter-spacing: .8px; margin-bottom: 6px; }
+  .vc-stage-lbl { font-size: 9px; color: #828a94; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; }
   .vc-name { font-size: 12.5px; font-weight: 500; margin-bottom: 4px; }
   .vc-amt { font-size: 17px; font-weight: 500; font-variant-numeric: tabular-nums; margin-bottom: 2px; }
   .vc-amt.vc-empty { font-size: 12.5px; color: #828a94; font-weight: 400; }
@@ -540,7 +540,7 @@ st.markdown("""
   .stButton > button, .stDownloadButton > button {
                        background: transparent !important; border: 1px solid #20242b !important;
                        color: #828a94 !important; border-radius: 3px !important; font-size: 0.75rem !important;
-                       letter-spacing: 0.5px; transition: all 0.2s; font-weight: 400 !important; }
+                       letter-spacing: 0; transition: all 0.2s; font-weight: 400 !important; }
   .stButton > button:hover, .stDownloadButton > button:hover {
                        border-color: #76b900 !important; color: #76b900 !important; }
 
@@ -589,7 +589,7 @@ st.markdown("""
     padding: 10px 12px;
     text-align: center;
   }
-  .ticker-chip .t  { font-size: 0.9rem; font-weight: 600; letter-spacing: 0.5px; }
+  .ticker-chip .t  { font-size: 0.9rem; font-weight: 600; letter-spacing: 0.3px; }
   .ticker-chip .amt { font-size: 0.7rem; color: #828a94; margin-top: 3px; letter-spacing: 0.3px; }
 
   /* ── 스크롤바 ── */
@@ -640,10 +640,10 @@ st.markdown("""
     margin-bottom: 10px; padding-bottom: 10px;
     border-bottom: 1px solid #1a1a1a;
   }
-  .ptd-ticker { color: #76b900; font-size: 0.85rem; font-weight: 600; letter-spacing: 0.8px; }  /* 색으로 이미 강조되므로 700→600 */
+  .ptd-ticker { color: #76b900; font-size: 0.85rem; font-weight: 600; letter-spacing: 0.3px; }  /* 색으로 이미 강조되므로 700→600 */
   .ptd-sector { color: #8b949e; font-size: 0.68rem; }
   .ptd-label  { color: #828a94; font-size: 0.58rem; font-weight: 600;
-                letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 4px; }
+                letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 4px; }
   .ptd-amount { color: #c87f00; font-size: 1.05rem; font-weight: 600; margin-bottom: 2px; }
   .ptd-fmv-note { color: #828a94; font-size: 0.62rem; margin-bottom: 10px; }
   .ptd-thesis { color: #9aa3b0; font-size: 0.8rem; line-height: 1.7; margin-bottom: 10px; }
@@ -690,7 +690,7 @@ st.markdown("""
     .main .block-container { padding: 1rem 0.8rem !important; }
 
     /* 헤더 — vw 비례(기종 무관 동일 비율로 채움, 한 줄 유지) */
-    .nv-title  { font-size: 3.1vw !important; letter-spacing: 0.5px !important; }
+    .nv-title  { font-size: 3.1vw !important; letter-spacing: 1px !important; }
     .nv-cursor { font-size: 3.1vw !important; }
     .nv-logo   { font-size: 4.3vw !important; top: -5px !important; }
 
@@ -1705,7 +1705,7 @@ def _quote_badge(is_live):
     """시세 행 값 — LIVE(초록)/CLOSED(회색) 배지 + Finnhub."""
     _css = ("background:rgba(118,185,0,.16);color:#9ee23a" if is_live
             else "background:#20242b;color:#8b949e")
-    return (f"<span style='font-size:10px;font-weight:600;letter-spacing:0.5px;"
+    return (f"<span style='font-size:10px;font-weight:600;letter-spacing:0.3px;"
             f"padding:1px 6px;border-radius:3px;margin-right:7px;{_css}'>"
             f"{'LIVE' if is_live else 'CLOSED'}</span>Finnhub")
 
@@ -1761,7 +1761,7 @@ with st.sidebar:
         st.markdown(f"""
 <style>
 .tag-guide-row {{ margin: 10px 0; }}
-.tag-guide-name {{ font-size: 0.72rem; font-weight: 600; letter-spacing: 1px; margin-bottom: 3px; }}
+.tag-guide-name {{ font-size: 0.72rem; font-weight: 600; letter-spacing: 0; margin-bottom: 3px; }}
 .tag-guide-desc {{ font-size: 0.75rem; color: #9aa3b0 !important; line-height: 1.5; }}
 </style>
 <div class="tag-guide-row">
@@ -1808,14 +1808,14 @@ with st.sidebar:
         f'<a href="https://twitter.com/intent/tweet?url={_url}&text={_text}" target="_blank" '
         f'style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;'
         f'background:#0e0e0e;border:1px solid #2a2d33;border-radius: 6px;padding:8px;'
-        f'color:#828a94;font-size:0.72rem;font-weight:600;letter-spacing:0.8px;text-decoration:none;'
+        f'color:#828a94;font-size:0.72rem;font-weight:600;letter-spacing:0;text-decoration:none;'
         f'transition:all 0.15s" onmouseover="this.style.borderColor=\'#f0f1ef\';this.style.color=\'#f0f1ef\'" '
         f'onmouseout="this.style.borderColor=\'#2a2d33\';this.style.color=\'#828a94\'">'
         f'𝕏 &nbsp;SHARE</a>'
         f'<a href="https://t.me/share/url?url={_url}&text={_text}" target="_blank" '
         f'style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;'
         f'background:#0e0e0e;border:1px solid #2a2d33;border-radius: 6px;padding:8px;'
-        f'color:#828a94;font-size:0.72rem;font-weight:600;letter-spacing:0.8px;text-decoration:none;'
+        f'color:#828a94;font-size:0.72rem;font-weight:600;letter-spacing:0;text-decoration:none;'
         f'transition:all 0.15s" onmouseover="this.style.borderColor=\'#2aabee\';this.style.color=\'#2aabee\'" '
         f'onmouseout="this.style.borderColor=\'#2a2d33\';this.style.color=\'#828a94\'">'
         f'✈ &nbsp;TELEGRAM</a>'
@@ -2321,7 +2321,7 @@ st.markdown("""
   color: #8b949e;
   font-size: 0.65rem;
   font-weight: 600;
-  letter-spacing: 1.4px;
+  letter-spacing: 0.8px;
   text-transform: uppercase;
   margin-bottom: 10px;
 }
@@ -2333,7 +2333,7 @@ st.markdown("""
   border-bottom: 1px solid #1a1a1a;
 }
 .tooltip-row:last-child { border-bottom: none; }
-.tooltip-ticker { color: #76b900; font-size: 0.8rem; font-weight: 600; letter-spacing: 0.5px; }
+.tooltip-ticker { color: #76b900; font-size: 0.8rem; font-weight: 600; letter-spacing: 0.3px; }
 .tooltip-name   { color: #9aa3b0; font-size: 0.75rem; }
 </style>
 """, unsafe_allow_html=True)
@@ -2422,7 +2422,7 @@ for col, label, value, color, extra_html in [
     col.markdown(
         f'<div class="metric-box" style="background:#0e0e0e;border:1px solid #2a2d33;border-top:2px solid {color};'
         f'border-radius: 6px;padding:18px 20px;margin-bottom:4px">'
-        f'<div style="color:#8b949e;font-size:0.72rem;font-weight:500;letter-spacing:1.2px;'
+        f'<div style="color:#8b949e;font-size:0.72rem;font-weight:500;letter-spacing:0.8px;'
         f'text-transform:uppercase;margin-bottom:8px">{label}</div>'
         f'<div style="color:{color};font-size:1.6rem;font-weight:600;letter-spacing:-0.5px;line-height:1">'
         f'{value}</div>'
@@ -2517,7 +2517,7 @@ with _tab_body:
             st.markdown(
                 f'<div style="display:flex;align-items:center;gap:14px;margin:32px 0 18px">'
                 f'<div style="width:3px;height:22px;background:{accent};border-radius: 3px;flex-shrink:0"></div>'
-                f'<span style="color:#c3c9d1;font-size:0.95rem;font-weight:600;letter-spacing:0.4px">{group_title}</span>'
+                f'<span style="color:#c3c9d1;font-size:0.95rem;font-weight:600;letter-spacing:0">{group_title}</span>'
                 f'<div style="flex:1;height:1px;background:#1a1a1a"></div>'
                 f'</div>',
                 unsafe_allow_html=True)
@@ -2814,7 +2814,7 @@ with _tab_body:
             def _metric_card(label, value_html, top_color):
                 return (f'<div style="background:#0e0e0e;border:1px solid #2a2d33;border-top:2px solid {top_color};'
                         f'border-radius: 6px;padding:16px 20px;height:100%">'
-                        f'<div style="color:#8b949e;font-size:0.7rem;font-weight:600;letter-spacing:1.2px;'
+                        f'<div style="color:#8b949e;font-size:0.7rem;font-weight:600;letter-spacing:0.8px;'
                         f'text-transform:uppercase;margin-bottom:8px">{label}</div>'
                         f'<div style="font-size:1.7rem;font-weight:600;letter-spacing:-0.5px;line-height:1">{value_html}</div>'
                         f'</div>')
@@ -3146,7 +3146,7 @@ with st.expander("Admin", expanded=False):
 # ── 푸터 ─────────────────────────────────────────────────────────────────────
 st.markdown("---")
 st.markdown(
-    f"<div style='text-align:center;color:#828a94;font-size:0.72rem;letter-spacing:0.5px'>"
+    f"<div style='text-align:center;color:#828a94;font-size:0.72rem;letter-spacing:0'>"
     f"SEC EDGAR 13F &nbsp;·&nbsp; NVIDIA IR &nbsp;·&nbsp; Bloomberg &nbsp;·&nbsp; Reuters &nbsp;·&nbsp; FT &nbsp;·&nbsp; WSJ"
     f"&nbsp;&nbsp;|&nbsp;&nbsp;{t('footer_live') if _live_meta.get('live') else t('footer_delay')}"
     f"&nbsp;&nbsp;|&nbsp;&nbsp;{datetime.now().strftime('%Y-%m-%d %H:%M')}"
