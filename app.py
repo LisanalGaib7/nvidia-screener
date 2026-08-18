@@ -634,24 +634,35 @@ st.markdown("""
     border-radius: 6px; padding: 16px 18px;
     min-width: 300px; max-width: 360px;
   }
-  /* detail body 내부 구조 */
+  /* detail body 내부 구조 — 라운드 8(2026-08-19): 폭 660px까지 늘어난 채 340px 전용
+     크기로 렌더되던 문제 수정. 크기 7종(9.28~16.8px) -> 5종(10/11/13/15/20, 타이포
+     스케일 첫 적용). 강조 예산 예외: 이 패널 내부에 한해 섹션 라벨에 accent를 쓰는
+     대신 티커가 accent를 내줌(패널 안 초록이 티커·구조 두 역할로 갈라지는 걸 방지,
+     DESIGN.md 참고). */
   .ptd-header {
     display: flex; align-items: center; gap: 8px;
-    margin-bottom: 10px; padding-bottom: 10px;
-    border-bottom: 1px solid #1a1a1a;
+    margin-bottom: 12px;
   }
-  .ptd-ticker { color: #76b900; font-size: 0.85rem; font-weight: 600; letter-spacing: 0.3px; }  /* 색으로 이미 강조되므로 700→600 */
-  .ptd-sector { color: #8b949e; font-size: 0.68rem; }
-  .ptd-label  { color: #828a94; font-size: 0.58rem; font-weight: 600;
-                letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 4px; }
-  .ptd-amount { color: #c87f00; font-size: 1.05rem; font-weight: 600; margin-bottom: 2px; }
-  .ptd-fmv-note { color: #828a94; font-size: 0.62rem; margin-bottom: 10px; }
-  .ptd-thesis { color: #9aa3b0; font-size: 0.8rem; line-height: 1.7; margin-bottom: 10px; }
-  .ptd-summary { color: #f0f1ef; font-size: 0.85rem; font-weight: 500; line-height: 1.6; margin-bottom: 12px; }
+  .ptd-ticker { color: #f0f1ef; font-size: 0.9375rem; font-weight: 600; }
+  .ptd-sector { color: #828a94; font-size: 0.6875rem; }
+  .ptd-hero {
+    background: #14161a; border: 1px solid #2a2d33;
+    border-radius: 6px; padding: 12px; margin-bottom: 12px;
+  }
+  .ptd-hero .ptd-label { color: #828a94; }
+  .ptd-block { margin-bottom: 12px; }
+  .ptd-block:last-of-type { margin-bottom: 0; }
+  .ptd-block .ptd-label { color: #76b900; }
+  .ptd-label  { font-size: 0.625rem; font-weight: 600;
+                letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 5px; }
+  .ptd-amount { color: #c87f00; font-size: 1.25rem; font-weight: 600; }
+  .ptd-fmv-note { color: #828a94; font-size: 0.6875rem; margin-top: 2px; }
+  .ptd-thesis { color: #9aa3b0; font-size: 0.8125rem; line-height: 1.6; }
+  .ptd-summary { color: #f0f1ef; font-size: 0.8125rem; font-weight: 500; line-height: 1.6; }
   .ptd-footer { display: flex; justify-content: space-between; align-items: flex-start;
-                padding-top: 8px; border-top: 1px solid #1a1a1a; gap: 8px; flex-wrap: wrap; }
-  .ptd-date   { color: #828a94; font-size: 0.65rem; white-space: nowrap; }
-  .ptd-src    { color: #828a94; font-size: 0.62rem; text-align: right; }
+                padding-top: 10px; margin-top: 12px; border-top: 1px solid #1a1a1a; gap: 8px; flex-wrap: wrap; }
+  .ptd-date   { color: #828a94; font-size: 0.6875rem; white-space: nowrap; }
+  .ptd-src    { color: #828a94; font-size: 0.6875rem; text-align: right; }
 
   /* ── 데스크탑 전용: hover 팝업 ───────────────────────────── */
   @media screen and (min-width: 769px) {
@@ -762,7 +773,7 @@ st.markdown("""
     /* 클릭해서 <details open> 되면 형제 body 표시 */
     .pt-detail details[open] ~ .pt-detail-body {
       display: block;
-      max-width: 100%;
+      max-width: 520px;
       margin-top: 8px;
     }
   }
@@ -2580,16 +2591,16 @@ with _tab_body:
                     _L = (("In a nutshell", "Why NVIDIA invested", "Deal structure") if lang == "ENG"
                           else ("한 줄 요약", "왜 NVIDIA가 투자했나", "투자 구조"))
                     _thesis_html = (
-                        f'<div class="ptd-label">{_L[0]}</div>'
-                        f'<div class="ptd-summary">{_tk3[0]}</div>'
-                        f'<div class="ptd-label">{_L[1]}</div>'
-                        f'<div class="ptd-thesis">{_tk3[1]}</div>'
-                        f'<div class="ptd-label">{_L[2]}</div>'
-                        f'<div class="ptd-thesis">{_tk3[2]}</div>'
+                        f'<div class="ptd-block"><div class="ptd-label">{_L[0]}</div>'
+                        f'<div class="ptd-summary">{_tk3[0]}</div></div>'
+                        f'<div class="ptd-block"><div class="ptd-label">{_L[1]}</div>'
+                        f'<div class="ptd-thesis">{_tk3[1]}</div></div>'
+                        f'<div class="ptd-block"><div class="ptd-label">{_L[2]}</div>'
+                        f'<div class="ptd-thesis">{_tk3[2]}</div></div>'
                     )
                 else:
-                    _thesis_html = ('<div class="ptd-label">WHY NVIDIA</div>'
-                                    f'<div class="ptd-thesis">{_thesis}</div>')
+                    _thesis_html = ('<div class="ptd-block"><div class="ptd-label">WHY NVIDIA</div>'
+                                    f'<div class="ptd-thesis">{_thesis}</div></div>')
                 price_h  = f'<span style="color:#c3c9d1;font-weight:500">{fmt_price(price,currency)}</span>'
                 daily_h  = fmt_pct(sd.get("change_pct"))
                 ytd_h    = fmt_pct(sd.get("ytd_pct"))
@@ -2631,8 +2642,9 @@ with _tab_body:
                     f'<details><summary>{detail_lbl}</summary></details>'
                     f'<div class="pt-detail-body">'
                     f'<div class="ptd-header"><span class="ptd-ticker">{disp_ticker(ticker, c["name"])}</span><span class="ptd-sector">{_sector}</span></div>'
-                    + (f'<div class="ptd-label">NVIDIA INVEST</div><div class="ptd-amount">{amt}</div>'
+                    + (f'<div class="ptd-hero"><div class="ptd-label">NVIDIA INVEST</div><div class="ptd-amount">{amt}</div>'
                        + (f'<div class="ptd-fmv-note">{t("ptd_fmv_note")}</div>' if _amt_is_fmv else '')
+                       + '</div>'
                        if amt else '')
                     + _thesis_html
                     + f'<div class="ptd-footer"><span class="ptd-date">{_date}</span><span class="ptd-src">{_src}</span></div>'
