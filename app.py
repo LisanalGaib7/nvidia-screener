@@ -741,9 +741,9 @@ st.markdown("""
       margin: 10px 0 8px;
     }
     .pt-meta {
-      display: flex !important;
-      gap: 14px;
-      flex-wrap: wrap;
+      display: grid !important;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
       padding-top: 8px;
       border-top: 1px solid #1a1a1a;
       margin-bottom: 10px;
