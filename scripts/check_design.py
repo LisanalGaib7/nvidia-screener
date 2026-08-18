@@ -41,7 +41,15 @@ DATAVIZ = {
 # 배지 틴트 짝(badge tint pair) — SEMANTIC 색을 18% 알파 배경으로 쓸 때 그 위에서
 # 읽히는 밝은 글자색. 중복이 아니라 SEMANTIC 각 항목의 필수 짝꿍(DESIGN.md 참고).
 BADGE_TINTS = {"#4ade80", "#7ab8f5", "#f08a8a", "#a5a8f5", "#b0b8c2"}
-ALLOWED_HEX = NEUTRALS | SEMANTIC | DATAVIZ | BADGE_TINTS
+# 배지 보더 틴트 — badge-core/new/seed/partner + 알림 배너가 각자 텍스트색의 어두운
+# 변형을 테두리로 쓰는 짝. border(중립 회색)로 합치면 배지별 색 구분이 사라짐(DESIGN.md 참고).
+BADGE_BORDER_TINTS = {"#1e3a5f", "#3d2600", "#2a3f00", "#2a1a4a", "#2a2200"}
+# accent의 밝은 짝(LIVE 배지·방문자 배지, accent 18% 알파 배경 위) — BADGE_TINTS와 같은 이유.
+ACCENT_TINT = {"#9ee23a"}
+# 우리 팔레트가 아니라 상대 브랜드를 따라야 하는 자리(공유 버튼 호버) + 별점 관용색.
+EXTERNAL_EXCEPTIONS = {"#2aabee", "#fbbf24"}
+ALLOWED_HEX = (NEUTRALS | SEMANTIC | DATAVIZ | BADGE_TINTS | BADGE_BORDER_TINTS
+               | ACCENT_TINT | EXTERNAL_EXCEPTIONS)
 
 ALLOWED_RADII = {"3px", "6px", "10px"}
 MAX_WEIGHT = 600
@@ -75,9 +83,13 @@ def main() -> int:
     src = APP_PY.read_text(encoding="utf-8")
     problems = []
 
+    # /* CSS 주석 */ 안의 hex는 실제 스타일이 아니라 지난 값에 대한 설명(예: "이전 #a03030은…")
+    # 인 경우가 많다 — 색 검사에서는 제외. 파이썬 코드는 그대로 스캔(문자열 리터럴이 진짜 스타일).
+    src_no_css_comments = re.sub(r"/\*.*?\*/", "", src, flags=re.DOTALL)
+
     # 1) 미등록 색상 (표에 없는 hex)
     # &#9670; 같은 HTML 엔티티(◆ 등)는 CSS hex가 아니므로 '&' 뒤 매치는 제외
-    all_hex = {to6(h) for h in re.findall(r"(?<!&)#[0-9a-fA-F]{3,6}\b", src)
+    all_hex = {to6(h) for h in re.findall(r"(?<!&)#[0-9a-fA-F]{3,6}\b", src_no_css_comments)
                if len(h) - 1 in (3, 6)}
     unregistered = sorted(all_hex - ALLOWED_HEX)
     if unregistered:
@@ -98,9 +110,10 @@ def main() -> int:
             f"    밝은 배경 위 글자나 N/A 표시 관용구라면 DESIGN.md 예외 조항 확인 후 무시:\n{lines}"
         )
 
-    # 3) font-weight 700 이상
+    # 3) font-weight 700 이상 — .nv-logo(900)는 브랜드 워드마크 예외(DESIGN.md 참고)
+    WEIGHT_EXCEPTIONS = {900}
     weights = re.findall(r"font-weight:\s*(\d+)", src)
-    heavy = sorted({int(w) for w in weights if int(w) > MAX_WEIGHT})
+    heavy = sorted({int(w) for w in weights if int(w) > MAX_WEIGHT} - WEIGHT_EXCEPTIONS)
     if heavy:
         problems.append(f"[굵기 위반] font-weight {heavy} 발견 — 최대 {MAX_WEIGHT}")
 
