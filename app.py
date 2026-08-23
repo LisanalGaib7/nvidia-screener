@@ -19,13 +19,7 @@ st.set_page_config(
 if "lang" not in st.session_state:
     st.session_state.lang = "KOR"
 
-# 마지막 13F 검증일 — 분기 업데이트 시 여기 한 곳만 수정 (앱 표시용 단일 소스)
-# ⚠️ scripts/check_13f.py 의 LAST_REFLECTED 는 별도 프로세스 — 함께 갱신 필요
-LAST_VERIFIED = "2026-05-15"
-
 TRANSLATIONS = {
-    # 헤더
-    "last_verified":        {"KOR": f"마지막 검증 {LAST_VERIFIED}",  "ENG": f"Last verified {LAST_VERIFIED}"},
     # 메트릭
     "metric_holdings":      {"KOR": "현재 13F 보유",                "ENG": "13F Holdings"},
     "metric_invested":      {"KOR": "투자 금액",                     "ENG": "Invested"},
@@ -115,6 +109,7 @@ TRANSLATIONS = {
     "sb_data_title":        {"KOR": "데이터",                       "ENG": "DATA"},
     "sb_row_quote":         {"KOR": "시세",                         "ENG": "Quotes"},
     "sb_row_filing":        {"KOR": "공시",                         "ENG": "Filings"},
+    "sb_row_asof":          {"KOR": "기준일",                       "ENG": "As of"},
     "sb_row_fund":          {"KOR": "펀더멘털",                      "ENG": "Fundamentals"},
     "sb_fund_snap_v":       {"KOR": "전일 스냅샷",                   "ENG": "Prev-close snapshot"},
     "sb_quote_fallback":    {"KOR": "Yahoo · 전일 종가",             "ENG": "Yahoo · prev close"},
@@ -1314,6 +1309,15 @@ FILINGS_HISTORY = [
     {"ticker":"NNOX", "company":"Nano-X Imaging",   "quarter":"Q4 2024","filed":"2025-02-14","change":"전량 청산",                          "change_eng":"Full exit",                                "change_type":"exit",     "value_m":None},
 ]
 
+# 최신 13F 공시일 — FILINGS_HISTORY에서 파생 (quarter가 있는 항목만; PIPE·워런트·SC 13G 등
+# 13F가 아닌 이벤트는 quarter를 안 채우므로 자동 제외됨). 상수를 따로 안 두는 이유:
+# scripts/check_13f.py의 알림 조건과 여기 표시값이 서로 다른 상수를 보다가 어긋나
+# 반영 완료된 공시에 알림이 계속 온 사고(2026-08-23) 재발 방지. 새 13F를 이 리스트에
+# quarter와 함께 추가하는 순간 알림도, 사이드바 표시도 자동으로 같이 갱신됨.
+_LATEST_13F = max((f for f in FILINGS_HISTORY if f.get("quarter")), key=lambda f: f["filed"])
+LAST_13F_FILED = _LATEST_13F["filed"]
+LAST_13F_QUARTER = _LATEST_13F["quarter"]
+
 BADGE_MAP = {
     "core":    '<span class="badge-core">CORE</span>',
     "new":     '<span class="badge-new">NEW</span>',
@@ -1740,6 +1744,7 @@ def _sidebar_data_html(quote_v, asof_date):
         f"{t('sb_data_title')}</div>"
         + _row(t('sb_row_quote'), quote_v)
         + _row(t('sb_row_filing'), "SEC EDGAR 13F · NVIDIA IR")
+        + _row(t('sb_row_asof'), f"{LAST_13F_FILED} ({LAST_13F_QUARTER})")
         + _row(t('sb_row_fund'), f"{t('sb_fund_snap_v')}{asof_date}")
         + f"<div style='font-size:13.6px;color:#c87f00;margin-top:10px'>{t('sb_disclaimer')}</div>"
         + "<hr style='border:0;border-top:0.5px solid #20242b;margin:13px 0 2px'>"
