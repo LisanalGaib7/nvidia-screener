@@ -25,11 +25,11 @@ TRANSLATIONS = {
     "metric_invested":      {"KOR": "투자 금액",                     "ENG": "Invested"},
     "metric_invested_excl": {"KOR": "금액 비공개 {n}곳 제외",          "ENG": "{n} excluded, amount not disclosed"},
     "metric_avg_ytd":       {"KOR": "평균 YTD",                     "ENG": "Avg YTD"},
-    "metric_near_high":     {"KOR": "52주 신고가 근접",             "ENG": "Near 52W High"},
+    "metric_near_high":     {"KOR": "52주 고가 대비",               "ENG": "vs 52W High"},
     "tooltip_13f":          {"KOR": "SEC 13F 공시 확인",             "ENG": "SEC 13F Confirmed"},
     "tooltip_invest_rank":  {"KOR": "투자금액 순",                   "ENG": "By Investment Size"},
     "tooltip_ytd_rank":     {"KOR": "YTD 수익률 순",                 "ENG": "By YTD Return"},
-    "tooltip_near_high":    {"KOR": "52주 고가 대비 (5% 이내 강조)",  "ENG": "vs 52W High (≤5% highlighted)"},
+    "tooltip_near_high":    {"KOR": "52주 고가 대비 (고가에 가까운 순)", "ENG": "vs 52W High (closest first)"},
     # 섹션 헤더
     "group_new":            {"KOR": "2026 신규 투자",                "ENG": "2026 New Investments"},
     "group_hold":           {"KOR": "기존 보유  ·  Q1 2026",         "ENG": "Current Holdings  ·  Q1 2026"},
@@ -43,6 +43,9 @@ TRANSLATIONS = {
     "col_cap":              {"KOR": "시총",                          "ENG": "Mkt Cap"},
     "col_pe":               {"KOR": "P/E",                          "ENG": "P/E"},
     "col_52w":              {"KOR": "52주범위",                      "ENG": "52W Range"},
+    "col_entry":            {"KOR": "진입",                          "ENG": "Entry"},
+    "col_exit":             {"KOR": "청산",                          "ENG": "Exit"},
+    "col_hold":             {"KOR": "보유",                          "ENG": "Held"},
     # 사이드바
     "sb_show":              {"KOR": "표시 항목",                     "ENG": "Show"},
     "sb_holdings":          {"KOR": "현재 보유 (13F)",               "ENG": "Current Holdings (13F)"},
@@ -679,6 +682,10 @@ st.markdown("""
     .pt-detail:hover details > summary { border-color: #76b900; color: #76b900; }
   }
 
+  /* 청산 시점 — 데스크탑은 표 그리드가 고정이라 회사 셀에 덧붙인다.
+     모바일은 지표 3칸이 진입·청산·보유로 바뀌므로 아래 미디어쿼리에서 숨김(중복 방지). */
+  .pt-exitline { color: #828a94; font-size: 0.6875rem; }
+
   /* 모바일 전용 요소 — 데스크탑에서 숨김 */
   .pt-stats, .pt-meta { display: none; }
   .pt-stat-label {
@@ -737,8 +744,8 @@ st.markdown("""
       padding: 12px 14px;
       margin-bottom: 8px;
     }
-    /* 데스크탑 전용 셀 숨김 */
-    .pt-price, .pt-daily, .pt-ytd, .pt-cap, .pt-pe { display: none !important; }
+    /* 데스크탑 전용 셀 숨김 (.pt-exitline은 모바일 지표 3칸과 중복되므로 함께 숨김) */
+    .pt-price, .pt-daily, .pt-ytd, .pt-cap, .pt-pe, .pt-exitline { display: none !important; }
     /* 모바일 통계 표시 */
     .pt-stats {
       display: grid !important;
@@ -1714,6 +1721,29 @@ def fmt_pct(v):
 
 def fmt_ratio(v): return f"{v:.1f}x" if v else "—"
 
+def _parse_period(s):
+    """'2023-07-01' / '2023-07' / '2023-Q4' 를 (연, 월)로. 분기는 그 분기 중간 월로 근사."""
+    if not s: return None
+    m = re.match(r"(\d{4})-Q([1-4])", s)
+    if m: return int(m.group(1)), int(m.group(2)) * 3 - 1   # Q4 -> 11월
+    m = re.match(r"(\d{4})-(\d{2})", s)
+    if m: return int(m.group(1)), int(m.group(2))
+    m = re.match(r"(\d{4})", s)
+    return (int(m.group(1)), 6) if m else None
+
+def fmt_hold_period(entry, exit_):
+    """보유 기간 근사. 진입일 형식이 일자·분기로 섞여 있어 정확 계산이 불가능하므로
+    '약'을 붙여 근사치임을 명시한다(예: 2023-07-01 -> 2025-Q4 = 약 2년 4개월)."""
+    a, b = _parse_period(entry), _parse_period(exit_)
+    if not a or not b: return "—"
+    months = (b[0] - a[0]) * 12 + (b[1] - a[1])
+    if months < 0: return "—"
+    y, mo = divmod(months, 12)
+    kor = st.session_state.lang == "KOR"
+    if y and mo:  return f"약 {y}년 {mo}개월" if kor else f"~{y}y {mo}m"
+    if y:         return f"약 {y}년" if kor else f"~{y}y"
+    return f"약 {mo}개월" if kor else f"~{mo}m"
+
 def ts_to_str(ts):
     try: return datetime.fromtimestamp(ts).strftime("%Y-%m-%d")
     except Exception: return ""
@@ -2296,7 +2326,25 @@ total_invest = sum(c["invest_amt_m"] for c in all_display if c.get("invest_amt_m
 avg_ytd_str   = f"{avg_ytd:+.1f}%" if avg_ytd else "—"
 invest_str    = f"${total_invest/1000:.1f}B+"
 
-# 52주 신고가 근접 — 보유분 모멘텀 (파트너·청산 제외, gap = 고가 대비 하락폭 %)
+# 카드 부제 — 네 카드가 모두 같은 높이를 유지하도록 항상 채운다(빈 값이면 &nbsp;).
+# Streamlit 래퍼 중첩 때문에 height:100%로는 정렬이 안 잡혀서, 슬롯 자체를 상시 렌더링한다.
+_kor = st.session_state.lang == "KOR"
+_held = [c for c in all_display if c["badge"] not in ("partner", "exited")]
+_disc = sum(1 for c in _held if c.get("invest_amt_m"))
+holdings_sub = (f"파트너십 {len(PARTNERSHIPS)} · 청산 {len(EXITED)}" if _kor
+                else f"{len(PARTNERSHIPS)} partners · {len(EXITED)} exited")
+invest_sub   = (f"{len(_held)}종 중 {_disc}종 공시" if _kor
+                else f"{_disc} of {len(_held)} disclosed")   # '+' 가 왜 붙는지 설명
+if ytd_vals:
+    avg_ytd_sub = (f"최고 {max(ytd_vals):+.0f}% · 최저 {min(ytd_vals):+.0f}%" if _kor
+                   else f"best {max(ytd_vals):+.0f}% · worst {min(ytd_vals):+.0f}%")
+else:
+    avg_ytd_sub = ""
+
+# 52주 고가 대비 — 보유분 낙폭 (파트너·청산 제외, gap = 고가 대비 하락폭 %)
+# 이전엔 "5% 이내 N개"를 셌는데 실측 갭이 -16.6~-52.9%라 항상 0/13으로 고정돼
+# 지표가 상수였다(임계값을 15%로 올려도 0, 20%까지 올려야 2). 평균 낙폭으로 바꾸면
+# 매일 변하는 실수치가 되고, 옆 카드 '평균 YTD'와 수익률↔낙폭으로 짝을 이룬다.
 _near_high = []
 for c in all_display:
     if c["badge"] in ("partner", "exited"):
@@ -2306,15 +2354,25 @@ for c in all_display:
     if _price and _hi and _hi > 0:
         _near_high.append((c, (_hi - _price) / _hi * 100))
 _near_high.sort(key=lambda x: x[1])  # 고가에 가까운 순
-_near5_cnt    = sum(1 for _, g in _near_high if g <= 5)
-near_high_str = f"{_near5_cnt}/{len(_near_high)}" + ("개" if st.session_state.lang == "KOR" else "")
+if _near_high:
+    _gaps = [g for _, g in _near_high]
+    _avg_gap = sum(_gaps) / len(_gaps)
+    _med_gap = sorted(_gaps)[len(_gaps) // 2]
+    near_high_str = f"-{_avg_gap:.1f}%"
+    near_high_sub = (f"중앙값 -{_med_gap:.1f}% · 최소 -{_gaps[0]:.1f}%"
+                     if st.session_state.lang == "KOR"
+                     else f"median -{_med_gap:.1f}% · best -{_gaps[0]:.1f}%")
+else:
+    near_high_str, near_high_sub = "—", ""
 
 m1,m2,m3,m4 = st.columns(4)
 
 # 13F 호버 툴팁용 CSS
 st.markdown("""
 <style>
-.metric-box { position: relative; }
+/* 컬럼은 stretch로 이미 같은 높이인데 박스가 안 채워서, 부제가 붙은 카드만 26px 높았다
+   (91 vs 117px 실측). height:100%로 행 안에서 항상 같은 높이를 유지시킨다. */
+.metric-box { position: relative; height: 100%; }
 .metric-tooltip {
   display: none;
   position: absolute;
@@ -2375,9 +2433,10 @@ components.html("""
 </script>
 """, height=0)
 
-for col, label, value, color, extra_html in [
+for col, label, value, color, sub, extra_html in [
     (m1, t("metric_holdings"),
      (f"{len(THIRTEEN_F)}개 종목" if st.session_state.lang=="KOR" else f"{len(THIRTEEN_F)} stocks"), "#76b900",
+     holdings_sub,
      '<div class="metric-tooltip">'
      f'<div class="tooltip-title">{t("tooltip_13f")}</div>'
      + "".join(
@@ -2389,6 +2448,7 @@ for col, label, value, color, extra_html in [
        )
      + '</div>'),
     (m2, t("metric_invested"), invest_str,   "#c87f00",
+     invest_sub,
      '<div class="metric-tooltip" style="border-top-color:#c87f00;min-width:220px;left:auto;right:0">'
      f'<div class="tooltip-title" style="color:#c87f00">{t("tooltip_invest_rank")}</div>'
      + "".join(
@@ -2409,6 +2469,7 @@ for col, label, value, color, extra_html in [
        ))([c for c in all_display if c["badge"] != "exited" and not c.get("invest_amt_m") and c.get("fmv_m")])
      + '</div>'),
     (m3, t("metric_avg_ytd"), avg_ytd_str,  "#76b900",
+     avg_ytd_sub,
      '<div class="metric-tooltip" style="min-width:220px">'
      f'<div class="tooltip-title">{t("tooltip_ytd_rank")}</div>'
      + "".join(
@@ -2425,13 +2486,15 @@ for col, label, value, color, extra_html in [
          )
      )
      + '</div>'),
-    (m4, t("metric_near_high"), near_high_str, "#76b900",
+    # 낙폭이라 accent(상승)를 쓰면 뜻이 어긋난다 — 이미 m2가 쓰는 gold로(강조 예산 참고)
+    (m4, t("metric_near_high"), near_high_str, "#c87f00",
+     near_high_sub,
      '<div class="metric-tooltip" style="min-width:230px;left:auto;right:0">'
      f'<div class="tooltip-title">{t("tooltip_near_high")}</div>'
      + "".join(
          f'<div class="tooltip-row">'
          f'<span class="tooltip-ticker">{disp_ticker(c["ticker"], c["name"])}</span>'
-         f'<span class="tooltip-name" style="color:{"#76b900" if gap<=5 else "#9aa3b0"}">'
+         f'<span class="tooltip-name" style="color:#9aa3b0">'
          f'{"신고가" if gap<0.05 else f"-{gap:.1f}%"}</span></div>'
          for c, gap in _near_high
        )
@@ -2444,6 +2507,8 @@ for col, label, value, color, extra_html in [
         f'text-transform:uppercase;margin-bottom:8px">{label}</div>'
         f'<div style="color:{color};font-size:1.6rem;font-weight:600;letter-spacing:-0.5px;line-height:1">'
         f'{value}</div>'
+        # 부제 슬롯은 값이 없어도 항상 렌더링한다 — 네 카드 높이를 맞추는 장치
+        f'<div style="color:#828a94;font-size:0.6875rem;margin-top:8px">{sub or "&nbsp;"}</div>'
         f'{extra_html}'
         f'</div>',
         unsafe_allow_html=True)
@@ -2623,23 +2688,50 @@ with _tab_body:
                 _badge = BADGE_MAP[c["badge"]]
                 _sector = sector_name(c["sector"])
                 _col_price = t("col_price"); _col_daily = t("col_daily"); _col_cap = t("col_cap")
+
+                # 청산 종목은 닫힌 포지션이라 현재가·일간등락·YTD가 판단에 안 쓰인다.
+                # 모바일 지표 3칸을 진입·청산·보유기간으로 교체하고, 현재가는 아래 메타로 내린다.
+                # (데스크탑은 표 그리드가 고정이라 회사 셀에 한 줄로 덧붙인다 — .pt-exitline)
+                _is_exited = c["badge"] == "exited"
+                _exit_d = c.get("exit_date")
+                if _is_exited and _exit_d:
+                    _hold = fmt_hold_period(c.get("invest_date"), _exit_d)
+                    _exitline = (f'<span class="pt-exitline">· {_exit_d} {t("col_exit")}'
+                                 + (f' · {_hold}' if _hold != "—" else '') + '</span>')
+                    _stats_html = (
+                        f'<div><span class="pt-stat-label">{t("col_entry")}</span>'
+                        f'<span style="color:#c3c9d1">{c.get("invest_date","—")}</span></div>'
+                        f'<div><span class="pt-stat-label">{t("col_exit")}</span>'
+                        f'<span style="color:#c3c9d1">{_exit_d}</span></div>'
+                        f'<div><span class="pt-stat-label">{t("col_hold")}</span>'
+                        f'<span style="color:#c3c9d1">{_hold}</span></div>'
+                    )
+                    _meta_html = (
+                        f'<div><span class="pt-stat-label">{_col_price}</span>{price_h}</div>'
+                        f'<div><span class="pt-stat-label">{_col_cap}</span>{cap_h}</div>'
+                        f'<div><span class="pt-stat-label">52W</span>{bar52_mob}</div>'
+                    )
+                else:
+                    _exitline = ''
+                    _stats_html = (
+                        f'<div><span class="pt-stat-label">{_col_price}</span>{price_h}</div>'
+                        f'<div><span class="pt-stat-label">{_col_daily}</span>{daily_h}</div>'
+                        f'<div><span class="pt-stat-label">YTD</span>{ytd_h}</div>'
+                    )
+                    _meta_html = (
+                        f'<div><span class="pt-stat-label">{_col_cap}</span>{cap_h}</div>'
+                        f'<div><span class="pt-stat-label">P/E</span>{pe_h}</div>'
+                        f'<div><span class="pt-stat-label">52W</span>{bar52_mob}</div>'
+                    )
                 row_html = (
                     f'<div class="ptable-row" style="--accent:{accent}">'
                     f'<div class="pt-company">'
                     f'<div><span style="color:#f0f1ef;font-weight:500">{c["name"]}</span>'
                     f'<span style="color:#9aa3b0;font-size:0.75rem;margin-left:6px">{disp_ticker(ticker, c["name"])}</span></div>'
                     f'<div style="display:flex;align-items:center;flex-wrap:wrap;gap:5px;margin-top:4px">'
-                    f'{_badge}<span style="color:#9aa3b0;font-size:0.7rem">{_sector}</span>{amt_h}</div>'
-                    f'<div class="pt-stats">'
-                    f'<div><span class="pt-stat-label">{_col_price}</span>{price_h}</div>'
-                    f'<div><span class="pt-stat-label">{_col_daily}</span>{daily_h}</div>'
-                    f'<div><span class="pt-stat-label">YTD</span>{ytd_h}</div>'
-                    f'</div>'
-                    f'<div class="pt-meta">'
-                    f'<div><span class="pt-stat-label">{_col_cap}</span>{cap_h}</div>'
-                    f'<div><span class="pt-stat-label">P/E</span>{pe_h}</div>'
-                    f'<div><span class="pt-stat-label">52W</span>{bar52_mob}</div>'
-                    f'</div></div>'
+                    f'{_badge}<span style="color:#9aa3b0;font-size:0.7rem">{_sector}</span>{amt_h}{_exitline}</div>'
+                    f'<div class="pt-stats">{_stats_html}</div>'
+                    f'<div class="pt-meta">{_meta_html}</div></div>'
                     f'<div class="pt-price">{price_h}</div>'
                     f'<div class="pt-daily">{daily_h}</div>'
                     f'<div class="pt-ytd">{ytd_h}</div>'
