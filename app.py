@@ -601,10 +601,14 @@ st.markdown("""
   .st-key-feedback_fab button [data-testid="stIconMaterial"],
   .st-key-feedback_fab button span { color: #080808 !important; }
 
-  /* 피드백 모달 — Streamlit 기본 패널이 rgba(0,0,0,.5), 스크림이 rgba(151,163,195,.25)라
-     다크 테마에서 뒤 카드가 그대로 비쳐 글자가 안 읽힌다. 불투명 표면으로 교체. */
+  /* 피드백 모달 — 기본 스크림이 rgba(151,163,195,.25)로 밝아 다크 테마에서 뒤가 비친다.
+     패널 배경도 버전마다 기본값이 달라(1.57 rgba(0,0,0,.5) / 1.61 rgb(13,13,13))
+     기본값에 기대면 다음 버전에서 조용히 깨진다 — 우리 값으로 명시한다.
+     위치 기반(> div > div)은 쓰지 않는다: 중첩 구조가 버전마다 다르다(1.57은
+     스크림>패널, 1.61은 패널>section). 두 버전 모두 role="dialog"가 패널과 같은
+     크기라 거기에만 배경을 주면 구조에 상관없이 맞는다. */
   div[data-testid="stDialog"] { background: rgba(0,0,0,0.72) !important; }
-  div[data-testid="stDialog"] > div > div {
+  div[data-testid="stDialog"] [role="dialog"] {
     background: #0e0e0e !important;
     border: 1px solid #2a2d33 !important;
     border-radius: 10px !important;
