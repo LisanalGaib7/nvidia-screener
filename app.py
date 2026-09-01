@@ -848,8 +848,6 @@ NEW_2026 = [
         "invest_amt_m": 2100.0,
         "invest_date": "2026-05-07",
         "badge": "new",
-        "exchange": "NASDAQ",
-        "is_new_alert": True,
         "alert_date": "2026-05-07",
         "alert_desc": "$2.1B 워런트 (최대)",
         "alert_desc_eng": "$2.1B warrants (max)",
@@ -867,8 +865,6 @@ NEW_2026 = [
         "invest_amt_m": 3200.0,
         "invest_date": "2026-05-06",
         "badge": "new",
-        "exchange": "NYSE",
-        "is_new_alert": True,
         "alert_date": "2026-05-06",
         "nvidia_thesis": "AI 광섬유·광학 소재 미국 내 제조. 신규 공장 3곳(NC·TX)으로 미국 광학 생산 10배 확대, $500M 선불 워런트 @$180, 최대 $3.2B",
         "nvidia_thesis_eng": "AI fiber optic & optical materials domestic manufacturing. 3 new factories (NC·TX) lift US optical production 10x, $500M upfront warrants @$180, up to $3.2B",
@@ -884,8 +880,6 @@ NEW_2026 = [
         "invest_amt_m": 2000.0,
         "invest_date": "2026-03-31",
         "badge": "new",
-        "exchange": "NASDAQ",
-        "is_new_alert": True,
         "alert_date": "2026-03-31",
         "nvidia_thesis": "NVLink Fusion: Marvell XPU를 NVIDIA Rubin GPU·Vera CPU와 동일 랙에서 1.8TB/s로 통합. 실리콘 포토닉스 공동 R&D",
         "nvidia_thesis_eng": "NVLink Fusion: integrates Marvell XPU with NVIDIA Rubin GPU & Vera CPU in the same rack at 1.8TB/s. Silicon photonics co-R&D",
@@ -901,8 +895,6 @@ NEW_2026 = [
         "invest_amt_m": 2000.0,
         "invest_date": "2026-03-02",
         "badge": "new",
-        "exchange": "NASDAQ",
-        "is_new_alert": True,
         "alert_date": "2026-03-02",
         "nvidia_thesis": "AI 광학 레이저·포토닉스. 미국 내 신규 fab 구축, 고급 레이저 부품 독점 공급권. 우선주 2,876,415주 @$695.31",
         "nvidia_thesis_eng": "AI optical lasers & photonics. New US fab construction, exclusive supply of advanced laser components. 2,876,415 preferred shares @$695.31",
@@ -919,8 +911,6 @@ NEW_2026 = [
         "fmv_m": 3072.2,  # SEC 13F Q2 2026 원문(acc. 0001045810-26-000065), 6/30 기준 평가액
         "invest_date": "2026-03-02",
         "badge": "new",
-        "exchange": "NYSE",
-        "is_new_alert": True,
         "alert_date": "2026-03-02",
         "nvidia_thesis": "차세대 AI 데이터센터 광트랜시버(800G/1.6T 광연결 인프라). 미국 내 제조 확대, 멀티빌리언 구매 약정",
         "nvidia_thesis_eng": "Next-gen AI datacenter optical transceivers (800G/1.6T optical interconnect infrastructure). US manufacturing expansion, multi-billion purchase commitment",
@@ -936,8 +926,6 @@ NEW_2026 = [
         "invest_amt_m": 1000.0,
         "invest_date": "2026-07-27",
         "badge": "new",
-        "exchange": "KOSPI",
-        "is_new_alert": True,
         "alert_date": "2026-07-27",
         "alert_desc": "$1B 유상증자 (1.48조원)",
         "alert_desc_eng": "$1B share placement (₩1.48T)",
@@ -956,8 +944,6 @@ NEW_2026 = [
         "fmv_m": 14.1,  # SEC 13F Q2 2026 원문, 6/30 기준 평가액
         "invest_date": "2026-05-15",
         "badge": "new",
-        "exchange": "NASDAQ",
-        "is_new_alert": True,
         "alert_date": "2026-05-15",
         "alert_desc": "지분 가치 $14.1M",
         "alert_desc_eng": "Stake value $14.1M",
@@ -976,8 +962,6 @@ NEW_2026 = [
         "fmv_m": 20975.6,  # SEC 13F Q2 2026 원문, 6/30 기준 평가액
         "invest_date": "2026-08-14",
         "badge": "new",
-        "exchange": "NASDAQ",
-        "is_new_alert": True,
         "alert_date": "2026-08-14",
         "alert_desc": "지분 가치 $21.0B, xAI 투자분 전환",
         "alert_desc_eng": "Stake value $21.0B, converted from xAI",
@@ -1000,8 +984,6 @@ CURRENT_HOLDINGS = [
         "fmv_m": 29989.3,  # SEC 13F Q2 2026 원문, 6/30 기준 평가액
         "invest_date": "2025-12-29",
         "badge": "core",
-        "exchange": "NASDAQ",
-        "is_new_alert": True,
         "alert_date": "2025-12-29",
         "nvidia_thesis": "AI 인프라·PC 칩 공동 개발. x86 CPU+NVIDIA GPU 칩렛 통합 제품을 개발하며, $5B 직접 지분투자(4%), 214.7M주 @$23.28",
         "nvidia_thesis_eng": "AI infrastructure & PC chip co-development. Integrating x86 CPU + NVIDIA GPU chiplets, with a $5B direct equity investment (4%), 214.7M shares @$23.28",
@@ -1018,8 +1000,6 @@ CURRENT_HOLDINGS = [
         "fmv_m": 2150.8,  # SEC 13F Q2 2026 원문, 6/30 기준 평가액
         "invest_date": "2025-12-01",
         "badge": "core",
-        "exchange": "NASDAQ",
-        "is_new_alert": True,
         "alert_date": "2025-12-01",
         "nvidia_thesis": "EDA와 에이전틱 AI 엔지니어링으로 칩 설계 자동화·클라우드 가속. $2B 사모 발행 @$414.79/주",
         "nvidia_thesis_eng": "EDA + Agentic AI engineering for chip design automation & cloud acceleration. $2B private placement @$414.79/share",
@@ -1036,8 +1016,6 @@ CURRENT_HOLDINGS = [
         "fmv_m": 2209.7,  # SEC 13F Q2 2026 원문, 6/30 기준 평가액
         "invest_date": "2025-10-28",
         "badge": "core",
-        "exchange": "NYSE",
-        "is_new_alert": True,
         "alert_date": "2025-10-28",
         "nvidia_thesis": "5G/6G AI 네트워크. Nokia RAN에 NVIDIA GPU를 통합해 AI 기반 이동통신 인프라를 개발. $1B, 2.9% 지분 @$6.01/주",
         "nvidia_thesis_eng": "5G/6G AI network. Integrates NVIDIA GPUs into Nokia RAN for AI-driven mobile telecom infrastructure. $1B, 2.9% stake @$6.01/share",
@@ -1054,8 +1032,6 @@ CURRENT_HOLDINGS = [
         "fmv_m": 4699.6,  # SEC 13F Q2 2026 원문, 6/30 기준 평가액
         "invest_date": "2025-03-28",
         "badge": "core",
-        "exchange": "NASDAQ",
-        "is_new_alert": True,
         "alert_date": "2026-05-15",
         "alert_desc": "지분 가치 $4.70B",
         "alert_desc_eng": "Stake value $4.70B",
@@ -1074,8 +1050,6 @@ CURRENT_HOLDINGS = [
         "fmv_m": 328.8,  # SEC 13F Q2 2026 원문 — 보통주 1,190,476주만. 워런트 포함 9.3% 지분은 13F 미반영이라 실제보다 작게 보임
         "invest_date": "2026-03-11",
         "badge": "core",
-        "exchange": "NASDAQ",
-        "is_new_alert": True,
         "alert_date": "2026-03-11",
         "nvidia_thesis": "풀스택 AI 클라우드 파트너. NVIDIA 시스템 2030년까지 5GW 배포, $2B 추가 투자 (2026.03) + $100M (2024.12), 누적 $2.1B",
         "nvidia_thesis_eng": "Full-stack AI cloud partner. 5GW of NVIDIA systems by 2030, $2B follow-on (2026.03) + $100M (2024.12), $2.1B total",
@@ -1095,8 +1069,6 @@ PARTNERSHIPS = [
         "invest_amt_m": None,
         "invest_date": "2025-10-01",
         "badge": "partner",
-        "exchange": "NYSE",
-        "is_new_alert": False,
         "alert_date": "2025-10-01",
         "nvidia_thesis": "Sovereign AI OS: NVIDIA Blackwell Ultra 하드웨어 + Palantir AIP·Ontology 풀스택. Jensen: \"세계에서 가장 중요한 엔터프라이즈 스택\"",
         "nvidia_thesis_eng": "Sovereign AI OS: NVIDIA Blackwell Ultra hardware + Palantir AIP·Ontology full-stack. Jensen: \"The single most important enterprise stack in the world\"",
@@ -1112,8 +1084,6 @@ PARTNERSHIPS = [
         "invest_amt_m": None,
         "invest_date": "2025-12-01",
         "badge": "partner",
-        "exchange": "TSE",
-        "is_new_alert": False,
         "alert_date": "2025-12-01",
         "nvidia_thesis": "Physical AI 산업 로봇. Isaac Sim 디지털 트윈, Jetson 온로봇 컴퓨터 탑재. FANUC 주가 +9.4% 급등",
         "nvidia_thesis_eng": "Physical AI industrial robots. Isaac Sim digital twin, Jetson on-robot computer integration. FANUC stock +9.4% surge on announcement",
@@ -1994,7 +1964,7 @@ if show_current: all_display += NEW_2026 + CURRENT_HOLDINGS
 if show_partner: all_display += PARTNERSHIPS
 if show_exited:  all_display += [
     {**e, "badge":"exited", "nvidia_thesis":e["note"],
-     "is_new_alert":False, "invest_year":int(e["invest_date"][:4]) if len(e["invest_date"])>=4 else 0}
+     "invest_year":int(e["invest_date"][:4]) if len(e["invest_date"])>=4 else 0}
     for e in EXITED
 ]
 
