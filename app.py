@@ -571,6 +571,45 @@ st.markdown("""
     background: #20242b !important; box-shadow: inset 0 0 0 1px #2a2d33 !important;
   }
 
+  /* ── 피드백 FAB ──────────────────────────────────────────────────────────
+     이 화면은 카드가 폭을 꽉 채워 빈 모서리가 없다 — 어디에 둬도 겹친다(우하단 9/11,
+     좌하단 10/11 실측). 그래서 위치가 아니라 '언제 떠 있나'로 푼다: 아래로 스크롤하는
+     동안(읽는 중)엔 숨기고, 멈추거나 위로 올리면 되돌아온다(스크립트는 아래 참고).
+     기본값을 보이는 상태로 두는 건 의도적 — JS가 실패해도 진입점이 사라지면 안 된다.
+     반경은 캡슐 대신 10px(radius-lg): 원형+브랜드색 풀칠은 금지 목록 2번에 걸린다. */
+  .st-key-feedback_fab {
+    position: fixed !important; right: 16px; bottom: 16px; z-index: 60;
+    width: 44px; height: 44px;
+    opacity: 1; transform: none;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+  }
+  body.nv-fab-hide .st-key-feedback_fab {
+    opacity: 0; transform: translateY(8px); pointer-events: none;
+  }
+  /* 구/신 Streamlit 셀렉터 병기 — 버전마다 버튼 data-testid가 달라진다(2026-08-18 사고) */
+  .st-key-feedback_fab button[data-testid="stBaseButton-secondary"],
+  .st-key-feedback_fab button {
+    width: 44px !important; height: 44px !important;
+    min-height: 44px !important; padding: 0 !important;
+    background: #76b900 !important; border: none !important;
+    border-radius: 10px !important;
+    box-shadow: 0 6px 18px rgba(118,185,0,0.32) !important;
+    display: flex !important; align-items: center; justify-content: center;
+    transition: transform 0.15s ease !important;
+  }
+  .st-key-feedback_fab button:hover { transform: scale(1.05); }
+  .st-key-feedback_fab button [data-testid="stIconMaterial"],
+  .st-key-feedback_fab button span { color: #080808 !important; }
+
+  /* 피드백 모달 — Streamlit 기본 패널이 rgba(0,0,0,.5), 스크림이 rgba(151,163,195,.25)라
+     다크 테마에서 뒤 카드가 그대로 비쳐 글자가 안 읽힌다. 불투명 표면으로 교체. */
+  div[data-testid="stDialog"] { background: rgba(0,0,0,0.72) !important; }
+  div[data-testid="stDialog"] > div > div {
+    background: #0e0e0e !important;
+    border: 1px solid #2a2d33 !important;
+    border-radius: 10px !important;
+  }
+
   /* ── 입력 필드 ── */
   .stTextInput input, .stTextArea textarea, .stSelectbox div[data-baseweb="select"] {
     background: #0e0e0e !important; border: 1px solid #1a1a1a !important;
@@ -1870,8 +1909,10 @@ with st.sidebar:
         f'</div>',
         unsafe_allow_html=True)
 
-    st.markdown("---")
-    st.markdown(f"### {t('sb_feedback')}")
+def render_feedback_form():
+    """피드백 폼 본문. 예전엔 사이드바에 인라인으로 있었는데, 모바일에서 사이드바가
+    기본 접힘이라 햄버거→스크롤→폼까지 3단계였고 실제 제출이 0건이었다. FAB→모달
+    한 곳에서만 부르도록 함수로 뺐다(같은 폼을 두 번 렌더하면 st.form 키가 충돌)."""
     with st.form("feedback_form", clear_on_submit=True):
         fb_category = st.selectbox(t("fb_type"), [
             t("fb_cat_data"), t("fb_cat_new"), t("fb_cat_feat"), t("fb_cat_bug"), t("fb_cat_etc"),
@@ -1929,6 +1970,19 @@ with st.sidebar:
                 st.success(t("fb_ok"))
             else:
                 st.warning(t("fb_empty"))
+
+
+@st.dialog(t("sb_feedback"))
+def feedback_dialog():
+    render_feedback_form()
+
+
+# 피드백 FAB — 우하단 고정. 사이드바 안에 있던 폼은 모바일에서 3단계(햄버거→스크롤→폼)
+# 라 실제 제출이 0건이었다. key를 줘야 .st-key-* 래퍼가 생겨 CSS로 잡을 수 있다(key 없는
+# 버튼은 래퍼가 안 생기는 걸 확인함). 44px는 터치 하한이자, 52px 대비 카드 겹침이
+# 9/11 → 7/11로 줄어드는 크기(375px 실측).
+if st.button("", key="feedback_fab", icon=":material/feedback:"):
+    feedback_dialog()
 
 # ── 데이터 로드 ───────────────────────────────────────────────────────────────
 all_display = []
@@ -2429,6 +2483,45 @@ components.html("""
     });
     if (box) box.classList.toggle('active');
   });
+})();
+</script>
+""", height=0)
+
+# 피드백 FAB 스크롤 연동 — 아래로 스크롤(읽는 중)엔 숨기고, 멈추거나 위로 올리면 복귀.
+# 스크롤 컨테이너는 window가 아니라 [data-testid="stMain"](실측: window scroll 이벤트 0건).
+# stMain 요소는 Streamlit 재실행에도 교체되지 않는 걸 확인해서 1회 바인딩으로 충분하다.
+# 실패해도 body에 클래스가 안 붙을 뿐이라 FAB은 CSS 기본값대로 계속 보인다.
+components.html("""
+<script>
+(function(){
+  var p = window.parent;
+  if (!p || p.__fabScrollBound) return;
+
+  var THRESHOLD = 12;    // 손떨림 수준의 미세 스크롤로 깜빡이지 않게
+  var IDLE_MS  = 260;    // 멈춘 뒤 다시 나타나기까지
+
+  function bind() {
+    var main = p.document.querySelector('[data-testid="stMain"]');
+    if (!main) { p.setTimeout(bind, 200); return; }   // DOM 미생성 시 재시도
+    if (p.__fabScrollBound) return;
+    p.__fabScrollBound = true;
+
+    var last = main.scrollTop, idleTimer = null;
+    main.addEventListener('scroll', function(){
+      var cur = main.scrollTop;
+      var d = cur - last;
+      if (Math.abs(d) < THRESHOLD) return;
+      last = cur;
+      // 아래로 내릴 때만 숨긴다. 위로 올리는 건 "다 읽었다"는 신호로 보고 즉시 복귀.
+      if (d > 0 && cur > 120) p.document.body.classList.add('nv-fab-hide');
+      else p.document.body.classList.remove('nv-fab-hide');
+      if (idleTimer) p.clearTimeout(idleTimer);
+      idleTimer = p.setTimeout(function(){
+        p.document.body.classList.remove('nv-fab-hide');
+      }, IDLE_MS);
+    }, { passive: true });
+  }
+  bind();
 })();
 </script>
 """, height=0)
