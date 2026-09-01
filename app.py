@@ -2531,33 +2531,37 @@ components.html("""
 """, height=0)
 
 # Streamlit Cloud 뷰어 배지·프로필 아바타 숨김 — 우하단에 밀착(여백 0, 46px 높이)해서
-# 피드백 FAB(right:16/bottom:16)과 정면으로 겹친다. 이 둘은 앱 iframe 바깥, Cloud 셸에
-# 있어서 앱 CSS로는 못 잡는다. 다행히 same-origin이라 window.parent로 접근 가능.
+# 피드백 FAB(right:16/bottom:16)과 정면으로 겹친다. 앱 CSS로는 못 잡지만 same-origin이라
+# 스크립트로는 닿는다.
+#
+# 대상은 window.parent가 아니라 window.top이다. 프레임이 3단이기 때문:
+#   Cloud 셸(배지가 여기) > 앱 iframe(streamlitApp) > components.html iframe(이 스크립트)
+# 그래서 window.parent는 '앱 프레임'이다 — GA4·탭 토글 스크립트는 앱 프레임이 대상이라
+# parent가 맞지만, 배지는 한 단계 더 위라 parent로 찾으면 조용히 0건이 된다(2026-09-01 확인).
 #
 # 클래스명이 _viewerBadge_aycw8_23처럼 해시가 붙어 Cloud 배포마다 바뀌므로 접두사로 매칭.
 # 부모(_stateContainer_)를 숨기면 앱 iframe까지 같이 사라지니 두 요소만 지정한다.
-# MutationObserver로 재삽입도 따라잡되, 실패하면 배지가 다시 보일 뿐 앱은 멀쩡하다
-# (그 경우 FAB을 bottom:62px로 올리는 대안이 있음 — 2026-09-01 검토 기록).
+# 실패하면 배지가 다시 보일 뿐 앱은 멀쩡하다(대안: FAB을 bottom:62px로 올리기).
 components.html("""
 <script>
 (function(){
-  var p = window.parent;
-  if (!p || p.__nvBadgeHidden) return;
-  p.__nvBadgeHidden = true;
+  var top = window.top;                 // Cloud 셸. 로컬 실행 땐 앱 프레임이 곧 top.
+  if (!top || top.__nvBadgeHidden) return;
+  try { top.__nvBadgeHidden = true; } catch (e) { return; }
 
   var SELECTORS = '[class*="_viewerBadge_"], [class*="_profileContainer_"]';
   function hide() {
     try {
-      p.document.querySelectorAll(SELECTORS).forEach(function(el){
+      top.document.querySelectorAll(SELECTORS).forEach(function(el){
         el.style.display = 'none';
       });
-    } catch (e) { /* 접근 불가 환경(로컬 등)에서는 조용히 넘어감 */ }
+    } catch (e) { /* 접근 불가 환경에서는 조용히 넘어감 */ }
   }
   hide();
 
   // Cloud 셸이 나중에 붙이거나 다시 그리는 경우 대비
   try {
-    new p.MutationObserver(hide).observe(p.document.body, { childList: true, subtree: true });
+    new top.MutationObserver(hide).observe(top.document.body, { childList: true, subtree: true });
   } catch (e) { /* observer 실패해도 위 1회 실행분은 유효 */ }
 })();
 </script>
