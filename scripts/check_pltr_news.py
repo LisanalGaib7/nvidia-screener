@@ -3,8 +3,12 @@ Palantir 계약·파트너십 뉴스 감지 — Google News RSS 기반
 Palantir의 신규 계약(award), 파트너십, 주요 딜 뉴스를 감지해 Telegram 알림.
 NVIDIA 전략 파트너(Sovereign AI OS)로서 계약 확장이 AI 사이클 선행지표.
 
-소스: Google News RSS — 공식 PR도 Yahoo Finance 등이 원문 제목 그대로 재게시하므로
-      palantir.com 스크래핑 없이 같은 텍스트를 잡는다.
+소스 2종:
+  1) Google News RSS — 3자 매체 커버리지. 계약 종료·논란처럼 PR로 안 나오는 것 담당.
+     무편집 소방호스(하루 100건+)라 아래 POSITIVE/NEGATIVE 필터가 필요하다.
+  2) Palantir IR 보도자료 피드 — 공식 발표의 정본 제목·날짜·링크 담당. 연 44건으로
+     이미 편집된 목록이라 **필터를 걸지 않는다**(실적 발표 포함). 같은 사건이 양쪽에
+     있으면 정본이 이긴다.
 수집·필터·포맷 로직은 news_monitor.py 공용 코어에 있음 — 여기는 설정만.
 
 쿼리를 4갈래로 나눈 이유: Palantir는 하루 100건 넘게 기사가 나와서 단일 쿼리로는
@@ -65,6 +69,18 @@ NEGATIVE = [
     "casts a shadow", "closer to owning",
 ]
 
+# 공식 보도자료 피드 — 뉴스룸 페이지가 실제로 호출하는 IR 플랫폼 API.
+# 관행적인 /rss·/feed 경로로는 못 찾는 이름이라, 페이지의 네트워크 요청을
+# 직접 관측해서 알아냈다(performance.getEntriesByType('resource')).
+# bodyType=0은 본문 제외 — 제목·날짜·링크만 필요한데 본문까지 받으면 1MB다(80KB로 줄어듦).
+IR_FEED = {
+    "url": "https://investors.palantir.com/feed/PressRelease.svc/GetPressReleaseList",
+    "params": {"languageId": 1, "bodyType": 0,
+               "includeTags": "true", "pressReleaseDateFilter": 1},
+    "base": "https://investors.palantir.com",
+    "label": "Palantir IR",
+}
+
 CONFIG = MonitorConfig(
     query=QUERIES[0], queries=QUERIES,
     positive=POSITIVE, negative=NEGATIVE, subject=SUBJECT,
@@ -73,6 +89,7 @@ CONFIG = MonitorConfig(
     out_file="pltr_news_alert.txt",
     locale="en", label="pltr-news monitor",
     max_items=10,   # 갈래 합집합이라 하루 이벤트가 6개를 넘는다 (실측 9건)
+    ir_feed=IR_FEED,
 )
 
 if __name__ == "__main__":
