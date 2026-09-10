@@ -51,6 +51,11 @@ class MonitorConfig:
     # 기사(협력사 소식 등)가 섞여 들어와서 필요하다. 비우면 검사 생략.
     subject: list = field(default_factory=list)
     max_items: int = MAX_ITEMS
+    # 공식 IR 보도자료 피드(Q4 Inc 플랫폼). {"url":..., "params":{...}} 형태.
+    # Google News와 성격이 다르다 — 회사가 발표하기로 결정한 것만 들어오는
+    # 이미 편집된 목록이라 키워드 필터를 적용하지 않는다. 필터는 무편집
+    # 소방호스(Google News) 대응 장치이지 편집된 피드에 씌울 것이 아니다.
+    ir_feed: dict = None
 
 
 def _fetch_one(query, cfg):
@@ -80,6 +85,72 @@ def _fetch_items(cfg):
     return list(merged.values())
 
 
+def _fetch_all(cfg):
+    """뉴스 레인과 IR 레인을 각각 격리해 수집 — 한쪽 장애가 다른 쪽을 침묵시키지 않게.
+
+    둘 다 실패하면 빈 리스트라 알림이 안 나가고(가짜 알람 방지), 한쪽만 살아도
+    그 몫은 발송된다. 예전엔 수집 전체가 하나의 try라 IR이 죽으면 뉴스도 죽었다.
+    """
+    items = []
+    try:
+        items += _fetch_items(cfg)
+    except Exception as e:
+        print(f"news fetch error: {e}")
+    items += _fetch_ir(cfg)
+    return items
+
+
+# IR 피드 타임스탬프는 미 동부시(ET)다. 실적 보도자료가 예외 없이 16:05:00,
+# 즉 미국 장 마감 5분 뒤라 UTC일 수 없다(그랬다면 장중 12:05 PM ET).
+try:
+    from zoneinfo import ZoneInfo
+    _IR_TZ = ZoneInfo("America/New_York")          # DST 자동 처리
+except Exception:                                  # tzdata 없는 환경 폴백
+    _IR_TZ = timezone(timedelta(hours=-5))         # EST. 25h 창에선 1시간 차가 무해
+
+
+def _fetch_ir(cfg):
+    """공식 보도자료 피드. 실패해도 Google News 레인은 살아야 하므로 여기서 삼킨다."""
+    if not cfg.ir_feed:
+        return []
+    now = datetime.now(_IR_TZ)
+    # 1월엔 전년 12월 말 발표가 아직 25h 창에 들어올 수 있어 전년도도 본다.
+    years = [now.year] + ([now.year - 1] if now.month == 1 else [])
+    out = []
+    for y in years:
+        params = dict(cfg.ir_feed.get("params", {}))
+        params["year"] = y
+        try:
+            r = requests.get(cfg.ir_feed["url"], params=params, timeout=20,
+                             headers={"User-Agent": f"Mozilla/5.0 (nvidia-screener {cfg.label})"})
+            r.raise_for_status()
+            data = r.json()
+        except Exception as e:
+            print(f"ir feed error ({y}): {e}")
+            continue
+        rows = data.get("GetPressReleaseListResult", data)
+        if not isinstance(rows, list):
+            continue
+        for it in rows:
+            head = (it.get("Headline") or "").strip()
+            raw = (it.get("PressReleaseDate") or "").strip()
+            if not head or not raw:
+                continue
+            try:
+                dt = datetime.strptime(raw, "%m/%d/%Y %H:%M:%S").replace(tzinfo=_IR_TZ)
+                dt = dt.astimezone(timezone.utc)
+            except Exception:
+                continue
+            link = it.get("LinkToDetailPage") or it.get("LinkToUrl") or ""
+            if link.startswith("/"):
+                link = cfg.ir_feed.get("base", "") + link
+            out.append({
+                "title": head, "link": link, "source": cfg.ir_feed.get("label", "IR"),
+                "pub": "", "dt": dt, "authoritative": True,
+            })
+    return out
+
+
 def _strip_source(headline, source):
     """Google News가 붙이는 ' - 출처' 접미사 제거.
 
@@ -95,7 +166,13 @@ def _strip_source(headline, source):
     return headline.rstrip(" .…").strip(), source.strip()
 
 
-def _is_relevant(title, cfg):
+def _is_relevant(title, cfg, authoritative=False):
+    # 공식 보도자료는 회사가 발표하기로 판단한 것 자체가 관련성 신호다. 어떤
+    # 필터도 걸지 않는다 — 키워드를 씌우면 경영진 영입·AIPCon 같은 게 탈락하고,
+    # subject 가드를 씌우면 제목에 사명이 없는 제품·합작사 발표가 탈락한다
+    # (2020~2026 공식 PR 296건 중 2건: Syntropy, Agora).
+    if authoritative:
+        return True
     tl = title.lower()
     if cfg.subject and not any(s in tl for s in cfg.subject):
         return False
@@ -155,11 +232,10 @@ def _set_output(found):
 
 
 def run_monitor(cfg):
-    try:
-        items = _fetch_items(cfg)
-    except Exception as e:
-        # 네트워크/파싱 오류 → 조용히 종료 (가짜 알람 방지)
-        print(f"fetch error: {e}")
+    items = _fetch_all(cfg)
+    if not items:
+        # 전 소스 실패 → 조용히 종료 (가짜 알람 방지)
+        print("no items fetched")
         _set_output(False)
         sys.exit(0)
 
@@ -168,33 +244,40 @@ def run_monitor(cfg):
 
     matches = []
     for it in items:
-        try:
-            dt = parsedate_to_datetime(it["pub"])
-            if dt.tzinfo is None:
-                dt = dt.replace(tzinfo=timezone.utc)
-        except Exception:
-            continue
+        dt = it.get("dt")
+        if dt is None:
+            try:
+                dt = parsedate_to_datetime(it["pub"])
+                if dt.tzinfo is None:
+                    dt = dt.replace(tzinfo=timezone.utc)
+            except Exception:
+                continue
         if dt < cutoff:
             continue
+        auth = bool(it.get("authoritative"))
         headline, source = _strip_source(it["title"], it["source"])
-        if not _is_relevant(headline, cfg):
+        if not _is_relevant(headline, cfg, auth):
             continue
 
         matches.append({
             "headline": headline, "source": source,
-            "link": it["link"], "dt": dt,
+            "link": it["link"], "dt": dt, "auth": auth,
             "dkey": _dedupe_key(headline, cfg),
         })
 
     # 중복 제거 — 같은 사건을 여러 매체가 쓰면 상대 기업명이 겹친다.
     # 앞 4토큰 키로는 "Palantir and Fujitsu renew…"와 "Fujitsu Signs New
     # Palantir…"가 안 묶여서 6칸짜리 알림이 한 사건으로 다 차버렸다.
-    matches.sort(key=lambda x: x["dt"], reverse=True)
+    # 같은 사건이 공식 PR과 3자 기사 양쪽에 있으면 공식 쪽이 이긴다 — 정본
+    # 제목·날짜·링크를 주므로. 정렬을 (정본 우선, 최신순)으로 두면 뒤에 오는
+    # 3자 중복이 자연히 탈락한다.
+    matches.sort(key=lambda x: (not x["auth"], -x["dt"].timestamp()))
     deduped = []
     for m in matches:
         if any(m["dkey"] & d["dkey"] for d in deduped):
             continue
         deduped.append(m)
+    deduped.sort(key=lambda x: x["dt"], reverse=True)
     matches = deduped[:cfg.max_items]
 
     print(f"window={WINDOW_HOURS}h  fetched={len(items)}  matched={len(matches)}")
