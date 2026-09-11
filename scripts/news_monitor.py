@@ -36,18 +36,29 @@ LOCALES = {
 # 같은 사건을 여러 매체가 쓸 때 어느 기사를 보낼지 정하는 기준. 중복제거 승자를
 # 최신순으로 뽑으면 원 보도(0일차)가 아니라 받아쓰기(1~2일차)가 이긴다 — 실측
 # 23개 클러스터 중 7개가 티어1을 두고 마이너 매체에 밀렸다(Zankore 건은
-# Bloomberg를 두고 IDNFinancials가 나갔다). 등재 없는 매체는 2.
+# Bloomberg를 두고 IDNFinancials가 나갔다).
+#
+# 티어를 둘이 아니라 셋으로 둔 이유: 페이월. Bloomberg/WSJ/FT는 구독이 없으면
+# 링크를 눌러도 원문을 못 본다. 같은 와이어 기사를 무료로 재게재하는 쪽(Yahoo
+# Finance 등)이 있으면 그쪽이 실제로 더 쓸모 있다. 그래서
+#   1 = 신뢰할 만하고 원문을 볼 수 있는 곳
+#   2 = 신뢰할 만하지만 페이월
+#   3 = 그 외
+# 로 두고, 1이 없을 때만 2가 나간다.
 SOURCE_TIERS = {
-    "reuters": 1, "bloomberg": 1, "bloomberg.com": 1,
-    "wsj": 1, "the wall street journal": 1,
-    "financial times": 1, "ft.com": 1,
-    "cnbc": 1, "barron's": 1, "barrons": 1,
-    "the information": 1, "associated press": 1, "ap news": 1,
+    # 티어1 — 무료로 열리는 곳(와이어 원문 + 그 재게재)
+    "reuters": 1, "associated press": 1, "ap news": 1, "cnbc": 1,
+    "yahoo finance": 1, "yahoo": 1,
+    # 티어2 — 페이월
+    "bloomberg": 2, "bloomberg.com": 2,
+    "wsj": 2, "the wall street journal": 2,
+    "financial times": 2, "ft.com": 2,
+    "barron's": 2, "barrons": 2, "the information": 2,
 }
 
 
 def _source_tier(source):
-    return SOURCE_TIERS.get((source or "").strip().lower(), 2)
+    return SOURCE_TIERS.get((source or "").strip().lower(), 3)
 
 
 @dataclass
