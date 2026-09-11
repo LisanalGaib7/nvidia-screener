@@ -47,6 +47,7 @@ CONFIG = MonitorConfig(
     query=QUERY, positive=POSITIVE, negative=NEGATIVE,
     header="🟠 <b>한화엔진 수주·계약 뉴스</b>",
     footer="👉 포트폴리오 동향 확인",
+    state_file="data/hanwha_news_state.json",
     out_file="hanwha_news_alert.txt",
     locale="ko", label="hanwha-news monitor",
 )

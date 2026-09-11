@@ -8,6 +8,7 @@ MonitorConfig만 정의해 run_monitor()를 호출한다. 수집·필터·중복
 설계: found=true 플래그(GITHUB_OUTPUT) 기반 — 네트워크/파싱 오류 시 조용히
 종료해 '에러=가짜 알람' 버그를 구조적으로 차단.
 """
+import json
 import requests
 import sys
 import os
@@ -56,7 +57,56 @@ class MonitorConfig:
     # 이미 편집된 목록이라 키워드 필터를 적용하지 않는다. 필터는 무편집
     # 소방호스(Google News) 대응 장치이지 편집된 피드에 씌울 것이 아니다.
     ir_feed: dict = None
+    # 실행 간 발송 이력 파일. 미설정이면 교차 실행 검사를 생략한다(기존 동작).
+    state_file: str = ""
 
+
+# 실행 간 중복 차단. 창(WINDOW_HOURS)만으로는 "어제 보냈는지"를 알 수 없어서,
+# 창이 겹치는 구간(정기 실행끼리는 1시간, 수동 실행을 끼면 그 이상)의 항목이
+# 다음 회차에 그대로 다시 나간다. 실측: 9/10 발송 10건 중 8건이 9/11에 재발송.
+ENTITY_TTL_DAYS = 3     # 한 딜의 보도 사이클이 보통 2~3일. 그 안의 재보도만 막는다.
+TITLE_TTL_DAYS = 30     # 완전히 같은 제목은 재게시이므로 더 길게 막아도 안전하다.
+KEEP_ENTRIES = 400
+
+
+def _load_state(cfg):
+    if not cfg.state_file:
+        return {"sent": []}
+    try:
+        with open(cfg.state_file, encoding="utf-8") as f:
+            return json.load(f)
+    except Exception:
+        return {"sent": []}
+
+
+def _save_state(cfg, state):
+    if not cfg.state_file:
+        return False
+    state["sent"] = state["sent"][-KEEP_ENTRIES:]
+    os.makedirs(os.path.dirname(cfg.state_file), exist_ok=True)
+    with open(cfg.state_file, "w", encoding="utf-8") as f:
+        json.dump(state, f, ensure_ascii=False, indent=1)
+    return True
+
+
+def _already_sent(m, state, now):
+    """보낸 적 있나. 엔티티가 겹치면 같은 사건의 다른 기사로 본다.
+
+    엔티티 차단은 TTL을 둔다 — 같은 상대와의 *다른* 딜이 나중에 나올 수 있어서,
+    무기한 막으면 진짜 새 소식을 놓친다.
+    """
+    title = m["headline"].strip().lower()
+    for e in state.get("sent", []):
+        try:
+            ts = datetime.fromisoformat(e["ts"])
+        except Exception:
+            continue
+        age = (now - ts).days
+        if age <= TITLE_TTL_DAYS and e.get("title") == title:
+            return True
+        if age <= ENTITY_TTL_DAYS and m["dkey"] & set(e.get("key") or []):
+            return True
+    return False
 
 def _fetch_one(query, cfg):
     url = ("https://news.google.com/rss/search?q=" + quote(query) +
@@ -277,6 +327,12 @@ def run_monitor(cfg):
         if any(m["dkey"] & d["dkey"] for d in deduped):
             continue
         deduped.append(m)
+    # 실행 간 차단 — 창이 겹치는 구간의 항목이 다음 회차에 다시 나가는 걸 막는다.
+    state = _load_state(cfg)
+    fresh = [m for m in deduped if not _already_sent(m, state, now)]
+    if cfg.state_file and len(fresh) < len(deduped):
+        print(f"  (이미 보낸 {len(deduped) - len(fresh)}건 제외)")
+    deduped = fresh
     deduped.sort(key=lambda x: x["dt"], reverse=True)
     matches = deduped[:cfg.max_items]
 
@@ -315,5 +371,15 @@ def run_monitor(cfg):
 
     with open(cfg.out_file, "w", encoding="utf-8") as f:
         f.write(msg)
+
+    # 실제로 보낸 것만 기록한다 — 길이 제한으로 잘린 건 다음 회차에 다시 기회를 준다.
+    for m in shown:
+        state["sent"].append({"title": m["headline"].strip().lower(),
+                              "key": sorted(m["dkey"]),
+                              "ts": now.isoformat()})
+    changed = _save_state(cfg, state)
+    if os.environ.get("GITHUB_OUTPUT"):
+        with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as f:
+            f.write(f"state_changed={'true' if changed else 'false'}\n")
 
     _set_output(True)

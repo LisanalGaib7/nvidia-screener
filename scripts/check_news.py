@@ -49,6 +49,7 @@ CONFIG = MonitorConfig(
     query=QUERY, positive=POSITIVE, negative=NEGATIVE,
     header="🟢 <b>NVIDIA 투자 뉴스 감지</b>",
     footer="👉 트래커 업데이트 검토 필요",
+    state_file="data/nvidia_news_state.json",
     out_file="news_alert.txt",
     locale="en", label="news monitor",
 )
