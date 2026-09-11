@@ -221,6 +221,24 @@ def _eok(million_won):
     return f"{million_won / 100:,.0f}억"
 
 
+def parse_quarter(txt):
+    """발표 분기 라벨을 공시 본문에서 뽑는다 — 예: "2026.2Q".
+
+    네이버에서 가져오면 안 된다. 네이버는 확정 실적 반영이 느려서, 공시가 막 뜬
+    시점엔 아직 그 분기를 컨센서스로 들고 있다. 그 상태에서 '최신 확정 분기'를
+    물으면 *직전* 분기가 나오고, 예상치 조회도 추이 표 맨 윗줄도 한 분기씩 밀린다.
+    숫자를 DART 정본에서 가져오는 것과 같은 이유로 라벨도 정본에서 가져온다.
+    """
+    m = re.search(r"당기실적\s*(\d{4})-(\d{2})-\d{2}\s*~\s*(\d{4})-(\d{2})-\d{2}", txt)
+    if m:
+        year, month = m.group(3), int(m.group(4))
+        return f"{year}.{(month - 1) // 3 + 1}Q"
+    # 표 헤더의 ('26.2Q ) 형식 폴백
+    m = re.search(r"\('(\d{2})\.(\d)Q", txt)
+    if m:
+        return f"20{m.group(1)}.{m.group(2)}Q"
+    return None
+
 def parse_earnings(txt):
     """잠정실적 본문에서 당해 분기 3개 지표(백만원). 표가 '당해실적 값 ...' 순서다."""
     out = {}
@@ -258,7 +276,7 @@ def build_earnings_msg(item, txt, cap, actual):
     fig = parse_earnings(txt)
     if not fig:
         return None
-    label = actual[0][0] if actual else ""
+    label = parse_quarter(txt) or (actual[0][0] if actual else "")
     cons = load_consensus(label)
 
     lines = [f"🟠 <b>한화엔진 공시</b>", "",
@@ -279,9 +297,16 @@ def build_earnings_msg(item, txt, cap, actual):
             cell += f"(예상치 : {est:,.0f}억/ {diff:+.0f}%)"
         lines.append(f"{ko} : {cell}")
 
-    if actual:
+    # 추이 맨 윗줄은 방금 발표된 분기여야 한다. 네이버는 반영이 느려 그 분기를
+    # 아직 안 들고 있을 수 있으므로, DART 수치로 직접 얹고 중복분은 뺀다.
+    trend = []
+    if label and all(k in fig for k in ("revenue", "operating", "net")):
+        trend.append((label, f"{fig['revenue'] / 100:,.0f}",
+                      f"{fig['operating'] / 100:,.0f}", f"{fig['net'] / 100:,.0f}"))
+    trend += [row for row in actual if row[0] != label]
+    if trend:
         lines += ["", "<b>최근 실적 추이</b>"]
-        for lab, rev, op, net in actual[:5]:
+        for lab, rev, op, net in trend[:5]:
             lines.append(f"{lab} {rev}억/ {op}억/ {net}억")
 
     lines += ["", f"공시링크: {DART_VIEW}{item['rcept_no']}"]
