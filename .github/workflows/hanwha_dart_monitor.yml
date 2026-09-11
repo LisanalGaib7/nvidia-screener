@@ -7,6 +7,11 @@ on:
     # (data/hanwha_dart_state.json)으로 막는다 — DART가 접수 시각을 안 주기 때문.
     - cron: '0 * * * *'
   workflow_dispatch:
+    inputs:
+      lookback_days:
+        description: '조회 범위(일). 놓친 공시 수동 소급이나 발송 경로 점검용.'
+        required: false
+        default: '2'
 
 permissions:
   contents: write
@@ -31,6 +36,7 @@ jobs:
         id: dart_check
         env:
           DART_API_KEY: ${{ secrets.DART_API_KEY }}
+          LOOKBACK_DAYS: ${{ inputs.lookback_days }}
         run: python scripts/check_hanwha_dart.py
 
       - name: Telegram 알림 (공시 감지 시)

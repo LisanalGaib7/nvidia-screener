@@ -28,10 +28,11 @@ import requests
 KST = timezone(timedelta(hours=9))
 CORP_CODE = "00361008"          # 한화엔진. 종목코드 082740과 다른 DART 고유번호
 STOCK_CODE = "082740"
-LOOKBACK_DAYS = 2               # 조회 범위. 실제 중복 차단은 발송 이력(rcept_no)이 한다.
-                                # DART는 list.json에도 본문에도 접수 *시각*을 안 준다 —
-                                # 날짜뿐이라 시간 창으로는 매시 실행 때 같은 공시가
-                                # 하루 종일 재발송된다.
+# 조회 범위(일). DART는 list.json에도 본문에도 접수 *시각*을 안 준다 — 날짜뿐이라
+# 시간 창으로는 매시 실행 때 같은 공시가 하루 종일 재발송된다. 그래서 중복 차단은
+# 발송 이력(rcept_no)이 맡고, 이 값은 순수 조회 범위다. 넓혀도 재발송은 없다.
+# workflow_dispatch에서 덮어써 놓친 공시를 소급하거나 발송 경로를 점검한다.
+LOOKBACK_DAYS = int(os.environ.get("LOOKBACK_DAYS") or 2)
 OUT_FILE = "hanwha_dart_alert.txt"
 CONSENSUS_FILE = "data/hanwha_consensus.json"
 
