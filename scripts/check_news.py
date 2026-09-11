@@ -1,32 +1,41 @@
 """
 NVIDIA 투자 뉴스 감지 — Google News RSS 기반
-NVIDIA가 다른 기업에 투자/지분참여한 뉴스를 감지해 Telegram으로 알림.
-13F가 놓치는 '분기 중 전략투자 발표'(워런트/우선주/사모)를 커버.
+NVIDIA가 다른 기업에 투자/지분참여한 뉴스와, 이미 투자한 포트폴리오사의
+동향을 감지해 Telegram으로 알림. 13F가 놓치는 '분기 중 전략투자 발표'
+(워런트/우선주/사모)를 커버.
 
 수집·필터·포맷 로직은 news_monitor.py 공용 코어에 있음 — 여기는 설정만.
 """
 from news_monitor import MonitorConfig, run_monitor
 
-# Google News 검색 쿼리 — NVIDIA가 '주체'인 포트폴리오 변동(매수/13F/매도)만 좁힘
-QUERY = (
-    # 매수·투자
-    '"nvidia invests" OR "nvidia-backed" OR "backed by nvidia" OR '
-    '"nvidia investment" OR "nvidia takes stake" OR "nvidia leads" OR '
-    '"nvidia buys stake" OR "nvidia acquires" OR "nvidia to invest" OR '
-    # 13F·포트폴리오 변동
-    '"nvidia 13f" OR "nvidia portfolio" OR "nvidia discloses" OR '
-    # 매도·청산
-    '"nvidia exits" OR "nvidia sells stake" OR "nvidia trims stake" OR '
-    '"nvidia dumps" OR "nvidia reveals stake"'
-)
+# Google News 검색 쿼리 — 갈래 분할.
+#
+# 두 가지를 실측해서 이 모양이 됐다.
+# (1) 최상위가 따옴표 구의 OR 체인이면 when: 절이 통째로 무시된다. 구 쿼리에
+#     when:2d/when:7d를 붙여도 100건 · 2026-07-26~09-10로 동일했다.
+#     nvidia (A OR B) 괄호 그룹으로 바꾸면 먹는다.
+# (2) 괄호 그룹이어도 쿼리가 넓어지면 Google이 날짜 제약을 버린다. 길이 문제가
+#     아니다 — 12항 180자는 74건/1일치인데, 항을 늘리면 2019년 기사까지 온다
+#     (더미 7항 추가 시 2730일치). 그래서 각 갈래를 좁게 유지하고 합집합을 쓴다.
+#
+# 실측(2026-09-12): 58 / 55 / 13 / 33건, 전부 최근 1일치, 합집합 148건.
+_WHEN = " when:2d"
+QUERIES = [q + _WHEN for q in [
+    'nvidia (invests OR investing OR "to invest" OR investment OR backs)',
+    'nvidia (acquires OR acquisition OR "takes stake" OR "buys stake" OR '
+    '"sells stake" OR "trims stake" OR exits)',
+    'nvidia ("nvidia-backed" OR "backed by nvidia" OR "nvidia-funded")',
+    'nvidia ("leads round" OR "leads funding" OR "nvidia-led" OR 13F OR portfolio)',
+]]
 
-# 제목 2차 필터 — NVIDIA가 주체(positive) / 남이 NVDA 주식을 사고파는 잡음(negative)
-POSITIVE = [
+# NVIDIA가 '주체'인 사건 — 새 투자·인수·청산. 트래커 갱신이 필요한 쪽.
+ACTOR = [
     # 매수·투자
     "nvidia invests", "nvidia is investing", "nvidia to invest", "nvidia plans to invest",
-    "nvidia-backed", "backed by nvidia", "nvidia backs",
-    "nvidia investment", "nvidia takes stake", "nvidia takes a stake",
-    "nvidia buys stake", "nvidia acquires", "nvidia-led",
+    "nvidia backs", "nvidia investment", "nvidia takes stake", "nvidia takes a stake",
+    "nvidia buys stake", "nvidia acquires",
+    # "nvidia-led" 단독은 "Qualcomm takes aim at Nvidia-led AI market"까지 먹는다
+    "nvidia-led round", "nvidia-led funding", "nvidia-led investment",
     "nvidia bets", "nvidia commits", "nvidia pours", "nvidia stake in",
     "nvidia leads round", "nvidia leads investment", "nvidia leads funding",
     # 13F·포트폴리오 (쿼리가 nvidia로 스코프되므로 '13f' 단독 토큰도 안전)
@@ -35,6 +44,13 @@ POSITIVE = [
     "nvidia exits", "nvidia sells stake", "nvidia trims", "nvidia dumps",
     "nvidia reduces", "nvidia dissolves", "nvidia cuts stake",
 ]
+# NVIDIA가 '수식어'인 사건 — 이미 투자한 회사의 자체 소식. 신규 투자는 아니지만
+# 포트폴리오 추적이 이 레인의 목적이라 버리지 않고 별도 섹션으로 보낸다.
+EPITHET = [
+    "nvidia-backed", "backed by nvidia", "nvidia backed", "nvidia-funded",
+]
+
+POSITIVE = ACTOR + EPITHET
 NEGATIVE = [
     # NVIDIA가 '대상'인 잡음 — 남이 NVDA 주식을 매매
     "purchased by", "sold by", "shares of nvidia", "stake in nvidia",
@@ -43,15 +59,26 @@ NEGATIVE = [
     "in nvidia stock", "of nvidia stock",
     "boosts nvidia", "trims nvidia", "buys nvidia", "sells nvidia",
     "lowers nvidia", "raises nvidia", "cuts nvidia", "reduces nvidia",
+    # 사건 보도가 아닌 의견·주식홍보 장르. 포트폴리오사 동향은 남기되 이건 뺀다.
+    "screaming buy", "meet the", "could become", "next nvidia", "should you buy",
+    "need to own", "here are the best", "takes aim at",
+]
+
+# 섹션 — 앞에서부터 보고 terms가 빈 항이 catch-all.
+GROUPS = [
+    {"label": "📈 신규 투자·인수", "terms": ACTOR, "max": 5},
+    {"label": "🏢 포트폴리오사 동향", "terms": [], "max": 4},
 ]
 
 CONFIG = MonitorConfig(
-    query=QUERY, positive=POSITIVE, negative=NEGATIVE,
+    query=QUERIES[0], queries=QUERIES,
+    positive=POSITIVE, negative=NEGATIVE,
     header="🟢 <b>NVIDIA 투자 뉴스 감지</b>",
     footer="👉 트래커 업데이트 검토 필요",
     state_file="data/nvidia_news_state.json",
     out_file="news_alert.txt",
     locale="en", label="news monitor",
+    groups=GROUPS, max_items=9,
 )
 
 if __name__ == "__main__":
