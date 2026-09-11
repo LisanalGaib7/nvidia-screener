@@ -33,6 +33,22 @@ LOCALES = {
     "ko": "hl=ko&gl=KR&ceid=KR:ko",
 }
 
+# 같은 사건을 여러 매체가 쓸 때 어느 기사를 보낼지 정하는 기준. 중복제거 승자를
+# 최신순으로 뽑으면 원 보도(0일차)가 아니라 받아쓰기(1~2일차)가 이긴다 — 실측
+# 23개 클러스터 중 7개가 티어1을 두고 마이너 매체에 밀렸다(Zankore 건은
+# Bloomberg를 두고 IDNFinancials가 나갔다). 등재 없는 매체는 2.
+SOURCE_TIERS = {
+    "reuters": 1, "bloomberg": 1, "bloomberg.com": 1,
+    "wsj": 1, "the wall street journal": 1,
+    "financial times": 1, "ft.com": 1,
+    "cnbc": 1, "barron's": 1, "barrons": 1,
+    "the information": 1, "associated press": 1, "ap news": 1,
+}
+
+
+def _source_tier(source):
+    return SOURCE_TIERS.get((source or "").strip().lower(), 2)
+
 
 @dataclass
 class MonitorConfig:
@@ -59,6 +75,11 @@ class MonitorConfig:
     ir_feed: dict = None
     # 실행 간 발송 이력 파일. 미설정이면 교차 실행 검사를 생략한다(기존 동작).
     state_file: str = ""
+    # 알림을 주제별 섹션으로 나눈다. [{"label":..., "terms":[...], "max":n}] 꼴로
+    # 순서대로 보고, terms가 비면 catch-all. 비워두면 단일 블록(기존 동작).
+    # NVIDIA 레인은 '신규 투자'와 '포트폴리오사 동향'이 성격이 달라서 필요하다 —
+    # 실측 23개 이벤트 중 10 대 13으로 섞여 들어와 구분이 안 됐다.
+    groups: list = field(default_factory=list)
 
 
 # 실행 간 중복 차단. 창(WINDOW_HOURS)만으로는 "어제 보냈는지"를 알 수 없어서,
@@ -250,6 +271,16 @@ def _token_key(headline):
     return {"".join(tokens[:4])}
 
 
+def _group_index(headline, cfg):
+    """제목이 속할 섹션. 앞에서부터 보고 terms가 비어 있으면 catch-all."""
+    hl = headline.lower()
+    for i, g in enumerate(cfg.groups):
+        terms = g.get("terms") or []
+        if not terms or any(t in hl for t in terms):
+            return i
+    return len(cfg.groups) - 1
+
+
 def _dedupe_key(headline, cfg):
     """같은 사건을 묶기 위한 키.
 
@@ -321,7 +352,8 @@ def run_monitor(cfg):
     # 같은 사건이 공식 PR과 3자 기사 양쪽에 있으면 공식 쪽이 이긴다 — 정본
     # 제목·날짜·링크를 주므로. 정렬을 (정본 우선, 최신순)으로 두면 뒤에 오는
     # 3자 중복이 자연히 탈락한다.
-    matches.sort(key=lambda x: (not x["auth"], -x["dt"].timestamp()))
+    matches.sort(key=lambda x: (not x["auth"], _source_tier(x["source"]),
+                               -x["dt"].timestamp()))
     deduped = []
     for m in matches:
         if any(m["dkey"] & d["dkey"] for d in deduped):
@@ -333,8 +365,21 @@ def run_monitor(cfg):
     if cfg.state_file and len(fresh) < len(deduped):
         print(f"  (이미 보낸 {len(deduped) - len(fresh)}건 제외)")
     deduped = fresh
-    deduped.sort(key=lambda x: x["dt"], reverse=True)
-    matches = deduped[:cfg.max_items]
+    if cfg.groups:
+        # 섹션별로 따로 쿼터를 준다. 한 덩어리에서 최신순으로 자르면 그날
+        # 기사가 많은 쪽이 칸을 다 먹어 다른 섹션이 통째로 사라진다.
+        buckets = [[] for _ in cfg.groups]
+        for m in deduped:
+            buckets[_group_index(m["headline"], cfg)].append(m)
+        matches = []
+        for g, b in zip(cfg.groups, buckets):
+            b.sort(key=lambda x: x["dt"], reverse=True)
+            for m in b[:g.get("max", cfg.max_items)]:
+                m["grp"] = g["label"]
+                matches.append(m)
+    else:
+        deduped.sort(key=lambda x: x["dt"], reverse=True)
+        matches = deduped[:cfg.max_items]
 
     print(f"window={WINDOW_HOURS}h  fetched={len(items)}  matched={len(matches)}")
     for m in matches:
@@ -348,7 +393,14 @@ def run_monitor(cfg):
 
     def build(items):
         lines = [cfg.header, "", f"⏰ {kst} KST", ""]
+        cur = None
         for m in items:
+            g = m.get("grp")
+            if g and g != cur:
+                if cur is not None:
+                    lines.append("")
+                lines.append(f"<b>{html.escape(g)}</b>")
+                cur = g
             h = html.escape(m["headline"])
             link = html.escape(m["link"], quote=True)
             d = m["dt"].strftime("%Y-%m-%d")
@@ -360,7 +412,9 @@ def run_monitor(cfg):
         lines += ["", cfg.footer]
         return "\n".join(lines)
 
-    # 길이 초과 시 오래된 항목부터 덜어낸다 — 전체가 거절당하느니 최신 몇 건이라도.
+    # 길이 초과 시 뒤에서부터 덜어낸다 — 전체가 거절당하느니 몇 건이라도.
+    # 섹션은 우선순위 순으로 이어 붙어 있어서, 잘리는 건 낮은 섹션의 오래된
+    # 항목부터다(포트폴리오사 잡담이 신규 투자 건을 밀어내지 않게).
     shown = list(matches)
     msg = build(shown)
     while len(msg) > TELEGRAM_LIMIT and len(shown) > 1:
