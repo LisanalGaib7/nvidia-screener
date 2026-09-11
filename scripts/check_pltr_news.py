@@ -67,6 +67,8 @@ NEGATIVE = [
     "earnings", "guidance", "quarterly", "rating", "upgrade", "downgrade",
     "investor", "investors", "should you buy", "consolidates", "support as",
     "casts a shadow", "closer to owning",
+    # 옵션·거래량 기사 — POSITIVE의 "contract"가 "Contracts Were Traded"에 걸린다
+    "options", "open interest", "contracts were traded",
 ]
 
 # 공식 보도자료 피드 — 뉴스룸 페이지가 실제로 호출하는 IR 플랫폼 API.
@@ -86,6 +88,7 @@ CONFIG = MonitorConfig(
     positive=POSITIVE, negative=NEGATIVE, subject=SUBJECT,
     header="🔵 <b>Palantir 계약·파트너십 감지</b>",
     footer="👉 NVIDIA 전략파트너 동향 확인",
+    state_file="data/pltr_news_state.json",
     out_file="pltr_news_alert.txt",
     locale="en", label="pltr-news monitor",
     max_items=10,   # 갈래 합집합이라 하루 이벤트가 6개를 넘는다 (실측 9건)
