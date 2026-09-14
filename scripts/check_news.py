@@ -62,11 +62,38 @@ NEGATIVE = [
     # 사건 보도가 아닌 의견·주식홍보 장르. 포트폴리오사 동향은 남기되 이건 뺀다.
     "screaming buy", "meet the", "could become", "next nvidia", "should you buy",
     "need to own", "here are the best", "takes aim at",
+    # "NVDA에 얼마 넣었으면 지금 얼마" 류. 실제로 09-14에 한 건 나갔다.
+    "would grow to", "would be worth", "years ago", "if you invested",
+    "if you had invested", "turned $", "$1,000 in",
+    # marketbeat류 기관 보유 기사. 근접 규칙을 켜면서 새로 들어왔다 —
+    # 기존 NEGATIVE가 "shares purchased/sold"만 막고 "Shares Acquired by"와
+    # "Largest Position"은 안 막고 있었다.
+    "shares acquired", "largest position", "investment advisers",
+    "investment advisory", "investment solutions", "advisory services",
 ]
+
+# 근접 규칙 — POSITIVE의 인접 문구를 못 맞추는 문장형 제목 구제.
+# "Nvidia in talks to invest", "Nvidia Mulls $10B ... Backing"처럼 주체와 동사
+# 사이에 단어가 끼는 건 와이어 기사의 기본 문체다. POSITIVE만 쓰면 축약형
+# 제목(어그리게이터)만 통과해서, 메이저 매체가 구조적으로 탈락한다.
+#
+# terms는 어간이 아니라 정확한 토큰이다. `back`을 넣으면 "Jim Cramer Names
+# NVIDIA the Main Portfolio Running Back"이 통과한다.
+PROXIMITY = {
+    "subjects": ["nvidia"],
+    "terms": {
+        "invest", "invests", "investing", "invested", "investment", "investments",
+        "stake", "stakes", "acquire", "acquires", "acquired", "acquiring",
+        "acquisition", "backs", "backing", "backed", "funds", "funding",
+        "mulls", "weighs", "eyes", "bets", "commits", "pours", "injects",
+        "buys", "13f",
+    },
+    "window": 6,
+}
 
 # 섹션 — 앞에서부터 보고 terms가 빈 항이 catch-all.
 GROUPS = [
-    {"label": "📈 신규 투자·인수", "terms": ACTOR, "max": 5},
+    {"label": "📈 신규 투자·인수", "terms": ACTOR, "proximity": PROXIMITY, "max": 5},
     {"label": "🏢 포트폴리오사 동향", "terms": [], "max": 4},
 ]
 
@@ -78,7 +105,7 @@ CONFIG = MonitorConfig(
     state_file="data/nvidia_news_state.json",
     out_file="news_alert.txt",
     locale="en", label="news monitor",
-    groups=GROUPS, max_items=9,
+    groups=GROUPS, max_items=9, proximity=PROXIMITY,
 )
 
 if __name__ == "__main__":
