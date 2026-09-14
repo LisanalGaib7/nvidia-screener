@@ -91,6 +91,9 @@ class MonitorConfig:
     # NVIDIA 레인은 '신규 투자'와 '포트폴리오사 동향'이 성격이 달라서 필요하다 —
     # 실측 23개 이벤트 중 10 대 13으로 섞여 들어와 구분이 안 됐다.
     groups: list = field(default_factory=list)
+    # POSITIVE 인접 문구를 못 맞추는 문장형 제목 구제용.
+    # {"subjects": [...], "terms": [...], "window": n}. 비우면 검사 생략.
+    proximity: dict = None
 
 
 # 실행 간 중복 차단. 창(WINDOW_HOURS)만으로는 "어제 보냈는지"를 알 수 없어서,
@@ -233,6 +236,74 @@ def _fetch_ir(cfg):
     return out
 
 
+# 와이어 서비스가 제목 앞에 붙이는 말머리. 기사 내용이 아니라 배급 메타데이터다.
+# 안 떼면 중복제거 키에 "exclusive-nvidia" 같은 가짜 고유명사가 잡혀, 같은 사건인데
+# 키가 안 겹쳐 중복 발송이 난다(실측: Anthropic IPO 건이 09-12·09-13 이틀 연속 발송).
+WIRE_PREFIXES = ("exclusive-", "exclusive:", "breaking:", "corrected-", "refile-",
+                 "update-", "update 1-", "update 2-", "update 3-", "analysis-",
+                 "insight-", "factbox-", "timeline-")
+
+
+def _strip_wire_prefix(headline):
+    changed = True
+    while changed:
+        changed = False
+        for p in WIRE_PREFIXES:
+            if headline.lower().startswith(p):
+                headline = headline[len(p):].lstrip(" -:").strip()
+                changed = True
+    return headline
+
+
+_WORD_RE = re.compile(r"[a-z0-9$&.'’-]+")
+
+
+_TRUNC_UNITS = ("billion", "million", "trillion")
+
+
+def _looks_truncated(headline):
+    """제목이 금액 단위 중간에서 잘렸나. 예: "... Invest up to $10 Bi"
+
+    일부 매체(Moomoo 등)가 자체 길이 제한으로 제목을 자른 채 RSS에 싣는다.
+    잘린 제목은 알림으로 쓸모가 없고(상대 기업명이 날아간다) 중복제거 키도
+    못 만들어 같은 사건이 두 번 나간다 — 실측: Anthropic IPO 건이 09-12·09-13
+    이틀 연속. 숫자 뒤 단위가 토막난 형태만 좁게 잡는다.
+    """
+    toks = headline.lower().replace(",", " ").split()
+    if len(toks) < 2:
+        return False
+    last = toks[-1].strip(".$")
+    if not last or last in _TRUNC_UNITS:
+        return False
+    if not any(u.startswith(last) for u in _TRUNC_UNITS):
+        return False
+    prev = toks[-2].lstrip("$")
+    return prev.replace(".", "").isdigit()
+
+
+def _near_after(title, prox):
+    """주체 토큰 뒤 window개 단어 안에 이벤트어가 오면 참.
+
+    POSITIVE는 붙어 있는 문구만 본다("nvidia to invest"). 그런데 와이어 기사는
+    문장형으로 쓴다 — "Nvidia in talks to invest", "Nvidia Mulls ... Backing".
+    사이에 단어가 끼면 전부 탈락해서, 축약형 제목을 쓰는 어그리게이터만
+    통과하는 편향이 생겼다(실측: 티어1·2 14건 중 통과 4건, 오탈락 3건이 전부
+    같은 사건). 방향은 '뒤'로만 본다 — 이벤트어가 주체 앞에 있으면 보통
+    나열 기사다("Zacks Investment Ideas ...: NVIDIA, Alphabet, AMD").
+    """
+    subjects = prox.get("subjects") or []
+    terms = set(prox.get("terms") or [])
+    window = prox.get("window", 6)
+    toks = _WORD_RE.findall(title.lower())
+    for i, tok in enumerate(toks):
+        if not any(sub in tok for sub in subjects):
+            continue
+        for w in toks[i + 1:i + 1 + window]:
+            if w.strip(".,;:!?'’-") in terms:
+                return True
+    return False
+
+
 def _strip_source(headline, source):
     """Google News가 붙이는 ' - 출처' 접미사 제거.
 
@@ -245,7 +316,8 @@ def _strip_source(headline, source):
         headline = headline[:-len(suffix)]
     elif not source and " - " in headline:
         headline, source = headline.rsplit(" - ", 1)
-    return headline.rstrip(" .…").strip(), source.strip()
+    headline = _strip_wire_prefix(headline.rstrip(" .…").strip())
+    return headline, source.strip()
 
 
 def _is_relevant(title, cfg, authoritative=False):
@@ -258,8 +330,11 @@ def _is_relevant(title, cfg, authoritative=False):
     tl = title.lower()
     if cfg.subject and not any(s in tl for s in cfg.subject):
         return False
+    # POSITIVE(인접 문구) 또는 근접 규칙 중 하나만 맞으면 된다. 근접은 recall을
+    # 더하기만 하므로 proximity를 안 쓰는 레인은 동작이 바뀌지 않는다.
     if not any(p in tl for p in cfg.positive):
-        return False
+        if not (cfg.proximity and _near_after(tl, cfg.proximity)):
+            return False
     if any(n in tl for n in cfg.negative):
         return False
     return True
@@ -283,11 +358,21 @@ def _token_key(headline):
 
 
 def _group_index(headline, cfg):
-    """제목이 속할 섹션. 앞에서부터 보고 terms가 비어 있으면 catch-all."""
+    """제목이 속할 섹션. 앞에서부터 보고 terms가 비어 있으면 catch-all.
+
+    terms(인접 문구)만 보면 분류가 필터와 같은 편향을 갖는다 — 문장형 제목이
+    전부 catch-all로 떨어져서 "Nvidia Mulls $10B Anthropic IPO Backing"이
+    '포트폴리오사 동향'에 들어갔다. 그래서 그룹도 근접 규칙을 볼 수 있게 한다.
+    """
     hl = headline.lower()
     for i, g in enumerate(cfg.groups):
         terms = g.get("terms") or []
-        if not terms or any(t in hl for t in terms):
+        prox = g.get("proximity")
+        if not terms and not prox:
+            return i
+        if terms and any(t in hl for t in terms):
+            return i
+        if prox and _near_after(hl, prox):
             return i
     return len(cfg.groups) - 1
 
@@ -313,6 +398,12 @@ def _dedupe_key(headline, cfg):
         t = tok.lower().strip(".")
         if t and t not in drop:
             out.add(t)
+    # 엔티티가 딱 하나인데 그게 감시 종목 자신이면 상대 기업명을 못 뽑은 것이다
+    # (잘린 제목이 대표적: "Exclusive-Nvidia Plans to Invest up to $10 Bi"에서
+    # Anthropic이 날아갔다). 이런 키로 엔티티 대조를 하면 같은 사건을 못 묶거나
+    # 엉뚱한 기사를 묶는다. 엔티티가 없는 것으로 보고 폴백한다.
+    if len(out) == 1 and any(s in next(iter(out)) for s in cfg.subject):
+        out = set()
     return out or _token_key(headline)
 
 
@@ -349,6 +440,9 @@ def run_monitor(cfg):
         auth = bool(it.get("authoritative"))
         headline, source = _strip_source(it["title"], it["source"])
         if not _is_relevant(headline, cfg, auth):
+            continue
+        if not auth and _looks_truncated(headline):
+            print(f"  (잘린 제목 제외) {headline}")
             continue
 
         matches.append({
