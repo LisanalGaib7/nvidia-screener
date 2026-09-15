@@ -1703,6 +1703,68 @@ def fetch_ga_total_users():
     except Exception:
         return None
 
+def _parse_ga_report(js):
+    """runReport 응답을 {dateRange 이름: {metric: int}}로. 행 순서를 믿지 않는다.
+
+    dateRanges를 2개 이상 보내면 GA4가 응답에 dateRange 차원을 자동으로 끼워
+    넣는다. 행 순서는 보장이 없으므로 요청에서 준 이름표로 매핑한다.
+    """
+    dims = [d.get("name") for d in (js.get("dimensionHeaders") or [])]
+    mets = [m.get("name") for m in (js.get("metricHeaders") or [])]
+    di = dims.index("dateRange") if "dateRange" in dims else None
+    out = {}
+    for row in (js.get("rows") or []):
+        dv = row.get("dimensionValues") or []
+        key = dv[di]["value"] if (di is not None and di < len(dv)) else "all"
+        mv = row.get("metricValues") or []
+        vals = {}
+        for i, m in enumerate(mets):
+            try:
+                vals[m] = int(mv[i]["value"])
+            except Exception:
+                vals[m] = None
+        out[key] = vals
+    return out
+
+
+@st.cache_data(ttl=3600, show_spinner=False)
+def fetch_ga_usage():
+    """관리자 패널용 이용 지표. DAU/WAU/MAU + 누적을 runReport 1회로 받는다.
+
+    GA4는 dateRanges를 4개까지 받는데 필요한 게 정확히 4개다. 상대 날짜 표기
+    (yesterday/NdaysAgo)를 쓰면 타임존 계산을 우리가 안 해도 된다.
+    실패 시 (None, 사유) — 배지와 같은 원칙으로 가짜 숫자 폴백은 두지 않는다.
+    """
+    prop, sa = _ga4_conf()
+    if not prop or not sa:
+        return None, "GA4 설정 없음 (property id 또는 서비스계정 미발견)"
+    try:
+        from google.oauth2 import service_account
+        from google.auth.transport.requests import AuthorizedSession
+        creds = service_account.Credentials.from_service_account_info(
+            sa, scopes=["https://www.googleapis.com/auth/analytics.readonly"])
+        r = AuthorizedSession(creds).post(
+            f"https://analyticsdata.googleapis.com/v1beta/properties/{prop}:runReport",
+            json={
+                "dateRanges": [
+                    {"name": "dau", "startDate": "yesterday",  "endDate": "yesterday"},
+                    {"name": "wau", "startDate": "7daysAgo",   "endDate": "yesterday"},
+                    {"name": "mau", "startDate": "30daysAgo",  "endDate": "yesterday"},
+                    {"name": "all", "startDate": "2020-01-01", "endDate": "today"},
+                ],
+                "metrics": [{"name": n} for n in
+                            ("activeUsers", "totalUsers", "newUsers",
+                             "sessions", "screenPageViews")],
+            },
+            timeout=15)
+        if r.status_code != 200:
+            err = r.json().get("error", {})
+            return None, f"API {r.status_code}: {err.get('status','')} {err.get('message','')[:200]}"
+        return _parse_ga_report(r.json()), None
+    except Exception as e:
+        return None, f"{type(e).__name__}: {str(e)[:200]}"
+
+
 @st.cache_data(ttl=600)
 def fetch_news(ticker):
     try:
@@ -3298,6 +3360,29 @@ with st.expander("Admin", expanded=False):
                                 st.error(f"4~5) 실패: {type(_de).__name__} — {str(_de)[:300]}")
                         except Exception:
                             st.error("3) google-auth 미설치 (requirements 재배포 필요)")
+
+            # 이용 지표 — 공개 배지는 누적만 띄우므로 DAU/WAU/MAU는 여기서만 본다.
+            with st.expander("이용 지표", expanded=False):
+                _u, _uerr = fetch_ga_usage()
+                if _u is None:
+                    st.error(f"조회 실패 — {_uerr}")
+                else:
+                    def _g(rng, met):
+                        v = (_u.get(rng) or {}).get(met)
+                        return f"{v:,}" if isinstance(v, int) else "—"
+                    c1, c2, c3 = st.columns(3)
+                    with c1: st.metric("총 방문자 (누적)", _g("all", "totalUsers"))
+                    with c2: st.metric("MAU (30일)", _g("mau", "activeUsers"))
+                    with c3: st.metric("WAU (7일)", _g("wau", "activeUsers"))
+                    c4, c5, c6 = st.columns(3)
+                    with c4: st.metric("DAU (어제)", _g("dau", "activeUsers"))
+                    with c5: st.metric("신규 사용자 (30일)", _g("mau", "newUsers"))
+                    with c6: st.metric("총 방문 횟수", _g("all", "sessions"))
+                    st.caption(
+                        f"총 페이지뷰 {_g('all', 'screenPageViews')} · "
+                        "측정 시작 2026-06-05(GA4 연동일) · 1시간 캐시. "
+                        "'총 방문자'는 순 사용자(같은 사람 재방문은 1)이고 "
+                        "'총 방문 횟수'는 세션 수라 항상 더 크다.")
 
             # 동시 접속(활성 세션) 진단 — Cloud에서 여러 세션을 실제로 세는지 관측.
             # 이 값은 rerun마다 갱신되니 항상 표시(버튼 불필요). 여러 창으로 열고
