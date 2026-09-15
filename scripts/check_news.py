@@ -106,6 +106,10 @@ CONFIG = MonitorConfig(
     out_file="news_alert.txt",
     locale="en", label="news monitor",
     groups=GROUPS, max_items=9, proximity=PROXIMITY,
+    # 영상은 알림 링크로 안 맞는다. 09-15에 유튜브 영상 한 건이 그날의
+    # 유일한 알림으로 나갔다 — 근접 규칙의 `buys`에 걸렸다.
+    # 출처 표기가 "YouTube"일 때와 "youtu.be"일 때가 다 관측돼 둘 다 넣는다.
+    exclude_sources=["youtube", "youtu.be"],
 )
 
 if __name__ == "__main__":

@@ -91,6 +91,9 @@ class MonitorConfig:
     # NVIDIA 레인은 '신규 투자'와 '포트폴리오사 동향'이 성격이 달라서 필요하다 —
     # 실측 23개 이벤트 중 10 대 13으로 섞여 들어와 구분이 안 됐다.
     groups: list = field(default_factory=list)
+    # 출처 단위 제외. 제목이 아니라 매체로 거른다 — 영상 플랫폼처럼 형식 자체가
+    # 알림 링크에 안 맞는 곳은 제목 키워드로 잡을 성질이 아니다. 소문자 부분일치.
+    exclude_sources: list = field(default_factory=list)
     # POSITIVE 인접 문구를 못 맞추는 문장형 제목 구제용.
     # {"subjects": [...], "terms": [...], "window": n}. 비우면 검사 생략.
     proximity: dict = None
@@ -444,6 +447,11 @@ def run_monitor(cfg):
         if not auth and _looks_truncated(headline):
             print(f"  (잘린 제목 제외) {headline}")
             continue
+        if not auth and cfg.exclude_sources:
+            sl = source.lower()
+            if any(x in sl for x in cfg.exclude_sources):
+                print(f"  (제외 매체 {source}) {headline}")
+                continue
 
         matches.append({
             "headline": headline, "source": source,
