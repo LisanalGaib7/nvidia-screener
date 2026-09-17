@@ -70,6 +70,12 @@ NEGATIVE = [
     # "Largest Position"은 안 막고 있었다.
     "shares acquired", "largest position", "investment advisers",
     "investment advisory", "investment solutions", "advisory services",
+    # 인물 발언. 근접 규칙의 `backs`는 '출자'와 '지지' 두 뜻인데, 주어가 사람이면
+    # 후자다 — 이틀간 "Nvidia CEO backs Trump…" 계열 4건이 통과했고 1건은 발송까지
+    # 갔다. `invests`·`acquires`·`stake`엔 이 모호함이 없어 `backs`만 문제다.
+    # `ceo says`/`huang says`는 일부러 뺐다 — "Nvidia Stock Gains After $3.5B
+    # MediaTek Investment - Jensen Huang Says"처럼 진짜 딜 기사에 붙는 꼬리다.
+    "ceo backs", "huang backs", "chief backs", "ceo declares",
 ]
 
 # 근접 규칙 — POSITIVE의 인접 문구를 못 맞추는 문장형 제목 구제.

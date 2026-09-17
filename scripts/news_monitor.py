@@ -58,7 +58,21 @@ SOURCE_TIERS = {
 
 
 def _source_tier(source):
-    return SOURCE_TIERS.get((source or "").strip().lower(), 3)
+    """등재 브랜드의 지역판·계열지도 같은 티어로 본다.
+
+    완전일치로 두면 "BNN Bloomberg"·"CNBC Africa"가 t3로 떨어진다 — 브랜드를
+    등재해 놓고 못 잡는 건 그냥 누락이다. 단어 경계로 봐서 "Information Week"가
+    "the information"에 걸리는 식의 오매칭은 막는다.
+    """
+    src = (source or "").strip().lower()
+    if src in SOURCE_TIERS:
+        return SOURCE_TIERS[src]
+    padded = " " + "".join(c if c.isalnum() else " " for c in src).strip() + " "
+    for key, tier in SOURCE_TIERS.items():
+        k = " " + "".join(c if c.isalnum() else " " for c in key).strip() + " "
+        if k in padded:
+            return tier
+    return 3
 
 
 @dataclass
