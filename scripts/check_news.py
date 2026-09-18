@@ -39,7 +39,10 @@ ACTOR = [
     "nvidia bets", "nvidia commits", "nvidia pours", "nvidia stake in",
     "nvidia leads round", "nvidia leads investment", "nvidia leads funding",
     # 13F·포트폴리오 (쿼리가 nvidia로 스코프되므로 '13f' 단독 토큰도 안전)
-    "13f", "nvidia portfolio", "nvidia's portfolio", "nvidia discloses", "nvidia reveals stake",
+    # `nvidia portfolio`는 뺐다 — 13F 기사를 잡으려고 넣었는데 실제로는 Moomoo의
+    # 종목묶음 명명규칙(`$NVIDIA Portfolio (LIST20882.US)$`)에만 걸렸다. 관측 3건
+    # 전부 노이즈였고 진짜 13F 기사는 `13f`로 잡힌다.
+    "13f", "nvidia discloses", "nvidia reveals stake",
     # 매도·청산
     "nvidia exits", "nvidia sells stake", "nvidia trims", "nvidia dumps",
     "nvidia reduces", "nvidia dissolves", "nvidia cuts stake",
