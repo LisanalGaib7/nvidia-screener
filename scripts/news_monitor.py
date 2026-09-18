@@ -365,6 +365,7 @@ is are be new how why what when where more most best first next full
 ai us uk eu inc ltd limited corp llc co group holdings technologies company
 million billion ceo cto cfo former global strategic enterprise business platform software
 system systems program data cloud customers customer supply chain chains
+portfolio
 """.split())
 
 
