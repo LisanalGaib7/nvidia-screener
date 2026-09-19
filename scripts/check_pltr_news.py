@@ -42,7 +42,7 @@ QUERIES = [q + _WHEN for q in [
 SUBJECT = ["palantir", "pltr"]
 
 # 사업 이벤트 판별 — 어순 무관 단일 토큰
-POSITIVE = [
+CONTRACT = [
     # 계약·수주
     "contract", "awarded", "award", "wins", "won", "secures", "secured",
     # 선정·채택
@@ -58,6 +58,12 @@ POSITIVE = [
     "to end", "ends", "drops", "terminates",
 ]
 
+
+# POSITIVE 게이트는 해제했다. 계약·파트너십만 받던 레인이었는데, 실제로 걸러지던
+# 것 중에 이란 학교 폭격 연루 보도·CHCI 이사회 지급 스쿠프·간호사노조 반대처럼
+# 투자 판단에 더 중요한 게 많았다(실측: 이벤트 5 → 17, 티어1 1 → 3, 잃는 건 0).
+# 이제 subject(palantir/pltr)와 NEGATIVE만으로 거른다.
+POSITIVE = []
 # 주가·투자·인물 잡음 — POSITIVE를 넓힌 만큼 여기가 정밀도를 책임진다
 NEGATIVE = [
     "stock", "shares", "valuation", "undervalued", "overvalued",
@@ -67,8 +73,52 @@ NEGATIVE = [
     "earnings", "guidance", "quarterly", "rating", "upgrade", "downgrade",
     "investor", "investors", "should you buy", "consolidates", "support as",
     "casts a shadow", "closer to owning",
-    # 옵션·거래량 기사 — POSITIVE의 "contract"가 "Contracts Were Traded"에 걸린다
+    # 옵션·거래량 기사 — 예전 POSITIVE의 "contract"가 "Contracts Were Traded"에 걸렸다
     "options", "open interest", "contracts were traded",
+    # POSITIVE 게이트를 푼 대신 주가·트레이딩 기사는 여기서 막는다. 포지션은
+    # 트래커로 이미 보고 있어 중복이고, 양이 늘면 진짜 뉴스가 길이 제한에 밀린다.
+    "priced in", "moat", "power ranking", "break above", "reversal",
+    "nasdaq:pltr", "short-term", "buy now", "price prediction",
+    "technical analysis", "resistance", "support level", "peers",
+    "forecast", "target price", "analyst", "short interest",
+    "all-time high", "52-week",
+]
+
+# 섹션 — 앞에서부터 보고 terms가 빈 항이 catch-all.
+# 분류 순서가 곧 표시·삭감 순서다. 길이 초과 시 뒤 섹션부터 잘리므로 중요한 걸
+# 앞에 둔다. 계약 어휘에서 맨 "deal"은 뺐다 — "Hires … With NHS Deal in Limbo"
+# 같은 인사 기사를 계약으로 끌어가기 때문이다.
+DEAL = ["contract", "awarded", "award", "wins", "won", "secures", "secured",
+        "partner", "partners", "partnership", "alliance", "teams up",
+        "signs deal", "deal with", "agreement", "selects", "selected",
+        "adopts", "pilot", "piloting", "deploys", "deployment", "rollout",
+        "using palantir", "taps palantir", "expands", "integrates"]
+POLICY = ["probe", "lawsuit", "sues", "sued", "investigation", "scrutiny",
+          "protest", "purge", "union", "watchdog", "privacy", "surveillance",
+          "backlash", "criticism", "controversy", "accountability", "ethics",
+          "regulation", "guidelines", "urges", "warn", "warns", "scoop",
+          "bombing", "senator", "congress", "hearing", "ban", "immigration"]
+# 인사 기사는 동사가 제각각이다 — hires/appoints/joins 외에 "takes senior job",
+# "takes a senior role"처럼 명사구로도 쓴다. 실측에서 이 형태가 catch-all로 샜다.
+PEOPLE = ["hires", "hired", "hiring", "appoints", "appointed", "joins",
+          "taps ex", "resigns", "steps down", "departs", "vice president",
+          "senior vice", "names ex", "senior job", "senior role",
+          "senior post", "top job", "takes senior", "new chief"]
+
+# 경쟁 구도는 별도 섹션으로 뺀다. catch-all에 같이 두니 7건이 몰려 쿼터 2를
+# 놓고 경쟁했고, 날짜순이라 클릭베이트("Putin DESTROYS…")가 Thales 경쟁사
+# 기사를 밀어냈다. 관심 있는 갈래는 자기 칸을 가져야 한다.
+RIVAL = ["alternative", "alternatives", "rival", "rivals", "competitor",
+         "competitors", "counterweight", "challenger", "sovereign",
+         "orchestration", "integration", "launches", "launch", "foundry",
+         "ontology", "nvidia", "takes on palantir"]
+
+GROUPS = [
+    {"label": "📄 계약·파트너십",  "terms": DEAL,   "max": 4},
+    {"label": "🏛 정책·논란",     "terms": POLICY, "max": 3},
+    {"label": "🤝 기술·제휴·경쟁", "terms": RIVAL,  "max": 2},
+    {"label": "👤 회사·인사",     "terms": PEOPLE, "max": 1},
+    {"label": "📰 그 외",         "terms": [],     "max": 1},
 ]
 
 # 공식 보도자료 피드 — 뉴스룸 페이지가 실제로 호출하는 IR 플랫폼 API.
@@ -86,13 +136,14 @@ IR_FEED = {
 CONFIG = MonitorConfig(
     query=QUERIES[0], queries=QUERIES,
     positive=POSITIVE, negative=NEGATIVE, subject=SUBJECT,
-    header="🔵 <b>Palantir 계약·파트너십 감지</b>",
+    header="🔵 <b>Palantir 뉴스</b>",
     footer="👉 NVIDIA 전략파트너 동향 확인",
     state_file="data/pltr_news_state.json",
     out_file="pltr_news_alert.txt",
     locale="en", label="pltr-news monitor",
     max_items=10,   # 갈래 합집합이라 하루 이벤트가 6개를 넘는다 (실측 9건)
     ir_feed=IR_FEED,
+    groups=GROUPS,
 )
 
 if __name__ == "__main__":

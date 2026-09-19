@@ -349,7 +349,11 @@ def _is_relevant(title, cfg, authoritative=False):
         return False
     # POSITIVE(인접 문구) 또는 근접 규칙 중 하나만 맞으면 된다. 근접은 recall을
     # 더하기만 하므로 proximity를 안 쓰는 레인은 동작이 바뀌지 않는다.
-    if not any(p in tl for p in cfg.positive):
+    # positive가 비면 게이트를 걸지 않는다 — subject와 negative만으로 거르는
+    # '해당 종목 뉴스 전부' 모드. PLTR 레인이 이 모드다(계약만이 아니라 논란·
+    # 인사·경쟁 구도까지 받고 싶다는 요구). 비어 있을 때 any([])가 False라
+    # 예전엔 전부 탈락했으므로 명시적으로 분기한다.
+    if cfg.positive and not any(p in tl for p in cfg.positive):
         if not (cfg.proximity and _near_after(tl, cfg.proximity)):
             return False
     if any(n in tl for n in cfg.negative):
