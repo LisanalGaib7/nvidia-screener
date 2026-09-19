@@ -51,5 +51,7 @@ jobs:
           git add data/hanwha_news_state.json
           git diff --staged --quiet && exit 0
           git commit -m "chore: news alert state [skip ci]"
-          git pull --rebase --autostash origin main
+          # main이 아닌 ref(브랜치 테스트 발송)에서 돌면 자기 커밋을 main 위로
+          # rebase하려다 충돌한다 — 실측 2026-09-19. 현재 ref를 따라간다.
+          git pull --rebase --autostash origin "${GITHUB_REF_NAME}"
           git push
