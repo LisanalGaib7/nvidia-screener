@@ -82,6 +82,9 @@ NEGATIVE = [
     "technical analysis", "resistance", "support level", "peers",
     "forecast", "target price", "analyst", "short interest",
     "all-time high", "52-week",
+    # "Palantir Just Hit a One-Year High. Here's What's Driving It" — Yahoo가 실은
+    # 주가 기사라 매체로 못 막았다. 30일간 이 표현이 든 제목 4건이 전부 주가·시황
+    "year high",
     # 남이 PLTR을 사고판 기사 — 09-19~24 발송분에서 샘(Burry·Cathie Wood·트럼프)
     "trades in", "shorts", "sold palantir", "bought palantir",
     "buys palantir", "sells palantir",
