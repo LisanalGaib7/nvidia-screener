@@ -141,11 +141,15 @@ def _save_state(cfg, state):
     return True
 
 
-def _already_sent(m, state, now):
-    """보낸 적 있나. 엔티티가 겹치면 같은 사건의 다른 기사로 본다.
+def _sent_match(m, state, now, drop=frozenset()):
+    """보낸 적 있나. 있으면 (저장 항목, 공유 토큰) — 없으면 None.
 
-    엔티티 차단은 TTL을 둔다 — 같은 상대와의 *다른* 딜이 나중에 나올 수 있어서,
-    무기한 막으면 진짜 새 소식을 놓친다.
+    엔티티가 겹치면 같은 사건의 다른 기사로 본다. 엔티티 차단은 TTL을 둔다 —
+    같은 상대와의 *다른* 딜이 나중에 나올 수 있어서, 무기한 막으면 진짜 새 소식을
+    놓친다.
+
+    저장된 키에도 지금의 잡음 필터를 다시 건다. 예전에 오염된 키("ipo")가 상태
+    파일에 남아 있어서, 새 키만 고치면 과거 기록이 3일간 계속 막는다.
     """
     title = m["headline"].strip().lower()
     for e in state.get("sent", []):
@@ -155,10 +159,16 @@ def _already_sent(m, state, now):
             continue
         age = (now - ts).days
         if age <= TITLE_TTL_DAYS and e.get("title") == title:
-            return True
-        if age <= ENTITY_TTL_DAYS and m["dkey"] & set(e.get("key") or []):
-            return True
-    return False
+            return e, {"(같은 제목)"}
+        if age <= ENTITY_TTL_DAYS:
+            shared = m["dkey"] & (set(e.get("key") or []) - drop)
+            if shared:
+                return e, shared
+    return None
+
+
+def _already_sent(m, state, now, drop=frozenset()):
+    return _sent_match(m, state, now, drop) is not None
 
 def _fetch_one(query, cfg):
     url = ("https://news.google.com/rss/search?q=" + quote(query) +
@@ -382,6 +392,46 @@ system systems program data cloud customers customer supply chain chains
 portfolio
 """.split())
 
+# Title Case 제목에서는 흔한 단어도 대문자로 시작해 키에 들어온다(실측: 제목의 52%).
+# 한 단어만 겹쳐도 다른 사건이 합쳐지고, 교차 실행 차단에선 3일간 사건을 통째로
+# 삼킨다 — 2026-09-24에 NVIDIA의 SB Energy 추가 투자와 Iambic IPO가 "ipo" 하나로
+# 사라진 걸 찾았다. 세 겹으로 거른다.
+#   ① 약어: 항상 대문자라 소문자 근거로는 못 거른다. 닫힌 집합이라 목록이 맞다
+#   ② 실측 목록: 2026-09-24 풀에서 키를 오염시킨 단어
+#   ③ 흔한 단어 사전: 일반 비즈니스 기사에서 소문자로 쓰인 단어(build_common_words.py)
+# 여기에 실행마다 그날 수집분에서 소문자로 쓰인 단어를 더한다(run_monitor).
+# 틀릴 때는 '쪼개는' 쪽으로 틀리게 설계했다. 잘못 합치면 사건이 안 보이게
+# 사라지지만, 잘못 쪼개면 중복 발송으로 눈에 보인다.
+KEY_ACRONYMS = set("ipo ceo cfo cto ai us u.s uk eu nyse nasdaq gpu gpus etf spac "
+                   "nvda pltr llm api".split())
+KEY_MEASURED = set("""ipo files filing startup startups firm firms revenue valuation
+infrastructure ahead just another push hit hits tests joins center centre wall street
+drug president senior alliance alliances""".split())
+
+
+def _load_common_words():
+    path = os.path.join(os.path.dirname(__file__), "..", "data", "common_words.json")
+    try:
+        with open(path, encoding="utf-8") as f:
+            return set(json.load(f))
+    except Exception as e:
+        print(f"  (흔한 단어 사전 로드 실패 — 약어·실측 목록만 사용: {e})")
+        return set()
+
+
+KEY_NOISE = KEY_ACRONYMS | KEY_MEASURED | _load_common_words()
+_TOKEN_RE = re.compile(r"[A-Za-z][A-Za-z0-9&.\-]{2,}")
+
+
+def _lowercase_words(headlines):
+    """이번 실행 수집분에서 소문자로 쓰인 적 있는 단어. 회사 이름은 여기 안 걸린다."""
+    out = set()
+    for h in headlines:
+        for tok in _TOKEN_RE.findall(h):
+            if tok[0].islower():
+                out.add(tok.lower().strip("."))
+    return out
+
 
 def _token_key(headline):
     """기존 중복제거 키 — 제목 앞 4토큰."""
@@ -409,7 +459,7 @@ def _group_index(headline, cfg):
     return len(cfg.groups) - 1
 
 
-def _dedupe_key(headline, cfg):
+def _dedupe_key(headline, cfg, run_common=frozenset()):
     """같은 사건을 묶기 위한 키.
 
     1순위는 '상대 기업명' — 같은 딜을 여러 매체가 쓰면 상대 회사 이름이 겹친다.
@@ -421,7 +471,7 @@ def _dedupe_key(headline, cfg):
     """
     if cfg.locale != "en":
         return _token_key(headline)
-    drop = set(GENERIC)
+    drop = set(GENERIC) | KEY_NOISE | run_common
     for words in (cfg.subject, cfg.positive, cfg.negative):
         for w in words:
             drop.update(w.lower().split())
@@ -456,6 +506,9 @@ def run_monitor(cfg):
 
     now = datetime.now(timezone.utc)
     cutoff = now - timedelta(hours=WINDOW_HOURS)
+    # 필터 통과 전 수집분 전체를 근거로 쓴다 — 통과분만 보면 근거가 더 얇아진다.
+    run_common = _lowercase_words(
+        _strip_source(it["title"], it.get("source", ""))[0] for it in items)
 
     matches = []
     for it in items:
@@ -485,7 +538,7 @@ def run_monitor(cfg):
         matches.append({
             "headline": headline, "source": source,
             "link": it["link"], "dt": dt, "auth": auth,
-            "dkey": _dedupe_key(headline, cfg),
+            "dkey": _dedupe_key(headline, cfg, run_common),
         })
 
     # 중복 제거 — 같은 사건을 여러 매체가 쓰면 상대 기업명이 겹친다.
@@ -502,8 +555,19 @@ def run_monitor(cfg):
             continue
         deduped.append(m)
     # 실행 간 차단 — 창이 겹치는 구간의 항목이 다음 회차에 다시 나가는 걸 막는다.
+    # 무엇이 왜 막혔는지 남긴다. 예전엔 건수만 찍혀서 "ipo" 한 단어가 사건을
+    # 삼켜도 2주간 아무도 몰랐다. 제목과 공유 토큰을 보면 오판인지 바로 보인다.
     state = _load_state(cfg)
-    fresh = [m for m in deduped if not _already_sent(m, state, now)]
+    drop = KEY_NOISE | run_common
+    fresh = []
+    for m in deduped:
+        hit = _sent_match(m, state, now, drop)
+        if hit is None:
+            fresh.append(m)
+            continue
+        e, shared = hit
+        print(f"  (이미 보냄) {m['headline'][:90]}")
+        print(f"       ↳ 공유 {sorted(shared)} ← {e.get('title', '')[:80]}")
     if cfg.state_file and len(fresh) < len(deduped):
         print(f"  (이미 보낸 {len(deduped) - len(fresh)}건 제외)")
     deduped = fresh
