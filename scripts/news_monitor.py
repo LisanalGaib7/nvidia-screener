@@ -309,15 +309,25 @@ def _near_after(title, prox):
     나열 기사다("Zacks Investment Ideas ...: NVIDIA, Alphabet, AMD").
     """
     subjects = prox.get("subjects") or []
-    terms = set(prox.get("terms") or [])
+    terms = prox.get("terms") or []
+    # 두 단어 이상짜리 근접어도 받는다. `investment`는 뒤 전치사로 뜻이 갈린다 —
+    # "investment in SB Energy"는 NVIDIA의 투자고 "is a Good Investment"나
+    # "$10,000 investment by 2027"은 NVDA 주식 얘기다. 6일간 `investment` 한
+    # 단어로 통과한 확실한 신호는 0건, 잡음은 4건이었다.
+    single = {t for t in terms if " " not in t}
+    multi = [t.split() for t in terms if " " in t]
     window = prox.get("window", 6)
     toks = _WORD_RE.findall(title.lower())
+    bare = [t.strip(".,;:!?'’-") for t in toks]
     for i, tok in enumerate(toks):
         if not any(sub in tok for sub in subjects):
             continue
-        for w in toks[i + 1:i + 1 + window]:
-            if w.strip(".,;:!?'’-") in terms:
+        for j in range(i + 1, min(i + 1 + window, len(toks))):
+            if bare[j] in single:
                 return True
+            for m in multi:
+                if bare[j:j + len(m)] == m:
+                    return True
     return False
 
 
