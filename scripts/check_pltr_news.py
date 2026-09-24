@@ -82,6 +82,24 @@ NEGATIVE = [
     "technical analysis", "resistance", "support level", "peers",
     "forecast", "target price", "analyst", "short interest",
     "all-time high", "52-week",
+    # 남이 PLTR을 사고판 기사 — 09-19~24 발송분에서 샘(Burry·Cathie Wood·트럼프)
+    "trades in", "shorts", "sold palantir", "bought palantir",
+    "buys palantir", "sells palantir",
+    # Moomoo 종목 카드("$Palantir (PLTR.US)$"). 기사가 아니다. 매체는 막지 않는다 —
+    # 같은 Moomoo가 진짜 뉴스도 싣는다. 형식만 막는다. 브랜치 테스트 발송에서 나왔다.
+    ".us)$",
+]
+
+# 주가 논평이 본업인 매체. 이 레인은 POSITIVE 게이트가 없어 NEGATIVE 문구가
+# 유일한 방어선인데, 09-19에 주가 어휘 19개를 넣고도 5일 만에 새 표현 6개가
+# 샜다 — 문구로는 두더지 잡기다. 매체라는 구조적 특징으로 막는다.
+# 7일 풀 기준 사건 손실 0. NVIDIA 레인엔 쓰지 않는다 — 거기선 TipRanks·
+# Seeking Alpha가 진짜 딜(SharonAI, Einride)을 실어 날라 사건 2개를 잃었다.
+# Seeking Alpha·GuruFocus는 같은 이유로 목록에서 뺐다.
+STOCK_COMMENTARY = [
+    "tipranks", "motley fool", "fool.com", "simplywall.st", "simply wall st",
+    "benzinga", "trefis", "24/7 wall st", "marketbeat", "zacks",
+    "investorplace", "stocktwits", "stockstotrade", "traders union",
 ]
 
 # 섹션 — 앞에서부터 보고 terms가 빈 항이 catch-all.
@@ -144,6 +162,7 @@ CONFIG = MonitorConfig(
     max_items=10,   # 갈래 합집합이라 하루 이벤트가 6개를 넘는다 (실측 9건)
     ir_feed=IR_FEED,
     groups=GROUPS,
+    exclude_sources=STOCK_COMMENTARY,
 )
 
 if __name__ == "__main__":

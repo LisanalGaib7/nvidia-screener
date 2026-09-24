@@ -79,6 +79,9 @@ NEGATIVE = [
     # `ceo says`/`huang says`는 일부러 뺐다 — "Nvidia Stock Gains After $3.5B
     # MediaTek Investment - Jensen Huang Says"처럼 진짜 딜 기사에 붙는 꼬리다.
     "ceo backs", "huang backs", "chief backs", "ceo declares",
+    # 09-19~24 발송분에서 샌 것. 남이 NVDA를 사는 기사, 회사 명의 정치 지지,
+    # Motley Fool의 고정 제목 패턴("Prediction: … Could 10X by 2033").
+    "builds nvidia", "backs trump", "prediction:", "10x",
 ]
 
 # 근접 규칙 — POSITIVE의 인접 문구를 못 맞추는 문장형 제목 구제.
@@ -91,7 +94,9 @@ NEGATIVE = [
 PROXIMITY = {
     "subjects": ["nvidia"],
     "terms": {
-        "invest", "invests", "investing", "invested", "investment", "investments",
+        "invest", "invests", "investing", "invested",
+        # 명사형은 뒤가 in/into일 때만 — "X에 투자"와 "NVDA라는 투자"를 가른다
+        "investment in", "investments in", "investment into",
         "stake", "stakes", "acquire", "acquires", "acquired", "acquiring",
         "acquisition", "backs", "backing", "backed", "funds", "funding",
         "mulls", "weighs", "eyes", "bets", "commits", "pours", "injects",
