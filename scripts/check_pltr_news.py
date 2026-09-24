@@ -85,6 +85,9 @@ NEGATIVE = [
     # 남이 PLTR을 사고판 기사 — 09-19~24 발송분에서 샘(Burry·Cathie Wood·트럼프)
     "trades in", "shorts", "sold palantir", "bought palantir",
     "buys palantir", "sells palantir",
+    # Moomoo 종목 카드("$Palantir (PLTR.US)$"). 기사가 아니다. 매체는 막지 않는다 —
+    # 같은 Moomoo가 진짜 뉴스도 싣는다. 형식만 막는다. 브랜치 테스트 발송에서 나왔다.
+    ".us)$",
 ]
 
 # 주가 논평이 본업인 매체. 이 레인은 POSITIVE 게이트가 없어 NEGATIVE 문구가
