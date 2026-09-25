@@ -109,14 +109,14 @@ def main():
             f"🚨 <b>10년물 국채금리 5.0% 돌파</b>\n"
             f"현재: <b>5.03%</b>\n\n"
             f"AI 사이클 자본공급 위험 시그널 #1\n"
-            f"출처: Yahoo Finance (^TNX)"
+            f"출처: Yahoo Finance"
         )
         send_telegram(
             f"🧪 <b>[테스트] 매크로 위험 알림 포맷 미리보기</b>\n\n"
             f"🚨 <b>Core Sticky CPI 3.3% 돌파</b>\n"
             f"현재: <b>3.4%</b>  (2026-04-01)\n\n"
             f"AI 사이클 자본공급 위험 시그널 #2\n"
-            f"출처: FRED · Atlanta Fed ({CPI_SERIES})"
+            f"출처: FRED · Atlanta Fed"
         )
         print("test messages sent")
         return
@@ -135,7 +135,7 @@ def main():
                 f"🚨 <b>10년물 국채금리 {YIELD_THRESHOLD}% 돌파</b>\n"
                 f"현재: <b>{yield_val:.2f}%</b>\n\n"
                 f"AI 사이클 자본공급 위험 시그널 #1\n"
-                f"출처: Yahoo Finance (^TNX)"
+                f"출처: Yahoo Finance"
             )
             state["yield_above_5"] = True
             print("ALERT: yield breached")
@@ -156,7 +156,7 @@ def main():
                 f"🚨 <b>Core Sticky CPI {CPI_THRESHOLD}% 돌파</b>\n"
                 f"현재: <b>{cpi_val:.1f}%</b>  ({cpi_date})\n\n"
                 f"AI 사이클 자본공급 위험 시그널 #2\n"
-                f"출처: FRED · Atlanta Fed ({CPI_SERIES})"
+                f"출처: FRED · Atlanta Fed"
             )
             state["cpi_last_alert_date"] = cpi_date
             print(f"ALERT: CPI breached ({cpi_date})")
