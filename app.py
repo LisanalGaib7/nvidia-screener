@@ -936,6 +936,23 @@ NEW_2026 = [
         "source": "Naver 공시(주요사항보고서·유상증자결정, 2026.07.27), Reuters·KED Global 교차확인, DART 원문 미열람",
     },
     {
+        "ticker": "2454.TW",
+        "name": "MediaTek",
+        "sector": "팹리스 반도체",
+        "invest_year": 2026,
+        "invest_amt_m": 3500.0,
+        "invest_date": "2026-08-31",
+        "badge": "new",
+        "alert_date": "2026-08-31",
+        "alert_desc": "$3.5B 전환사채",
+        "alert_desc_eng": "$3.5B convertible bonds",
+        "nvidia_thesis": "NVLink Fusion 협력 확대: AI 인프라용 커스텀 실리콘, 로컬 AI, 자동차. 해외 전환사채 $3.9B 중 $3.5B(약 90%) 인수, 엔비디아의 첫 대만 상장사 투자",
+        "nvidia_thesis_eng": "Expanded NVLink Fusion collaboration: custom silicon for AI infrastructure, local AI, automotive. Took $3.5B (~90%) of a $3.9B overseas convertible bond, NVIDIA's first investment in a Taiwan-listed company",
+        "note": "$3.5B 해외 전환사채 (2026.08.31) | 무이자 5년, 전환가 NT$4,513.75 | 전량 전환 시 최대 약 1.67%",
+        "note_eng": "$3.5B overseas convertible bonds (2026.08.31) | 0% coupon, 5-year, conversion NT$4,513.75 | up to ~1.67% if fully converted",
+        "source": "MediaTek 공식 발표(2026.08.31), Taipei Times·Digitimes 교차확인, 전환 조건은 TrendForce, MOPS 원문 미열람",
+    },
+    {
         "ticker": "GENB",
         "name": "Generate Biomedicines",
         "sector": "AI 신약개발",
@@ -1028,7 +1045,7 @@ CURRENT_HOLDINGS = [
         "name": "CoreWeave",
         "sector": "클라우드 GPU",
         "invest_year": 2025,
-        "invest_amt_m": None,  # 2025.03 IPO 참여 금액 미공개 — 아래는 13F 평가액
+        "invest_amt_m": None,  # 2026.01 $2B는 공개됐지만 2025.03 IPO 참여 금액이 미공개 — 부분합을 약정액으로 쓰면 과소표시라 13F 평가액 사용
         "fmv_m": 4699.6,  # SEC 13F Q2 2026 원문, 6/30 기준 평가액
         "invest_date": "2025-03-28",
         "badge": "core",
@@ -1037,9 +1054,9 @@ CURRENT_HOLDINGS = [
         "alert_desc_eng": "Stake value $4.70B",
         "nvidia_thesis": "NVIDIA GPU 특화 하이퍼스케일러, H100/B200 최대 보유 AI 클라우드. 47.2M주(Q1 대비 +95% 증가, 이후 변동 없음), 6/30 기준 $4.70B",
         "nvidia_thesis_eng": "NVIDIA GPU-specialized hyperscaler, the largest H100/B200 AI cloud. 47.2M shares (+95% vs Q1, unchanged since), $4.70B as of 6/30",
-        "note": "47.2M주 · 6/30 기준 $4.70B | 2025.03 IPO 참여, 투자 금액은 비공개 | NVIDIA 전략적 주주·최대 고객",
-        "note_eng": "47.2M shares · $4.70B as of 6/30 | 2025.03 IPO participation, amount not disclosed | NVIDIA strategic shareholder & top customer",
-        "source": "SEC 13F-HR 원문(acc. 0001045810-26-000065, 2026.08.14) · CoreWeave IPO Filing (2025.03)",
+        "note": "47.2M주 · 6/30 기준 $4.70B | $2B 보통주 @$87.20 (2026.01.26) + 2025.03 IPO 참여(금액 비공개) | NVIDIA 전략적 주주·최대 고객",
+        "note_eng": "47.2M shares · $4.70B as of 6/30 | $2B common @$87.20 (2026.01.26) + 2025.03 IPO participation (amount not disclosed) | NVIDIA strategic shareholder & top customer",
+        "source": "SEC 13F-HR 원문(acc. 0001045810-26-000065, 2026.08.14) · CoreWeave 8-K 보도자료(2026.01.26) · CoreWeave IPO Filing (2025.03)",
     },
     {
         "ticker": "NBIS",
@@ -1166,7 +1183,7 @@ THESIS_KO = {
     "CRWV": (
         "엔비디아 최신 GPU를 가장 많이 보유한 AI 전용 클라우드 회사",
         "엔비디아 H100·B200을 대규모로 굴리는 AI 클라우드로, 엔비디아의 전략적 주주이자 최대 고객입니다.",
-        "4,720만주 보유 · 2025.03 IPO 참여",
+        "4,720만주 보유 · 2026.01 $2B 추가 투자 (@$87.20) · 2025.03 IPO 참여",
     ),
     "NBIS": (
         "엔비디아 시스템을 대규모로 배포하는 풀스택 AI 클라우드 회사",
@@ -1182,6 +1199,11 @@ THESIS_KO = {
         "엔비디아 AI를 산업용 로봇에 넣는 일본 로봇 회사",
         "엔비디아 Isaac Sim으로 로봇을 가상에서 훈련(디지털 트윈)하고, Jetson 컴퓨터를 로봇에 탑재해 'Physical AI'를 구현합니다. 발표 당일 주가가 +9.4% 뛰었습니다.",
         "지분투자 아님 · Physical AI 파트너십 · Isaac Sim + Jetson 통합",
+    ),
+    "2454.TW": (
+        "스마트폰 칩으로 큰 대만 반도체 설계 회사, 이제 엔비디아와 AI 칩을 함께 만듦",
+        "엔비디아의 칩 연결 기술(NVLink Fusion)로 데이터센터용 맞춤 칩을 만들고, 내 기기 안에서 돌아가는 AI와 자동차용 칩까지 협력을 넓힙니다. 엔비디아가 처음으로 대만 상장사에 투자한 건입니다.",
+        "$3.5B 해외 전환사채 (전체 $3.9B의 약 90%) · 무이자 5년 · 전량 전환 시 지분 최대 약 1.67%",
     ),
     "035420.KS": (
         "세종시에 엔비디아 GPU로 AI 데이터센터를 함께 짓는 한국 인터넷 기업",
@@ -1247,7 +1269,7 @@ THESIS_EN = {
     "CRWV": (
         "The AI-dedicated cloud holding the most of NVIDIA's latest GPUs",
         "An AI cloud running NVIDIA H100·B200 at massive scale, and NVIDIA's strategic shareholder and top customer.",
-        "47.2M shares · $4.70B as of 6/30 · joined 2025.03 IPO, amount not disclosed",
+        "47.2M shares · $4.70B as of 6/30 · $2B follow-on in 2026.01 (@$87.20) · joined 2025.03 IPO",
     ),
     "NBIS": (
         "A full-stack AI cloud deploying NVIDIA systems at scale",
@@ -1263,6 +1285,11 @@ THESIS_EN = {
         "A Japanese robotics company putting NVIDIA AI into industrial robots",
         "Trains robots virtually with NVIDIA Isaac Sim (digital twin) and embeds Jetson on-robot computers to realize 'Physical AI.' FANUC stock jumped +9.4% on the announcement.",
         "Not an equity investment · Physical AI partnership · Isaac Sim + Jetson integration",
+    ),
+    "2454.TW": (
+        "A Taiwanese chip designer, big in smartphone chips, now building AI chips with NVIDIA",
+        "Uses NVIDIA's chip-linking technology (NVLink Fusion) to build custom data center chips, and extends the partnership to on-device AI and automotive chips. NVIDIA's first investment in a Taiwan-listed company.",
+        "$3.5B overseas convertible bonds (~90% of a $3.9B offering) · 0% coupon, 5-year · up to ~1.67% if fully converted",
     ),
     "035420.KS": (
         "A Korean internet company co-building an NVIDIA-powered AI data center in Sejong",
@@ -1286,6 +1313,9 @@ THESIS_EN = {
 # IPO·SC 13G 등 13F가 아닌 이벤트는 quarter를 아예 생략 — filed(사건 발생일)만 표시.
 # 두 종류를 섞어서 quarter를 채우면 "Q2인데 8월?" 식으로 독자가 오독함(2026-08-17 확인).
 FILINGS_HISTORY = [
+    # MediaTek 해외 전환사채(2026-08-31 발표) — 13F 대상 아님(대만 상장, 사채 인수). 발표일은
+    # MediaTek 공식 X 게시물 시각으로 확정. 전환 조건은 TrendForce 단독, MOPS 원문 미열람.
+    {"ticker":"2454.TW", "company":"MediaTek",       "filed":"2026-08-31","change":"해외 전환사채 · 무이자 5년", "change_eng":"Overseas convertible bonds · 0% coupon, 5-year", "change_type":"new","value_m":3500.0},
     # 2026 Q2 13F (2026-08-14 접수, acc. 0001045810-26-000065). SEC EDGAR 원문
     # information_table.xml 직접 대조 완료 — SpaceX 신규 편입 외 기존 7종목 주식수 전량 동일.
     {"ticker":"SPCX", "company":"SpaceX",            "quarter":"Q2 2026","filed":"2026-08-14","change":"122,764,805주 (xAI 투자분, SpaceX·xAI 합병으로 전환)", "change_eng":"122,764,805 shares (converted from xAI stake via SpaceX-xAI merger)", "change_type":"new","value_m":20975.6},
@@ -1304,6 +1334,8 @@ FILINGS_HISTORY = [
     {"ticker":"GENB", "company":"Generate Biomedicines","quarter":"Q1 2026","filed":"2026-05-15","change":"보통주 13F · 833,325주 (2026.02 나스닥 상장)", "change_eng":"13F common · 833,325 shares (2026.02 Nasdaq listing)", "change_type":"new",      "value_m":10.4},
     {"ticker":"MRVL", "company":"Marvell Technology","filed":"2026-03-31","change":"전환우선주 · 전환 시 최대 21.78M주",  "change_eng":"Convertible preferred · up to 21.78M shares","change_type":"new",    "value_m":2000.0},
     {"ticker":"LITE", "company":"Lumentum",          "filed":"2026-03-02","change":"전환우선주 · 전환 시 2.88M주",        "change_eng":"Convertible preferred · 2.88M shares",     "change_type":"new",      "value_m":2000.0},
+    # CoreWeave 8-K 보도자료(2026-01-26) 원문 확인. $2B / $87.20 ≈ 22.9M주 — Q1 13F 증가분(24.3M→47.2M)과 일치
+    {"ticker":"CRWV", "company":"CoreWeave",         "filed":"2026-01-26","change":"보통주 · @$87.20",                  "change_eng":"Common · @$87.20",                         "change_type":"increase", "value_m":2000.0},
     # 2025 보유
     {"ticker":"INTC", "company":"Intel",             "filed":"2025-09-18","change":"사모(PIPE) · @$23.28",              "change_eng":"PIPE · @$23.28",                           "change_type":"new",      "value_m":5000.0},
     {"ticker":"INTC", "company":"Intel",             "filed":"2025-12-29","change":"214.7M주 취득 완료 (~4%)",           "change_eng":"214.7M shares acquired (~4%)",             "change_type":"increase", "value_m":5000.0},
@@ -1359,6 +1391,7 @@ SECTOR_NAMES = {
     "반도체/광연결":    {"KOR": "반도체/광연결",      "ENG": "Semi/Optical Interconnect"},
     "AI 신약개발":      {"KOR": "AI 신약개발",        "ENG": "AI Drug Discovery"},
     "반도체 IP":        {"KOR": "반도체 IP",          "ENG": "Semiconductor IP"},
+    "팹리스 반도체":    {"KOR": "팹리스 반도체",      "ENG": "Fabless Semiconductor"},
     "AI 데이터센터":    {"KOR": "AI 데이터센터",      "ENG": "AI Data Center"},
     "자율주행":         {"KOR": "자율주행",           "ENG": "Autonomous Driving"},
     "자율주행 로봇":    {"KOR": "자율주행 로봇",      "ENG": "Autonomous Robot"},
@@ -1376,7 +1409,7 @@ SECTOR_GROUP = {
     "클라우드 GPU": "AI 인프라·클라우드", "AI 데이터센터": "AI 인프라·클라우드",
     "광학 소재/제조": "광학·광연결", "광학 부품": "광학·광연결",
     "광학 트랜시버": "광학·광연결", "반도체/광연결": "광학·광연결",
-    "반도체/파운드리": "반도체·설계", "EDA/칩 설계": "반도체·설계", "반도체 IP": "반도체·설계",
+    "반도체/파운드리": "반도체·설계", "EDA/칩 설계": "반도체·설계", "반도체 IP": "반도체·설계", "팹리스 반도체": "반도체·설계",
     "통신 인프라": "통신", "AI 소프트웨어": "AI 소프트웨어",
     "산업 로봇": "로봇·피지컬AI", "자율주행": "로봇·피지컬AI", "자율주행 로봇": "로봇·피지컬AI",
     "AI 신약개발": "헬스·바이오 AI", "AI 의료영상": "헬스·바이오 AI", "AI/음성인식": "기타 AI",
@@ -1403,9 +1436,9 @@ def cat_name(g):
     return CAT_NAMES.get(g, {}).get(lang, g)
 
 def disp_ticker(tk, name=None):
-    """화면 표시용 티커 — 거래소 접미사(.T·.KS·.KQ) 제거. 숫자 코드만 남으면(예: 035420)
+    """화면 표시용 티커 — 거래소 접미사(.T·.KS·.KQ·.TW) 제거. 숫자 코드만 남으면(예: 035420)
     알아보기 힘드니 종목명으로 대체. 데이터 조회 키(stock_data 등)는 원본 티커 그대로 사용할 것."""
-    disp = re.sub(r"\.(T|KS|KQ)$", "", tk)
+    disp = re.sub(r"\.(T|KS|KQ|TW)$", "", tk)
     if disp.isdigit() and name:
         return name.upper()
     return disp
@@ -1469,25 +1502,29 @@ def get_change_style():
     }
 
 # ── fetch ────────────────────────────────────────────────────────────────────
-@st.cache_data(ttl=300)
-def fetch_usdjpy():
-    try:
-        t = yf.Ticker("USDJPY=X")
-        info = t.info
-        rate = info.get("regularMarketPrice") or info.get("currentPrice")
-        return rate if rate else 150.0
-    except Exception:
-        return 150.0
+# 해외 상장 종목의 시총을 달러로 환산할 환율 — 통화: (Yahoo 심볼, 조회 실패 시 기본값).
+# 새 해외 시장 종목을 넣을 때는 여기 한 줄과 scripts/fetch_market_data.py 의 같은 표만 고치면 됨.
+FX_PAIRS = {"JPY": ("USDJPY=X", 150.0), "KRW": ("USDKRW=X", 1400.0), "TWD": ("USDTWD=X", 32.0)}
 
 @st.cache_data(ttl=300)
-def fetch_usdkrw():
-    try:
-        t = yf.Ticker("USDKRW=X")
-        info = t.info
-        rate = info.get("regularMarketPrice") or info.get("currentPrice")
-        return rate if rate else 1400.0
-    except Exception:
-        return 1400.0
+def fetch_fx():
+    out = {}
+    for cur, (sym, fallback) in FX_PAIRS.items():
+        try:
+            info = yf.Ticker(sym).info
+            rate = info.get("regularMarketPrice") or info.get("currentPrice")
+            out[cur] = rate if rate else fallback
+        except Exception:
+            out[cur] = fallback
+    return out
+
+def _snapshot_fx(raw):
+    """스냅샷의 환율 — 기본값 위에 옛 형식(usdjpy·usdkrw 키)과 새 형식(fx 표)을 차례로 덮음."""
+    fx = {cur: fallback for cur, (_, fallback) in FX_PAIRS.items()}
+    if raw.get("usdjpy"): fx["JPY"] = raw["usdjpy"]
+    if raw.get("usdkrw"): fx["KRW"] = raw["usdkrw"]
+    fx.update(raw.get("fx") or {})
+    return fx
 
 def _fetch_one(ticker):
     # Yahoo rate-limit(특히 클라우드 IP) 대응 — 실패 시 백오프 후 재시도
@@ -1566,8 +1603,7 @@ def load_market_data():
     return {
         "quotes": _revive_dict(raw.get("quotes", {})),
         "benchmarks": _revive_dict(raw.get("benchmarks", {})),
-        "usdjpy": raw.get("usdjpy", 150.0),
-        "usdkrw": raw.get("usdkrw", 1400.0),
+        "fx": _snapshot_fx(raw),
         "generated_at": raw.get("generated_at", ""),
     }
 
@@ -1772,12 +1808,10 @@ def fetch_news(ticker):
     except Exception:
         return []
 
-def fmt_cap(v, currency="USD", usdjpy=150.0, usdkrw=1400.0):
+def fmt_cap(v, currency="USD", fx=None):
     if v is None: return "—"
-    if currency == "JPY":
-        v = v / usdjpy
-    elif currency == "KRW":
-        v = v / usdkrw
+    if currency != "USD" and fx and fx.get(currency):
+        v = v / fx[currency]
     if v >= 1e12: return f"${v/1e12:.2f}T"
     if v >= 1e9:  return f"${v/1e9:.1f}B"
     if v >= 1e6:  return f"${v/1e6:.0f}M"
@@ -1785,7 +1819,7 @@ def fmt_cap(v, currency="USD", usdjpy=150.0, usdkrw=1400.0):
 
 def fmt_price(v, currency="USD"):
     if v is None: return "—"
-    symbol = {"JPY": "¥", "KRW": "₩"}.get(currency, "$")
+    symbol = {"JPY": "¥", "KRW": "₩", "TWD": "NT$"}.get(currency, "$")
     return f"{symbol}{v:,.2f}"
 
 def fmt_pct(v):
@@ -2036,13 +2070,11 @@ with st.spinner(t("loading")):
     _snapshot = load_market_data()
     if _snapshot and _snapshot.get("quotes"):
         stock_data = {tk: _snapshot["quotes"].get(tk, {"error": "no data"}) for tk in tickers}
-        usdjpy = _snapshot.get("usdjpy", 150.0)
-        usdkrw = _snapshot.get("usdkrw", 1400.0)
+        fx = _snapshot["fx"]
         benchmarks = _snapshot.get("benchmarks", {})
     else:
         stock_data = fetch_stock_data(tickers)
-        usdjpy = fetch_usdjpy()
-        usdkrw = fetch_usdkrw()
+        fx = fetch_fx()
         benchmarks = {}
     # Finnhub 실시간 시세 오버레이 (US 종목 가격·등락%·YTD) — 키 있을 때만, 실패 시 스냅샷 유지.
     _live_meta = overlay_live_quotes(stock_data, tickers)
@@ -2842,7 +2874,7 @@ with _tab_body:
                 price_h  = f'<span style="color:#c3c9d1;font-weight:500">{fmt_price(price,currency)}</span>'
                 daily_h  = fmt_pct(sd.get("change_pct"))
                 ytd_h    = fmt_pct(sd.get("ytd_pct"))
-                cap_h    = f'<span style="color:#9aa3b0">{fmt_cap(sd.get("market_cap"),currency,usdjpy,usdkrw)}</span>'
+                cap_h    = f'<span style="color:#9aa3b0">{fmt_cap(sd.get("market_cap"),currency,fx)}</span>'
                 pe_h     = f'<span style="color:#9aa3b0">{fmt_ratio(sd.get("pe_ratio"))}</span>'
                 amt_h    = (f'<span style="color:#c87f00;font-size:0.75rem;font-weight:600">{amt}</span>'
                             if amt else "")
