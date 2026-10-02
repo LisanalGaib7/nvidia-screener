@@ -1822,6 +1822,14 @@ def fmt_price(v, currency="USD"):
     symbol = {"JPY": "¥", "KRW": "₩", "TWD": "NT$"}.get(currency, "$")
     return f"{symbol}{v:,.2f}"
 
+def fmt_usd_hint(v, currency="USD", fx=None):
+    """해외 종목 현재가 아래 줄에 붙일 달러 환산값(~$154). 달러 종목이거나 환율이 없으면 빈 문자열.
+    현지 가격 줄보다 항상 짧아서 표 칸 넓이를 바꾸지 않는다 — 한 줄로 붙이면 행마다 칸이 어긋남."""
+    if v is None or currency == "USD" or not fx or not fx.get(currency):
+        return ""
+    return (f'<span style="display:block;font-size:0.7rem;color:#828a94;font-weight:400;margin-top:2px">'
+            f'~${v / fx[currency]:,.0f}</span>')
+
 def fmt_pct(v):
     if v is None: return "—"
     c = "positive" if v >= 0 else "negative"
@@ -2871,7 +2879,7 @@ with _tab_body:
                 else:
                     _thesis_html = ('<div class="ptd-block"><div class="ptd-label">WHY NVIDIA</div>'
                                     f'<div class="ptd-thesis">{_thesis}</div></div>')
-                price_h  = f'<span style="color:#c3c9d1;font-weight:500">{fmt_price(price,currency)}</span>'
+                price_h  = f'<span style="color:#c3c9d1;font-weight:500">{fmt_price(price,currency)}{fmt_usd_hint(price,currency,fx)}</span>'
                 daily_h  = fmt_pct(sd.get("change_pct"))
                 ytd_h    = fmt_pct(sd.get("ytd_pct"))
                 cap_h    = f'<span style="color:#9aa3b0">{fmt_cap(sd.get("market_cap"),currency,fx)}</span>'
@@ -3130,7 +3138,8 @@ with _tab_body:
             n1,n2,n3 = st.columns(3)
             with n1:
                 st.markdown(_metric_card(t("news_price"),
-                    f'<span style="color:#f0f1ef">{fmt_price(sd.get("price"), sd.get("currency","USD"))}</span>',
+                    f'<span style="color:#f0f1ef">{fmt_price(sd.get("price"), sd.get("currency","USD"))}</span>'
+                    f'{fmt_usd_hint(sd.get("price"), sd.get("currency","USD"), fx)}',
                     "#76b900"), unsafe_allow_html=True)
             with n2:
                 st.markdown(_metric_card(t("news_daily"), fmt_pct(_chg), _chg_c), unsafe_allow_html=True)
