@@ -93,30 +93,22 @@ def fetch_one(ticker):
     return {"error": last_err}
 
 
-def fetch_usdjpy():
+# 해외 상장 종목 시총 환산용 환율 — 통화: (Yahoo 심볼, 조회 실패 시 기본값).
+# app.py 의 FX_PAIRS 와 같은 표. 새 해외 시장 종목을 넣을 때 두 곳을 같이 고칠 것.
+FX_PAIRS = {"JPY": ("USDJPY=X", 150.0), "KRW": ("USDKRW=X", 1400.0), "TWD": ("USDTWD=X", 32.0)}
+
+
+def fetch_rate(symbol, fallback):
     for attempt in range(3):
         try:
-            info = yf.Ticker("USDJPY=X").info
+            info = yf.Ticker(symbol).info
             rate = info.get("regularMarketPrice") or info.get("currentPrice")
             if rate:
                 return float(rate)
         except Exception:
             pass
         time.sleep(2)
-    return 150.0
-
-
-def fetch_usdkrw():
-    for attempt in range(3):
-        try:
-            info = yf.Ticker("USDKRW=X").info
-            rate = info.get("regularMarketPrice") or info.get("currentPrice")
-            if rate:
-                return float(rate)
-        except Exception:
-            pass
-        time.sleep(2)
-    return 1400.0
+    return fallback
 
 
 def main():
@@ -141,9 +133,8 @@ def main():
               f"{q.get('price', q.get('error', ''))}")
         time.sleep(0.4)
 
-    usdjpy = fetch_usdjpy()
-    usdkrw = fetch_usdkrw()
-    print(f"\n{ok}/{len(TICKERS)} ok  usdjpy={usdjpy}  usdkrw={usdkrw}")
+    fx = {cur: fetch_rate(sym, fallback) for cur, (sym, fallback) in FX_PAIRS.items()}
+    print(f"\n{ok}/{len(TICKERS)} ok  fx={fx}")
 
     # 과반 실패 → 스냅샷 신뢰 불가, 쓰지 않고 종료 (기존 파일 보존)
     if ok < len(TICKERS) * 0.5:
@@ -152,8 +143,7 @@ def main():
 
     out = {
         "generated_at": datetime.now(timezone.utc).isoformat(),
-        "usdjpy": usdjpy,
-        "usdkrw": usdkrw,
+        "fx": fx,
         "quotes": quotes,
         "benchmarks": benchmarks,
     }
