@@ -12,7 +12,9 @@ import json
 import requests
 import sys
 import os
+import time
 import html
+import math
 import re
 import xml.etree.ElementTree as ET
 from dataclasses import dataclass, field
@@ -20,7 +22,13 @@ from urllib.parse import quote
 from email.utils import parsedate_to_datetime
 from datetime import datetime, timezone, timedelta
 
-WINDOW_HOURS = 25   # 매일 실행 + 25h 창 → 갭 방지, 중복 최소
+WINDOW_HOURS = 25   # 매일 실행 + 25h 창 → 갭 방지, 중복 최소. 직전 실행 기록이 없을 때의 값이자 최소값
+# GitHub 스케줄은 정시에 돌지 않는다 — 45일 실측에서 예약보다 2~6시간 늦었고, 지연이
+# 하루 사이 커진 날엔 실행 간격이 25시간을 넘었다(최대 29.2h, 3회). 고정 창이면 그 틈의
+# 기사가 조용히 빠진다. 그래서 창을 '직전 실행 이후 + 여유'로 잡는다. 겹친 구간의 재발송은
+# 교차 실행 차단이 막는다. 상한은 몇 날 멈췄다 재개될 때 묵은 기사가 쏟아지지 않게.
+WINDOW_MARGIN_HOURS = 1
+WINDOW_MAX_HOURS = 72
 MAX_ITEMS = 6
 # Telegram sendMessage는 4096자를 넘으면 400으로 거절한다. 워크플로의 curl은
 # -s라 그 실패가 로그에도 안 남아 '알림이 통째로 사라지는' 형태로 터진다.
@@ -111,6 +119,49 @@ class MonitorConfig:
     # POSITIVE 인접 문구를 못 맞추는 문장형 제목 구제용.
     # {"subjects": [...], "terms": [...], "window": n}. 비우면 검사 생략.
     proximity: dict = None
+    # 일반 RSS 피드(회사 블로그·국제기구 뉴스룸 등). [{"url":..., "label":...,
+    # "group": 섹션 label, "filter": 정규식}] 꼴. Google News가 아니라 발행처가
+    # 직접 고른 목록이라 레인 필터(positive·subject 등)를 씌우지 않는다 — ir_feed와
+    # 같은 이유. 대신 피드 범위가 레인보다 넓은 곳(국제기구 뉴스룸 등)은 filter
+    # 정규식으로 제목+요약을 거른다. group을 주면 키워드 분류 없이 그 섹션에 둔다
+    # (뉴스레터 제목에는 사명이 안 들어가서 키워드로는 회사 섹션에 못 온다).
+    rss_feeds: list = field(default_factory=list)
+    # 한글 제목 유사도 묶기 임계값. 0이면 끈다(기존 동작). 한글은 엔티티 키를 못
+    # 써서(_dedupe_key) 같은 사건 기사가 그대로 여러 건 나갔다 — 한글 레인 30일
+    # 실측에서 한 사건이 4건. 값은 레인별 실측으로 정한다(같은 사건 쌍과 다른
+    # 사건 쌍의 분포가 겹치므로 '다른 사건을 하나도 안 묶는' 쪽으로).
+    title_sim: float = 0.0
+    # 중복제거 키에서 뺄 이름. 여러 사건에 반복 등장하는 허브 기업(대형 구매자 등)은
+    # 한 단어만 겹쳐도 서로 다른 사건을 잇는다 — 실측: 'google' 하나로 다른 기업과의
+    # 계약 기사 10여 건이 9/16 별건 기사에 묶여 사건째 사라졌다. 소문자.
+    key_ignore: list = field(default_factory=list)
+    # 대표 기사 옆에 묶인 기사 수를 붙인다("같은 사건 외 N건").
+    show_dups: bool = False
+    # 교차 실행 차단에서 '한 단어만 겹친' 경우의 제목 유사도 기준. 0이면 한 단어로도
+    # 막는다(기존 동작). 상대가 매번 바뀌는 종목은 한 단어가 곧 상대 기업명이지만,
+    # 고객이 정부·기관으로 반복되는 종목(PLTR: ICE·NHS·Army·Labour)은 그 단어가
+    # 주제어라서 다른 사건을 잇는다 — 실측: 'ice' 하나로 ICE 시위자 DB 보도가 사흘간
+    # 간호사 시위 기사에 막혀 끝내 미발송. 같은 회차 안의 묶기에는 쓰지 않는다
+    # (거기선 주제당 하루 1건으로 묶는 게 원하는 동작이다).
+    cross_run_sim: float = 0.0
+    # 섹션 판정 규칙. [{"label": 섹션 label, "terms": [...], "word": bool}]을 앞에서부터
+    # 보고 처음 맞는 섹션에 넣는다. 표시 순서·칸 수는 groups가 그대로 정한다. 비우면
+    # groups 순서로 판정(기존 동작). 판정 순서와 표시 순서를 떼야 했다 — "NHS 계약을
+    # 끝내라"가 'contract' 때문에 계약 섹션으로 갔는데, 그렇다고 논란을 계약보다 위에
+    # 표시할 이유는 없다. 아무 규칙에도 안 맞으면 terms가 빈 섹션(catch-all)으로 간다.
+    classify: list = field(default_factory=list)
+    # 제외 매체가 낸 것과 같은 제목은 다른 매체 것도 뺀다. 주가 논평 매체 기사가
+    # Yahoo 등에 같은 제목으로 재게재되면 매체 제외를 우회한다(실측: Motley Fool 원문은
+    # 막혔는데 Yahoo 재게재본이 발송). 꺼짐이 기본 — 영상 플랫폼을 제외하는 레인에선
+    # 뉴스 제목을 그대로 단 영상 때문에 진짜 기사가 막힐 수 있다.
+    exclude_twins: bool = False
+    # 섹션 칸을 최소 보장으로 쓰고, 그날 남는 칸은 넘치는 섹션에 넘긴다(전체는
+    # max_items). 꺼짐이면 섹션 칸이 곧 상한(기존 동작).
+    spill_over: bool = False
+    # 실행 기록(jsonl). 실행마다 수집·통과·발송 건수와 오류를 한 줄 남긴다.
+    # 알림이 하루 1건 안팎인 레인은 침묵이 정상이라, '조용한 날'과 '고장 난 날'을
+    # 가르려면 따로 남겨야 한다. 비우면 기록하지 않는다(기존 동작).
+    log_file: str = ""
 
 
 # 실행 간 중복 차단. 창(WINDOW_HOURS)만으로는 "어제 보냈는지"를 알 수 없어서,
@@ -141,7 +192,45 @@ def _save_state(cfg, state):
     return True
 
 
-def _sent_match(m, state, now, drop=frozenset()):
+def _bigrams(text):
+    t = re.sub(r"[^0-9a-z가-힣]", "", text.lower())
+    return {t[i:i + 2] for i in range(len(t) - 1)}
+
+
+def _idf_table(titles):
+    """그날 수집분 전체에서 글자쌍 희귀도. 레인 주제어는 흔해서
+    가중치가 낮고, 기관명·금액 같은 사건 고유어가 유사도를 좌우하게 된다.
+    가중치 없는 2-gram Jaccard로는 같은 주제의 다른 기관 사업(0.24)이 같은
+    사건의 다른 기사(0.12)보다 높게 나와서 필요했다."""
+    df = {}
+    for t in titles:
+        for g in _bigrams(t):
+            df[g] = df.get(g, 0) + 1
+    n = max(len(titles), 1)
+    return {g: math.log(n / (1 + c)) for g, c in df.items()}, math.log(n)
+
+
+def _title_sim(a, b, idf):
+    table, default = idf
+    A, B = _bigrams(a), _bigrams(b)
+    union = sum(max(table.get(g, default), 0) for g in A | B)
+    if not union:
+        return 0.0
+    return sum(max(table.get(g, default), 0) for g in A & B) / union
+
+
+def _window_hours(state, now):
+    """이번 실행의 수집 창(시간). 직전 실행 이후 + 여유, [WINDOW_HOURS, WINDOW_MAX_HOURS]."""
+    hours = WINDOW_HOURS
+    try:
+        last = datetime.fromisoformat(state.get("last_run") or "")
+        hours = max(hours, (now - last).total_seconds() / 3600 + WINDOW_MARGIN_HOURS)
+    except (TypeError, ValueError):
+        pass
+    return min(hours, WINDOW_MAX_HOURS)
+
+
+def _sent_match(m, state, now, drop=frozenset(), sim=None, single=None):
     """보낸 적 있나. 있으면 (저장 항목, 공유 토큰) — 없으면 None.
 
     엔티티가 겹치면 같은 사건의 다른 기사로 본다. 엔티티 차단은 TTL을 둔다 —
@@ -162,8 +251,12 @@ def _sent_match(m, state, now, drop=frozenset()):
             return e, {"(같은 제목)"}
         if age <= ENTITY_TTL_DAYS:
             shared = m["dkey"] & (set(e.get("key") or []) - drop)
-            if shared:
+            # 한 단어만 겹치면 single(제목 유사도)이 맞을 때만 같은 사건으로 본다.
+            if shared and (len(shared) > 1 or single is None
+                           or single(m["headline"], e.get("title", ""))):
                 return e, shared
+            if sim and sim(m["headline"], e.get("title", "")):
+                return e, {"(유사 제목)"}
     return None
 
 
@@ -188,28 +281,82 @@ def _fetch_one(query, cfg):
     return items
 
 
-def _fetch_items(cfg):
+def _fetch_items(cfg, errors=None):
     """cfg.queries가 있으면 갈래별로 받아 제목 기준 합집합, 없으면 cfg.query 하나."""
     merged = {}
     for q in (cfg.queries or [cfg.query]):
-        for it in _fetch_one(q, cfg):
+        # 쿼리마다 따로 받는다. 예전엔 한 덩어리라 한 쿼리의 503이 나머지 결과까지
+        # 버렸다(실측: 브랜치 테스트에서 첫 쿼리 503 → 수집 0). 일시 장애라 한 번 더 본다.
+        for attempt in (1, 2):
+            try:
+                got = _fetch_one(q, cfg)
+                break
+            except Exception as e:
+                print(f"  수집 실패({attempt}) {q}: {e}")
+                got = []
+                if attempt == 2 and errors is not None:
+                    errors.append(f"news: {q}: {e}")
+                if attempt == 1:
+                    time.sleep(2)
+        # 쿼리당 100건이 RSS 상한이다. 닿으면 넘친 기사가 조용히 사라지므로 표시한다.
+        print(f"  수집 {len(got):3d}{' ⚠️ 상한' if len(got) >= 100 else ''}  {q}")
+        for it in got:
             merged.setdefault(it["title"].lower(), it)
     return list(merged.values())
 
 
-def _fetch_all(cfg):
+def _fetch_all(cfg, errors=None):
     """뉴스 레인과 IR 레인을 각각 격리해 수집 — 한쪽 장애가 다른 쪽을 침묵시키지 않게.
 
     둘 다 실패하면 빈 리스트라 알림이 안 나가고(가짜 알람 방지), 한쪽만 살아도
     그 몫은 발송된다. 예전엔 수집 전체가 하나의 try라 IR이 죽으면 뉴스도 죽었다.
     """
+    errors = [] if errors is None else errors
     items = []
     try:
-        items += _fetch_items(cfg)
+        items += _fetch_items(cfg, errors)
     except Exception as e:
         print(f"news fetch error: {e}")
-    items += _fetch_ir(cfg)
+        errors.append(f"news: {e}")
+    items += _fetch_ir(cfg, errors)
+    items += _fetch_rss(cfg, errors)
     return items
+
+
+def _fetch_rss(cfg, errors):
+    """일반 RSS. 피드별로 격리 — 한 곳이 죽어도 나머지와 뉴스 레인은 산다."""
+    out = []
+    for feed in cfg.rss_feeds:
+        label = feed.get("label", "RSS")
+        try:
+            r = requests.get(feed["url"], timeout=20,
+                             headers={"User-Agent": f"Mozilla/5.0 (nvidia-screener {cfg.label})"})
+            r.raise_for_status()
+            # 앞에 빈 줄을 두는 WordPress 피드가 있다 — 그대로면 파싱 실패.
+            root = ET.fromstring(r.content.strip())
+        except Exception as e:
+            print(f"rss error ({label}): {e}")
+            errors.append(f"{label}: {e}")
+            continue
+        pat = re.compile(feed["filter"], re.I) if feed.get("filter") else None
+        for it in root.findall(".//item"):
+            title = html.unescape((it.findtext("title") or "").strip())
+            if not title:
+                continue
+            if pat and not pat.search(title + " " + (it.findtext("description") or "")):
+                continue
+            try:
+                dt = parsedate_to_datetime((it.findtext("pubDate") or "").strip())
+                if dt.tzinfo is None:
+                    dt = dt.replace(tzinfo=timezone.utc)
+            except Exception:
+                continue
+            out.append({
+                "title": title, "link": (it.findtext("link") or "").strip(),
+                "source": label, "pub": "", "dt": dt, "authoritative": True,
+                "pin": feed.get("group"),
+            })
+    return out
 
 
 # IR 피드 타임스탬프는 미 동부시(ET)다. 실적 보도자료가 예외 없이 16:05:00,
@@ -221,7 +368,7 @@ except Exception:                                  # tzdata 없는 환경 폴백
     _IR_TZ = timezone(timedelta(hours=-5))         # EST. 25h 창에선 1시간 차가 무해
 
 
-def _fetch_ir(cfg):
+def _fetch_ir(cfg, errors=None):
     """공식 보도자료 피드. 실패해도 Google News 레인은 살아야 하므로 여기서 삼킨다."""
     if not cfg.ir_feed:
         return []
@@ -239,6 +386,8 @@ def _fetch_ir(cfg):
             data = r.json()
         except Exception as e:
             print(f"ir feed error ({y}): {e}")
+            if errors is not None:
+                errors.append(f"ir {y}: {e}")
             continue
         rows = data.get("GetPressReleaseListResult", data)
         if not isinstance(rows, list):
@@ -296,6 +445,10 @@ def _looks_truncated(headline):
     못 만들어 같은 사건이 두 번 나간다 — 실측: Anthropic IPO 건이 09-12·09-13
     이틀 연속. 숫자 뒤 단위가 토막난 형태만 좁게 잡는다.
     """
+    # 낱말 중간에서 잘린 형태도 있다: "... drives growth b". 끝이 소문자 한 글자면
+    # 잘린 것이다(a·i는 낱말). 대문자는 "Plan B"처럼 정상 제목이라 대상이 아니다.
+    if re.search(r"\s[b-hj-z]$", headline.strip()):
+        return True
     toks = headline.lower().replace(",", " ").split()
     if len(toks) < 2:
         return False
@@ -439,20 +592,38 @@ def _token_key(headline):
     return {"".join(tokens[:4])}
 
 
-def _group_index(headline, cfg):
+def _term_hit(term, hl, word):
+    if not word:
+        return term in hl
+    # 짧은 사명은 부분일치로 두면 남의 단어에 걸린다("rize" ⊂ prize·authorize).
+    return re.search(r"(?<![a-z0-9])" + re.escape(term) + r"(?![a-z0-9])", hl) is not None
+
+
+def _group_index(headline, cfg, pin=None):
     """제목이 속할 섹션. 앞에서부터 보고 terms가 비어 있으면 catch-all.
 
     terms(인접 문구)만 보면 분류가 필터와 같은 편향을 갖는다 — 문장형 제목이
     전부 catch-all로 떨어져서 "Nvidia Mulls $10B Anthropic IPO Backing"이
     '포트폴리오사 동향'에 들어갔다. 그래서 그룹도 근접 규칙을 볼 수 있게 한다.
+    pin은 RSS 피드가 지정한 섹션 label — 있으면 키워드보다 우선한다.
+    cfg.classify가 있으면 그 규칙 순서로 판정하고 groups는 표시용으로만 쓴다.
     """
+    labels = [g["label"] for g in cfg.groups]
+    if pin and pin in labels:
+        return labels.index(pin)
     hl = headline.lower()
+    if cfg.classify:
+        for rule in cfg.classify:
+            if any(_term_hit(t, hl, rule.get("word")) for t in rule["terms"]):
+                return labels.index(rule["label"])
+        return next((i for i, g in enumerate(cfg.groups)
+                     if not g.get("terms") and not g.get("proximity")), len(labels) - 1)
     for i, g in enumerate(cfg.groups):
         terms = g.get("terms") or []
         prox = g.get("proximity")
         if not terms and not prox:
             return i
-        if terms and any(t in hl for t in terms):
+        if terms and any(_term_hit(t, hl, g.get("word")) for t in terms):
             return i
         if prox and _near_after(hl, prox):
             return i
@@ -471,15 +642,24 @@ def _dedupe_key(headline, cfg, run_common=frozenset()):
     """
     if cfg.locale != "en":
         return _token_key(headline)
-    drop = set(GENERIC) | KEY_NOISE | run_common
+    hubs_all = set(cfg.key_ignore)
+    drop = set(GENERIC) | KEY_NOISE | run_common | hubs_all
     for words in (cfg.subject, cfg.positive, cfg.negative):
         for w in words:
             drop.update(w.lower().split())
-    out = set()
+    out, hubs = set(), set()
     for tok in re.findall(r"[A-Z][A-Za-z0-9&.\-]{2,}", headline):
         t = tok.lower().strip(".")
-        if t and t not in drop:
+        if t in hubs_all:
+            hubs.add(t)
+        elif t and t not in drop:
             out.add(t)
+    # 허브(key_ignore)는 한 단어로는 사건을 잇지 못하게 뺐다. 그런데 제목에 허브만
+    # 있으면 키가 비어 앞 4토큰 폴백으로 떨어지고, 그러면 "Singapore inks carbon
+    # credit …"로 시작하는 베트남 협정과 태국 협정이 다시 묶인다. 허브 조합 전체를
+    # 키 하나로 쓴다 — 조합이 같아야만 묶인다(싱가포르+베트남 ≠ 싱가포르+태국).
+    if not out and hubs:
+        out = {"+".join(sorted(hubs))}
     # 엔티티가 딱 하나인데 그게 감시 종목 자신이면 상대 기업명을 못 뽑은 것이다
     # (잘린 제목이 대표적: "Exclusive-Nvidia Plans to Invest up to $10 Bi"에서
     # Anthropic이 날아갔다). 이런 키로 엔티티 대조를 하면 같은 사건을 못 묶거나
@@ -496,19 +676,64 @@ def _set_output(found):
             f.write(f"found={'true' if found else 'false'}\n")
 
 
+def _set_state_changed(changed):
+    out = os.environ.get("GITHUB_OUTPUT")
+    if out:
+        with open(out, "a", encoding="utf-8") as f:
+            f.write(f"state_changed={'true' if changed else 'false'}\n")
+
+
+def _write_log(cfg, now, fetched, matched, sent, errors):
+    if not cfg.log_file:
+        return
+    row = {"ts": now.isoformat(), "label": cfg.label, "fetched": fetched,
+           "matched": matched, "sent": len(sent), "errors": errors,
+           "items": [{"group": m.get("grp", ""), "title": m["headline"],
+                      "source": m["source"], "url": m["link"],
+                      "date": m["dt"].strftime("%Y-%m-%d")} for m in sent]}
+    d = os.path.dirname(cfg.log_file)
+    if d:
+        os.makedirs(d, exist_ok=True)
+    with open(cfg.log_file, "a", encoding="utf-8") as f:
+        f.write(json.dumps(row, ensure_ascii=False) + "\n")
+
+
 def run_monitor(cfg):
-    items = _fetch_all(cfg)
+    errors = []
+    items = _fetch_all(cfg, errors)
     if not items:
         # 전 소스 실패 → 조용히 종료 (가짜 알람 방지)
         print("no items fetched")
+        _write_log(cfg, datetime.now(timezone.utc), 0, 0, [], errors or ["no items"])
         _set_output(False)
         sys.exit(0)
 
     now = datetime.now(timezone.utc)
-    cutoff = now - timedelta(hours=WINDOW_HOURS)
+    state = _load_state(cfg)
+    window = _window_hours(state, now)
+    cutoff = now - timedelta(hours=window)
+    # 수집이 일부라도 실패한 회차는 시작점을 옮기지 않는다 — 옮기면 그 쿼리가 놓친
+    # 구간을 다음 회차도 안 본다. 그대로 두면 다음 창이 그만큼 넓어져 다시 훑는다.
+    if not errors:
+        state["last_run"] = now.isoformat()
     # 필터 통과 전 수집분 전체를 근거로 쓴다 — 통과분만 보면 근거가 더 얇아진다.
     run_common = _lowercase_words(
         _strip_source(it["title"], it.get("source", ""))[0] for it in items)
+    sim = single = None
+    if cfg.title_sim or cfg.cross_run_sim:
+        idf = _idf_table([_strip_source(it["title"], it.get("source", ""))[0]
+                          for it in items])
+    if cfg.title_sim:
+        sim = lambda a, b: _title_sim(a, b, idf) >= cfg.title_sim  # noqa: E731
+    if cfg.cross_run_sim:
+        single = lambda a, b: _title_sim(a, b, idf) >= cfg.cross_run_sim  # noqa: E731
+    # 제외 매체가 낸 제목 — 다른 매체의 같은 제목(재게재본)도 뺄 때 쓴다.
+    twins = set()
+    if cfg.exclude_twins and cfg.exclude_sources:
+        for it in items:
+            h, src = _strip_source(it["title"], it.get("source", ""))
+            if any(x in src.lower() for x in cfg.exclude_sources):
+                twins.add(h.strip().lower())
 
     matches = []
     for it in items:
@@ -525,6 +750,15 @@ def run_monitor(cfg):
         auth = bool(it.get("authoritative"))
         headline, source = _strip_source(it["title"], it["source"])
         if not _is_relevant(headline, cfg, auth):
+            # 주가 문구로 걸렀는데 사건 단어도 있는 제목은 남긴다. "Japan weighs Palantir
+            # AI defense system"처럼 뒤에 주가 표현이 붙은 진짜 뉴스가 여기서 사라지는지
+            # 데이터로 보려고. 구제 규칙은 이 로그가 쌓인 뒤에 정한다.
+            if not auth and cfg.groups:
+                tl = headline.lower()
+                neg = next((n for n in cfg.negative if n in tl), None)
+                if (neg and (not cfg.subject or any(x in tl for x in cfg.subject))
+                        and cfg.groups[_group_index(headline, cfg)].get("terms")):
+                    print(f"  (주가 문구 '{neg}' 제외·사건어 있음) {headline}")
             continue
         if not auth and _looks_truncated(headline):
             print(f"  (잘린 제목 제외) {headline}")
@@ -534,10 +768,13 @@ def run_monitor(cfg):
             if any(x in sl for x in cfg.exclude_sources):
                 print(f"  (제외 매체 {source}) {headline}")
                 continue
+        if not auth and headline.strip().lower() in twins:
+            print(f"  (제외 매체 재게재 {source}) {headline}")
+            continue
 
         matches.append({
             "headline": headline, "source": source,
-            "link": it["link"], "dt": dt, "auth": auth,
+            "link": it["link"], "dt": dt, "auth": auth, "pin": it.get("pin"),
             "dkey": _dedupe_key(headline, cfg, run_common),
         })
 
@@ -551,17 +788,19 @@ def run_monitor(cfg):
                                -x["dt"].timestamp()))
     deduped = []
     for m in matches:
-        if any(m["dkey"] & d["dkey"] for d in deduped):
+        rep = next((d for d in deduped if m["dkey"] & d["dkey"]
+                    or (sim and sim(m["headline"], d["headline"]))), None)
+        if rep is not None:
+            rep["dups"] = rep.get("dups", 0) + 1
             continue
         deduped.append(m)
     # 실행 간 차단 — 창이 겹치는 구간의 항목이 다음 회차에 다시 나가는 걸 막는다.
     # 무엇이 왜 막혔는지 남긴다. 예전엔 건수만 찍혀서 "ipo" 한 단어가 사건을
     # 삼켜도 2주간 아무도 몰랐다. 제목과 공유 토큰을 보면 오판인지 바로 보인다.
-    state = _load_state(cfg)
-    drop = KEY_NOISE | run_common
+    drop = KEY_NOISE | run_common | set(cfg.key_ignore)
     fresh = []
     for m in deduped:
-        hit = _sent_match(m, state, now, drop)
+        hit = _sent_match(m, state, now, drop, sim, single)
         if hit is None:
             fresh.append(m)
             continue
@@ -576,22 +815,41 @@ def run_monitor(cfg):
         # 기사가 많은 쪽이 칸을 다 먹어 다른 섹션이 통째로 사라진다.
         buckets = [[] for _ in cfg.groups]
         for m in deduped:
-            buckets[_group_index(m["headline"], cfg)].append(m)
-        matches = []
+            buckets[_group_index(m["headline"], cfg, m.get("pin"))].append(m)
+        matches, over = [], []
         for g, b in zip(cfg.groups, buckets):
             b.sort(key=lambda x: x["dt"], reverse=True)
-            for m in b[:g.get("max", cfg.max_items)]:
+            cap = g.get("max", cfg.max_items)
+            for m in b[:cap]:
                 m["grp"] = g["label"]
                 matches.append(m)
+            for m in b[cap:]:
+                m["grp"] = g["label"]
+                over.append(m)
+        # 남는 칸 넘기기 — 그날 빈 섹션의 칸을 넘치는 섹션에 준다. 섹션 칸은 '최소 보장'이
+        # 되고 전체는 max_items가 막는다. 실측: 분류를 고치자 정책 기사 6건이 칸 3에
+        # 걸려 ICE 소송 보도가 잘렸는데, 그날 계약 섹션 4칸은 비어 있었다.
+        if cfg.spill_over:
+            room = max(cfg.max_items - len(matches), 0)
+            matches += over[:room]
+            over = over[room:]
+            order = [g["label"] for g in cfg.groups]
+            matches.sort(key=lambda m: order.index(m["grp"]))   # 안정 정렬 — 섹션 안 순서 유지
+        # 칸이 넘쳐 빠진 기사. 예전엔 흔적이 없어 칸 수가 맞는지 판단할 근거가 없었다.
+        for m in over:
+            print(f"  (섹션 칸 초과 {m['grp']}) {m['headline'][:90]}")
     else:
         deduped.sort(key=lambda x: x["dt"], reverse=True)
         matches = deduped[:cfg.max_items]
 
-    print(f"window={WINDOW_HOURS}h  fetched={len(items)}  matched={len(matches)}")
+    print(f"window={window:.1f}h  fetched={len(items)}  matched={len(matches)}")
     for m in matches:
         print(f"  - {m['headline']}  [{m['source']}]")
 
     if not matches:
+        # 보낼 게 없어도 실행 시각은 남긴다 — 다음 창이 여기서 시작해야 한다.
+        _set_state_changed(_save_state(cfg, state))
+        _write_log(cfg, now, len(items), 0, [], errors)
         _set_output(False)
         return
 
@@ -611,6 +869,8 @@ def run_monitor(cfg):
             link = html.escape(m["link"], quote=True)
             d = m["dt"].strftime("%Y-%m-%d")
             meta = f"{html.escape(m['source'])} · {d}" if m["source"] else d
+            if cfg.show_dups and m.get("dups"):
+                meta += f" · 같은 사건 외 {m['dups']}건"
             lines.append(f'• <a href="{link}">{h}</a>')
             lines.append(f"   <i>{meta}</i>")
         if len(items) < len(matches):
@@ -637,9 +897,7 @@ def run_monitor(cfg):
         state["sent"].append({"title": m["headline"].strip().lower(),
                               "key": sorted(m["dkey"]),
                               "ts": now.isoformat()})
-    changed = _save_state(cfg, state)
-    if os.environ.get("GITHUB_OUTPUT"):
-        with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as f:
-            f.write(f"state_changed={'true' if changed else 'false'}\n")
+    _set_state_changed(_save_state(cfg, state))
+    _write_log(cfg, now, len(items), len(matches), shown, errors)
 
     _set_output(True)
