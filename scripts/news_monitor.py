@@ -12,6 +12,7 @@ import json
 import requests
 import sys
 import os
+import time
 import html
 import math
 import re
@@ -280,11 +281,23 @@ def _fetch_one(query, cfg):
     return items
 
 
-def _fetch_items(cfg):
+def _fetch_items(cfg, errors=None):
     """cfg.queries가 있으면 갈래별로 받아 제목 기준 합집합, 없으면 cfg.query 하나."""
     merged = {}
     for q in (cfg.queries or [cfg.query]):
-        got = _fetch_one(q, cfg)
+        # 쿼리마다 따로 받는다. 예전엔 한 덩어리라 한 쿼리의 503이 나머지 결과까지
+        # 버렸다(실측: 브랜치 테스트에서 첫 쿼리 503 → 수집 0). 일시 장애라 한 번 더 본다.
+        for attempt in (1, 2):
+            try:
+                got = _fetch_one(q, cfg)
+                break
+            except Exception as e:
+                print(f"  수집 실패({attempt}) {q}: {e}")
+                got = []
+                if attempt == 2 and errors is not None:
+                    errors.append(f"news: {q}: {e}")
+                if attempt == 1:
+                    time.sleep(2)
         # 쿼리당 100건이 RSS 상한이다. 닿으면 넘친 기사가 조용히 사라지므로 표시한다.
         print(f"  수집 {len(got):3d}{' ⚠️ 상한' if len(got) >= 100 else ''}  {q}")
         for it in got:
@@ -301,7 +314,7 @@ def _fetch_all(cfg, errors=None):
     errors = [] if errors is None else errors
     items = []
     try:
-        items += _fetch_items(cfg)
+        items += _fetch_items(cfg, errors)
     except Exception as e:
         print(f"news fetch error: {e}")
         errors.append(f"news: {e}")
@@ -699,7 +712,10 @@ def run_monitor(cfg):
     state = _load_state(cfg)
     window = _window_hours(state, now)
     cutoff = now - timedelta(hours=window)
-    state["last_run"] = now.isoformat()
+    # 수집이 일부라도 실패한 회차는 시작점을 옮기지 않는다 — 옮기면 그 쿼리가 놓친
+    # 구간을 다음 회차도 안 본다. 그대로 두면 다음 창이 그만큼 넓어져 다시 훑는다.
+    if not errors:
+        state["last_run"] = now.isoformat()
     # 필터 통과 전 수집분 전체를 근거로 쓴다 — 통과분만 보면 근거가 더 얇아진다.
     run_common = _lowercase_words(
         _strip_source(it["title"], it.get("source", ""))[0] for it in items)
