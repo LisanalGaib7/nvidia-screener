@@ -21,7 +21,13 @@ from urllib.parse import quote
 from email.utils import parsedate_to_datetime
 from datetime import datetime, timezone, timedelta
 
-WINDOW_HOURS = 25   # 매일 실행 + 25h 창 → 갭 방지, 중복 최소
+WINDOW_HOURS = 25   # 매일 실행 + 25h 창 → 갭 방지, 중복 최소. 직전 실행 기록이 없을 때의 값이자 최소값
+# GitHub 스케줄은 정시에 돌지 않는다 — 45일 실측에서 예약보다 2~6시간 늦었고, 지연이
+# 하루 사이 커진 날엔 실행 간격이 25시간을 넘었다(최대 29.2h, 3회). 고정 창이면 그 틈의
+# 기사가 조용히 빠진다. 그래서 창을 '직전 실행 이후 + 여유'로 잡는다. 겹친 구간의 재발송은
+# 교차 실행 차단이 막는다. 상한은 몇 날 멈췄다 재개될 때 묵은 기사가 쏟아지지 않게.
+WINDOW_MARGIN_HOURS = 1
+WINDOW_MAX_HOURS = 72
 MAX_ITEMS = 6
 # Telegram sendMessage는 4096자를 넘으면 400으로 거절한다. 워크플로의 curl은
 # -s라 그 실패가 로그에도 안 남아 '알림이 통째로 사라지는' 형태로 터진다.
@@ -130,6 +136,27 @@ class MonitorConfig:
     key_ignore: list = field(default_factory=list)
     # 대표 기사 옆에 묶인 기사 수를 붙인다("같은 사건 외 N건").
     show_dups: bool = False
+    # 교차 실행 차단에서 '한 단어만 겹친' 경우의 제목 유사도 기준. 0이면 한 단어로도
+    # 막는다(기존 동작). 상대가 매번 바뀌는 종목은 한 단어가 곧 상대 기업명이지만,
+    # 고객이 정부·기관으로 반복되는 종목(PLTR: ICE·NHS·Army·Labour)은 그 단어가
+    # 주제어라서 다른 사건을 잇는다 — 실측: 'ice' 하나로 ICE 시위자 DB 보도가 사흘간
+    # 간호사 시위 기사에 막혀 끝내 미발송. 같은 회차 안의 묶기에는 쓰지 않는다
+    # (거기선 주제당 하루 1건으로 묶는 게 원하는 동작이다).
+    cross_run_sim: float = 0.0
+    # 섹션 판정 규칙. [{"label": 섹션 label, "terms": [...], "word": bool}]을 앞에서부터
+    # 보고 처음 맞는 섹션에 넣는다. 표시 순서·칸 수는 groups가 그대로 정한다. 비우면
+    # groups 순서로 판정(기존 동작). 판정 순서와 표시 순서를 떼야 했다 — "NHS 계약을
+    # 끝내라"가 'contract' 때문에 계약 섹션으로 갔는데, 그렇다고 논란을 계약보다 위에
+    # 표시할 이유는 없다. 아무 규칙에도 안 맞으면 terms가 빈 섹션(catch-all)으로 간다.
+    classify: list = field(default_factory=list)
+    # 제외 매체가 낸 것과 같은 제목은 다른 매체 것도 뺀다. 주가 논평 매체 기사가
+    # Yahoo 등에 같은 제목으로 재게재되면 매체 제외를 우회한다(실측: Motley Fool 원문은
+    # 막혔는데 Yahoo 재게재본이 발송). 꺼짐이 기본 — 영상 플랫폼을 제외하는 레인에선
+    # 뉴스 제목을 그대로 단 영상 때문에 진짜 기사가 막힐 수 있다.
+    exclude_twins: bool = False
+    # 섹션 칸을 최소 보장으로 쓰고, 그날 남는 칸은 넘치는 섹션에 넘긴다(전체는
+    # max_items). 꺼짐이면 섹션 칸이 곧 상한(기존 동작).
+    spill_over: bool = False
     # 실행 기록(jsonl). 실행마다 수집·통과·발송 건수와 오류를 한 줄 남긴다.
     # 알림이 하루 1건 안팎인 레인은 침묵이 정상이라, '조용한 날'과 '고장 난 날'을
     # 가르려면 따로 남겨야 한다. 비우면 기록하지 않는다(기존 동작).
@@ -191,7 +218,18 @@ def _title_sim(a, b, idf):
     return sum(max(table.get(g, default), 0) for g in A & B) / union
 
 
-def _sent_match(m, state, now, drop=frozenset(), sim=None):
+def _window_hours(state, now):
+    """이번 실행의 수집 창(시간). 직전 실행 이후 + 여유, [WINDOW_HOURS, WINDOW_MAX_HOURS]."""
+    hours = WINDOW_HOURS
+    try:
+        last = datetime.fromisoformat(state.get("last_run") or "")
+        hours = max(hours, (now - last).total_seconds() / 3600 + WINDOW_MARGIN_HOURS)
+    except (TypeError, ValueError):
+        pass
+    return min(hours, WINDOW_MAX_HOURS)
+
+
+def _sent_match(m, state, now, drop=frozenset(), sim=None, single=None):
     """보낸 적 있나. 있으면 (저장 항목, 공유 토큰) — 없으면 None.
 
     엔티티가 겹치면 같은 사건의 다른 기사로 본다. 엔티티 차단은 TTL을 둔다 —
@@ -212,7 +250,9 @@ def _sent_match(m, state, now, drop=frozenset(), sim=None):
             return e, {"(같은 제목)"}
         if age <= ENTITY_TTL_DAYS:
             shared = m["dkey"] & (set(e.get("key") or []) - drop)
-            if shared:
+            # 한 단어만 겹치면 single(제목 유사도)이 맞을 때만 같은 사건으로 본다.
+            if shared and (len(shared) > 1 or single is None
+                           or single(m["headline"], e.get("title", ""))):
                 return e, shared
             if sim and sim(m["headline"], e.get("title", "")):
                 return e, {"(유사 제목)"}
@@ -244,7 +284,10 @@ def _fetch_items(cfg):
     """cfg.queries가 있으면 갈래별로 받아 제목 기준 합집합, 없으면 cfg.query 하나."""
     merged = {}
     for q in (cfg.queries or [cfg.query]):
-        for it in _fetch_one(q, cfg):
+        got = _fetch_one(q, cfg)
+        # 쿼리당 100건이 RSS 상한이다. 닿으면 넘친 기사가 조용히 사라지므로 표시한다.
+        print(f"  수집 {len(got):3d}{' ⚠️ 상한' if len(got) >= 100 else ''}  {q}")
+        for it in got:
             merged.setdefault(it["title"].lower(), it)
     return list(merged.values())
 
@@ -389,6 +432,10 @@ def _looks_truncated(headline):
     못 만들어 같은 사건이 두 번 나간다 — 실측: Anthropic IPO 건이 09-12·09-13
     이틀 연속. 숫자 뒤 단위가 토막난 형태만 좁게 잡는다.
     """
+    # 낱말 중간에서 잘린 형태도 있다: "... drives growth b". 끝이 소문자 한 글자면
+    # 잘린 것이다(a·i는 낱말). 대문자는 "Plan B"처럼 정상 제목이라 대상이 아니다.
+    if re.search(r"\s[b-hj-z]$", headline.strip()):
+        return True
     toks = headline.lower().replace(",", " ").split()
     if len(toks) < 2:
         return False
@@ -546,12 +593,18 @@ def _group_index(headline, cfg, pin=None):
     전부 catch-all로 떨어져서 "Nvidia Mulls $10B Anthropic IPO Backing"이
     '포트폴리오사 동향'에 들어갔다. 그래서 그룹도 근접 규칙을 볼 수 있게 한다.
     pin은 RSS 피드가 지정한 섹션 label — 있으면 키워드보다 우선한다.
+    cfg.classify가 있으면 그 규칙 순서로 판정하고 groups는 표시용으로만 쓴다.
     """
-    if pin:
-        for i, g in enumerate(cfg.groups):
-            if g["label"] == pin:
-                return i
+    labels = [g["label"] for g in cfg.groups]
+    if pin and pin in labels:
+        return labels.index(pin)
     hl = headline.lower()
+    if cfg.classify:
+        for rule in cfg.classify:
+            if any(_term_hit(t, hl, rule.get("word")) for t in rule["terms"]):
+                return labels.index(rule["label"])
+        return next((i for i, g in enumerate(cfg.groups)
+                     if not g.get("terms") and not g.get("proximity")), len(labels) - 1)
     for i, g in enumerate(cfg.groups):
         terms = g.get("terms") or []
         prox = g.get("proximity")
@@ -610,6 +663,13 @@ def _set_output(found):
             f.write(f"found={'true' if found else 'false'}\n")
 
 
+def _set_state_changed(changed):
+    out = os.environ.get("GITHUB_OUTPUT")
+    if out:
+        with open(out, "a", encoding="utf-8") as f:
+            f.write(f"state_changed={'true' if changed else 'false'}\n")
+
+
 def _write_log(cfg, now, fetched, matched, sent, errors):
     if not cfg.log_file:
         return
@@ -636,15 +696,28 @@ def run_monitor(cfg):
         sys.exit(0)
 
     now = datetime.now(timezone.utc)
-    cutoff = now - timedelta(hours=WINDOW_HOURS)
+    state = _load_state(cfg)
+    window = _window_hours(state, now)
+    cutoff = now - timedelta(hours=window)
+    state["last_run"] = now.isoformat()
     # 필터 통과 전 수집분 전체를 근거로 쓴다 — 통과분만 보면 근거가 더 얇아진다.
     run_common = _lowercase_words(
         _strip_source(it["title"], it.get("source", ""))[0] for it in items)
-    sim = None
-    if cfg.title_sim:
+    sim = single = None
+    if cfg.title_sim or cfg.cross_run_sim:
         idf = _idf_table([_strip_source(it["title"], it.get("source", ""))[0]
                           for it in items])
+    if cfg.title_sim:
         sim = lambda a, b: _title_sim(a, b, idf) >= cfg.title_sim  # noqa: E731
+    if cfg.cross_run_sim:
+        single = lambda a, b: _title_sim(a, b, idf) >= cfg.cross_run_sim  # noqa: E731
+    # 제외 매체가 낸 제목 — 다른 매체의 같은 제목(재게재본)도 뺄 때 쓴다.
+    twins = set()
+    if cfg.exclude_twins and cfg.exclude_sources:
+        for it in items:
+            h, src = _strip_source(it["title"], it.get("source", ""))
+            if any(x in src.lower() for x in cfg.exclude_sources):
+                twins.add(h.strip().lower())
 
     matches = []
     for it in items:
@@ -661,6 +734,15 @@ def run_monitor(cfg):
         auth = bool(it.get("authoritative"))
         headline, source = _strip_source(it["title"], it["source"])
         if not _is_relevant(headline, cfg, auth):
+            # 주가 문구로 걸렀는데 사건 단어도 있는 제목은 남긴다. "Japan weighs Palantir
+            # AI defense system"처럼 뒤에 주가 표현이 붙은 진짜 뉴스가 여기서 사라지는지
+            # 데이터로 보려고. 구제 규칙은 이 로그가 쌓인 뒤에 정한다.
+            if not auth and cfg.groups:
+                tl = headline.lower()
+                neg = next((n for n in cfg.negative if n in tl), None)
+                if (neg and (not cfg.subject or any(x in tl for x in cfg.subject))
+                        and cfg.groups[_group_index(headline, cfg)].get("terms")):
+                    print(f"  (주가 문구 '{neg}' 제외·사건어 있음) {headline}")
             continue
         if not auth and _looks_truncated(headline):
             print(f"  (잘린 제목 제외) {headline}")
@@ -670,6 +752,9 @@ def run_monitor(cfg):
             if any(x in sl for x in cfg.exclude_sources):
                 print(f"  (제외 매체 {source}) {headline}")
                 continue
+        if not auth and headline.strip().lower() in twins:
+            print(f"  (제외 매체 재게재 {source}) {headline}")
+            continue
 
         matches.append({
             "headline": headline, "source": source,
@@ -696,11 +781,10 @@ def run_monitor(cfg):
     # 실행 간 차단 — 창이 겹치는 구간의 항목이 다음 회차에 다시 나가는 걸 막는다.
     # 무엇이 왜 막혔는지 남긴다. 예전엔 건수만 찍혀서 "ipo" 한 단어가 사건을
     # 삼켜도 2주간 아무도 몰랐다. 제목과 공유 토큰을 보면 오판인지 바로 보인다.
-    state = _load_state(cfg)
     drop = KEY_NOISE | run_common | set(cfg.key_ignore)
     fresh = []
     for m in deduped:
-        hit = _sent_match(m, state, now, drop, sim)
+        hit = _sent_match(m, state, now, drop, sim, single)
         if hit is None:
             fresh.append(m)
             continue
@@ -716,21 +800,39 @@ def run_monitor(cfg):
         buckets = [[] for _ in cfg.groups]
         for m in deduped:
             buckets[_group_index(m["headline"], cfg, m.get("pin"))].append(m)
-        matches = []
+        matches, over = [], []
         for g, b in zip(cfg.groups, buckets):
             b.sort(key=lambda x: x["dt"], reverse=True)
-            for m in b[:g.get("max", cfg.max_items)]:
+            cap = g.get("max", cfg.max_items)
+            for m in b[:cap]:
                 m["grp"] = g["label"]
                 matches.append(m)
+            for m in b[cap:]:
+                m["grp"] = g["label"]
+                over.append(m)
+        # 남는 칸 넘기기 — 그날 빈 섹션의 칸을 넘치는 섹션에 준다. 섹션 칸은 '최소 보장'이
+        # 되고 전체는 max_items가 막는다. 실측: 분류를 고치자 정책 기사 6건이 칸 3에
+        # 걸려 ICE 소송 보도가 잘렸는데, 그날 계약 섹션 4칸은 비어 있었다.
+        if cfg.spill_over:
+            room = max(cfg.max_items - len(matches), 0)
+            matches += over[:room]
+            over = over[room:]
+            order = [g["label"] for g in cfg.groups]
+            matches.sort(key=lambda m: order.index(m["grp"]))   # 안정 정렬 — 섹션 안 순서 유지
+        # 칸이 넘쳐 빠진 기사. 예전엔 흔적이 없어 칸 수가 맞는지 판단할 근거가 없었다.
+        for m in over:
+            print(f"  (섹션 칸 초과 {m['grp']}) {m['headline'][:90]}")
     else:
         deduped.sort(key=lambda x: x["dt"], reverse=True)
         matches = deduped[:cfg.max_items]
 
-    print(f"window={WINDOW_HOURS}h  fetched={len(items)}  matched={len(matches)}")
+    print(f"window={window:.1f}h  fetched={len(items)}  matched={len(matches)}")
     for m in matches:
         print(f"  - {m['headline']}  [{m['source']}]")
 
     if not matches:
+        # 보낼 게 없어도 실행 시각은 남긴다 — 다음 창이 여기서 시작해야 한다.
+        _set_state_changed(_save_state(cfg, state))
         _write_log(cfg, now, len(items), 0, [], errors)
         _set_output(False)
         return
@@ -779,10 +881,7 @@ def run_monitor(cfg):
         state["sent"].append({"title": m["headline"].strip().lower(),
                               "key": sorted(m["dkey"]),
                               "ts": now.isoformat()})
-    changed = _save_state(cfg, state)
+    _set_state_changed(_save_state(cfg, state))
     _write_log(cfg, now, len(items), len(matches), shown, errors)
-    if os.environ.get("GITHUB_OUTPUT"):
-        with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as f:
-            f.write(f"state_changed={'true' if changed else 'false'}\n")
 
     _set_output(True)
