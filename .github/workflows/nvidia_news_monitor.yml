@@ -2,7 +2,7 @@ name: 🟢 NVIDIA 투자 뉴스 감지
 
 on:
   schedule:
-    # 매일 00:00 UTC = 09:00 KST — 전일 미국장 투자 뉴스 커버
+    # 00:00 UTC = 09:00 KST 예약. 실제 실행은 2~3.5시간 늦다(GitHub 지연, 실측 2026-10). 수집 창이 직전 실행 기준이라 누락은 없다
     - cron: '0 0 * * *'
   workflow_dispatch:
 
@@ -36,7 +36,8 @@ jobs:
           CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
           MSG=$(cat news_alert.txt)
-          curl -s -X POST "https://api.telegram.org/bot${BOT_TOKEN}/sendMessage" \
+          # 실패를 숨기지 않는다 — 이 단계가 실패하면 이력 커밋이 건너뛰어져 다음 회차가 다시 보낸다.
+          curl -sS --fail-with-body -X POST "https://api.telegram.org/bot${BOT_TOKEN}/sendMessage" \
             -d "chat_id=${CHAT_ID}" \
             --data-urlencode "text=${MSG}" \
             -d "parse_mode=HTML" \
@@ -53,5 +54,10 @@ jobs:
           git commit -m "chore: news alert state [skip ci]"
           # main이 아닌 ref(브랜치 테스트 발송)에서 돌면 자기 커밋을 main 위로
           # rebase하려다 충돌한다 — 실측 2026-09-19. 현재 ref를 따라간다.
-          git pull --rebase --autostash origin "${GITHUB_REF_NAME}"
-          git push
+          # 다른 워크플로(DART는 매시 30분)와 push가 겹치면 거절된다 — 받아서 다시 올린다.
+          for i in 1 2 3; do
+            git pull --rebase --autostash origin "${GITHUB_REF_NAME}" && git push && exit 0
+            git rebase --abort 2>/dev/null || true
+            sleep $((i * 5))
+          done
+          exit 1
