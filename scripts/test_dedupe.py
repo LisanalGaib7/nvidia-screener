@@ -80,8 +80,29 @@ def main():
     print(f"{'OK  ' if ok else 'FAIL'} 한글  키={hk}")
 
     fail += pltr_cases()
+    fail += rss_date_cases()
     print(f"\n실패 {fail}건")
     sys.exit(1 if fail else 0)
+
+
+def rss_date_cases():
+    """RSS pubDate — 표준 형식과 일부 CMS의 'YYYY-MM-DD HH:MM:SS'(시간대 없음)."""
+    from news_monitor import _rss_date
+    utc = timezone.utc
+    cases = [
+        (("Thu, 09 Oct 2026 03:10:00 +0000", 0), datetime(2026, 10, 9, 3, 10, tzinfo=utc)),
+        (("2026-10-08 18:05:02", 9), datetime(2026, 10, 8, 9, 5, 2, tzinfo=utc)),
+        (("2026-10-08 18:05:02", 0), datetime(2026, 10, 8, 18, 5, 2, tzinfo=utc)),
+        (("not a date", 0), None),
+        (("", 0), None),
+    ]
+    fail = 0
+    for (raw, tz), want in cases:
+        got = _rss_date(raw, tz)
+        ok = got == want
+        fail += not ok
+        print(f"{'OK  ' if ok else 'FAIL'} 날짜  {raw!r} tz={tz} → {got}")
+    return fail
 
 
 # 2026-10-05 PLTR 실행 하루치 제목 일부 — 제목 유사도의 희귀도 기준(idf). 운영은 그날
