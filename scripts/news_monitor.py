@@ -125,6 +125,8 @@ class MonitorConfig:
     # 같은 이유. 대신 피드 범위가 레인보다 넓은 곳(국제기구 뉴스룸 등)은 filter
     # 정규식으로 제목+요약을 거른다. group을 주면 키워드 분류 없이 그 섹션에 둔다
     # (뉴스레터 제목에는 사명이 안 들어가서 키워드로는 회사 섹션에 못 온다).
+    # "tz_hours": 시간대 없는 pubDate를 해석할 시차(기본 0=UTC).
+    # "match": "title"이면 filter를 제목에만 건다(기본은 제목+요약).
     rss_feeds: list = field(default_factory=list)
     # 한글 제목 유사도 묶기 임계값. 0이면 끈다(기존 동작). 한글은 엔티티 키를 못
     # 써서(_dedupe_key) 같은 사건 기사가 그대로 여러 건 나갔다 — 한글 레인 30일
@@ -135,6 +137,10 @@ class MonitorConfig:
     # 한 단어만 겹쳐도 서로 다른 사건을 잇는다 — 실측: 'google' 하나로 다른 기업과의
     # 계약 기사 10여 건이 9/16 별건 기사에 묶여 사건째 사라졌다. 소문자.
     key_ignore: list = field(default_factory=list)
+    # 필터 어휘라도 키에서 빼지 않을 이름. positive 단어는 모든 기사에 공통이라 키에서
+    # 빼는데, 게이트에 회사명을 넣으면(탄소어 없는 사명 기사를 살리려고) 그 이름까지
+    # 빠져 같은 회사 기사끼리 못 묶는다. 소문자.
+    key_keep: list = field(default_factory=list)
     # 대표 기사 옆에 묶인 기사 수를 붙인다("같은 사건 외 N건").
     show_dups: bool = False
     # 교차 실행 차단에서 '한 단어만 겹친' 경우의 제목 유사도 기준. 0이면 한 단어로도
@@ -339,24 +345,50 @@ def _fetch_rss(cfg, errors):
             errors.append(f"{label}: {e}")
             continue
         pat = re.compile(feed["filter"], re.I) if feed.get("filter") else None
-        for it in root.findall(".//item"):
+        items = root.findall(".//item")
+        dated = 0
+        for it in items:
+            dt = _rss_date(it.findtext("pubDate"), feed.get("tz_hours", 0))
+            if dt is None:
+                continue
+            dated += 1
             title = html.unescape((it.findtext("title") or "").strip())
             if not title:
                 continue
-            if pat and not pat.search(title + " " + (it.findtext("description") or "")):
-                continue
-            try:
-                dt = parsedate_to_datetime((it.findtext("pubDate") or "").strip())
-                if dt.tzinfo is None:
-                    dt = dt.replace(tzinfo=timezone.utc)
-            except Exception:
+            # 요약문까지 보면 범위가 넓은 피드에서 잡음이 섞인다(전문지 실측: 요약문에만
+            # 걸린 5건 중 4건이 무관). "match": "title"이면 제목만 본다.
+            text = title if feed.get("match") == "title" else title + " " + (it.findtext("description") or "")
+            if pat and not pat.search(text):
                 continue
             out.append({
                 "title": title, "link": (it.findtext("link") or "").strip(),
                 "source": label, "pub": "", "dt": dt, "authoritative": True,
                 "pin": feed.get("group"),
             })
+        # 날짜를 하나도 못 읽으면 피드 전체가 창 밖으로 조용히 버려진다 — 장애로 남긴다.
+        if items and not dated:
+            print(f"rss error ({label}): pubDate 형식을 읽지 못함")
+            errors.append(f"{label}: pubDate 형식을 읽지 못함")
     return out
+
+
+def _rss_date(raw, tz_hours=0):
+    """RSS pubDate. 표준(RFC 822)이 아니라 'YYYY-MM-DD HH:MM:SS'를 쓰는 국내 언론
+    CMS가 있다 — 표준 파서만 쓰면 피드 50건이 전부 버려졌다. 시간대가 없는 값은
+    피드 설정 tz_hours(그 CMS는 KST라 9)로 해석한다."""
+    raw = (raw or "").strip()
+    if not raw:
+        return None
+    try:
+        dt = parsedate_to_datetime(raw)
+    except Exception:
+        try:
+            dt = datetime.fromisoformat(raw)
+        except ValueError:
+            return None
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone(timedelta(hours=tz_hours)))
+    return dt
 
 
 # IR 피드 타임스탬프는 미 동부시(ET)다. 실적 보도자료가 예외 없이 16:05:00,
@@ -647,6 +679,7 @@ def _dedupe_key(headline, cfg, run_common=frozenset()):
     for words in (cfg.subject, cfg.positive, cfg.negative):
         for w in words:
             drop.update(w.lower().split())
+    drop -= set(cfg.key_keep)
     out, hubs = set(), set()
     for tok in re.findall(r"[A-Z][A-Za-z0-9&.\-]{2,}", headline):
         t = tok.lower().strip(".")
