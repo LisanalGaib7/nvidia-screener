@@ -133,6 +133,12 @@ class MonitorConfig:
     # 실측에서 한 사건이 4건. 값은 레인별 실측으로 정한다(같은 사건 쌍과 다른
     # 사건 쌍의 분포가 겹치므로 '다른 사건을 하나도 안 묶는' 쪽으로).
     title_sim: float = 0.0
+    # False면 title_sim을 같은 회차 안 묶기에만 쓴다. 영문 정형 제목은 다른 사건끼리도
+    # 유사도가 높아서(NVIDIA Blog "New Investments in France / the UK" 0.505) 날짜를
+    # 넘겨 쓰면 다음 날의 새 사건을 막는다. 끄면 같은 매체끼리는 유사도로 묶지 않고
+    # (회차 안 같은 매체 쌍 6건이 전부 별건이었다 — 10-11~20 실측), 유사도로만 묶여
+    # 빠진 기사 제목은 이력에 남겨 다음 회차의 같은 제목 재수집을 막는다.
+    title_sim_cross_run: bool = True
     # 중복제거 키에서 뺄 이름. 여러 사건에 반복 등장하는 허브 기업(대형 구매자 등)은
     # 한 단어만 겹쳐도 서로 다른 사건을 잇는다 — 실측: 'google' 하나로 다른 기업과의
     # 계약 기사 10여 건이 9/16 별건 기사에 묶여 사건째 사라졌다. 소문자.
@@ -819,12 +825,24 @@ def run_monitor(cfg):
     # 3자 중복이 자연히 탈락한다.
     matches.sort(key=lambda x: (not x["auth"], _source_tier(x["source"]),
                                -x["dt"].timestamp()))
+    in_run_only = sim is not None and not cfg.title_sim_cross_run
+
+    def _same_event(m, d):
+        if m["dkey"] & d["dkey"]:
+            return "key"
+        if sim and not (in_run_only and m["source"] == d["source"]) \
+                and sim(m["headline"], d["headline"]):
+            return "sim"
+        return None
+
     deduped = []
     for m in matches:
-        rep = next((d for d in deduped if m["dkey"] & d["dkey"]
-                    or (sim and sim(m["headline"], d["headline"]))), None)
+        rep, how = next(((d, h) for d in deduped if (h := _same_event(m, d))),
+                        (None, None))
         if rep is not None:
             rep["dups"] = rep.get("dups", 0) + 1
+            if how == "sim" and in_run_only:
+                rep.setdefault("sim_dups", []).append(m["headline"])
             continue
         deduped.append(m)
     # 실행 간 차단 — 창이 겹치는 구간의 항목이 다음 회차에 다시 나가는 걸 막는다.
@@ -833,7 +851,7 @@ def run_monitor(cfg):
     drop = KEY_NOISE | run_common | set(cfg.key_ignore)
     fresh = []
     for m in deduped:
-        hit = _sent_match(m, state, now, drop, sim, single)
+        hit = _sent_match(m, state, now, drop, None if in_run_only else sim, single)
         if hit is None:
             fresh.append(m)
             continue
@@ -930,6 +948,10 @@ def run_monitor(cfg):
         state["sent"].append({"title": m["headline"].strip().lower(),
                               "key": sorted(m["dkey"]),
                               "ts": now.isoformat()})
+        # 유사도로만 묶인 기사는 키가 달라 다음 회차 키 대조에 안 걸린다 — 제목만 남긴다.
+        for h in m.get("sim_dups", []):
+            state["sent"].append({"title": h.strip().lower(), "key": [],
+                                  "ts": now.isoformat()})
     _set_state_changed(_save_state(cfg, state))
     _write_log(cfg, now, len(items), len(matches), shown, errors)
 

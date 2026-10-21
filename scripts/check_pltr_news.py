@@ -216,6 +216,10 @@ CONFIG = MonitorConfig(
     # 같은 사건 쌍은 0.27 이상, 다른 사건은 0.22 이하(7일·1일 두 기준에서 같음).
     # 간격이 좁고 표본이 작아 차단 로그로 계속 본다.
     cross_run_sim=0.25,
+    # 같은 회차 안 묶기 — Customers Bank 5건이 한 메시지에 다 나갔다(10-16). 다른 사건
+    # "Customers Bank / Ecuador to Deploy Palantir…"가 0.24~0.30이라 0.35. 날짜를 넘긴
+    # 차단은 위 cross_run_sim 규칙만 쓴다.
+    title_sim=0.35, title_sim_cross_run=False,
 )
 
 if __name__ == "__main__":
