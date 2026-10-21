@@ -81,6 +81,7 @@ def main():
 
     fail += pltr_cases()
     fail += rss_date_cases()
+    fail += in_run_sim_cases()
     print(f"\n실패 {fail}건")
     sys.exit(1 if fail else 0)
 
@@ -193,6 +194,125 @@ def pltr_cases():
         ok = _looks_truncated(h) == want
         fail += not ok
         print(f"{'OK  ' if ok else 'FAIL'} 잘림  {h!r} → {_looks_truncated(h)}")
+    return fail
+
+
+# 2026-10-11~20 실제 발송·수집 제목. 희귀도(idf) 기준용 — 창 밖 날짜로 넣어 발송
+# 후보에는 안 들어가고 유사도 계산에만 쓰인다.
+SIM_CORPUS = [
+    "Nvidia weighs bolder bet on open-weight AI, including possible ReflectionAI acquisition",
+    "Nvidia in talks to invest further in Reflection AI or buy it, FT reports",
+    "Scrapped IPO of Nvidia-Backed Company Points to Limits of AI Boom",
+    "Nvidia-backed Firmus shelves IPO as AI valuation fears mount",
+    "Nvidia-Backed Neoclouds Face a Test as IREN, CoreWeave and Nebius Stocks Slide",
+    "Nvidia to invest in rival chip startup d-Matrix at $5B valuation",
+    "Nvidia invests in four French technology startups, Les Echos reports",
+    "Nvidia Takes Stakes in Doctolib, Pigment, Genesis AI and Entalpic",
+    "Nvidia backs five UK startups, including Cambridge quantum firm Riverlane",
+    "Nvidia-Backed AI Drugmaker Iambic Raises $150 Million in US IPO",
+    "Nvidia-Backed Agility's $2.5B SPAC Clears SEC, Vote Nov. 2",
+    "Nvidia plans investment in Reflex Aerospace to expand satellite production in Germany",
+    "Nvidia explores US$4.5B investment in Batam to expand Indonesia's AI infrastructure",
+    "Nvidia backs OpenClaw, putting robotics potential, agent security in focus",
+    "Microsoft exits major UK data centre project with Nvidia-backed developer",
+    "NBIS Stock Rallies After The Nvidia-Backed Company Lands $775M Debt Deal To Fund AI Buildout",
+    "Palantir Hits Record High as Wall Street Bets Big on Sovereign AI",
+    "Polymarket Taps Palantir To Police Sports Prediction Markets",
+    "ICE Used Palantir Tech to Track Protesters and Rights Observers",
+    "Palantir drops legal case against Sadiq Khan over cancelled £50mn contract",
+    "Surf Air Mobility Expands Palantir-Powered AI Push With Fifth Aviation Software Deal",
+    "Westpac silent on petition calling on bank to cut ties with Palantir",
+    "Knox and Palantir Partner to Further Accelerate Delivery of Software through Largest Federal Cloud",
+    "Seattle protesters call on WA to ditch pension investments in Palantir",
+    "Ondas and Palantir Launch Regna AI for Sovereign Defense Systems",
+    "Palantir patient data tech rejected by many NHS trusts in England",
+    "Nvidia's Jensen Huang announces plans to invest US$2 bn in Europe",
+    "Customers Bank announces collaboration with Palantir Technologies",
+    "Customers Bank and Palantir team up on AI-driven deposit onboarding",
+]
+
+
+def _replay(cfg, fresh, state=None):
+    """run_monitor를 고정 수집분으로 돌려 (보낸 제목 목록, 저장된 이력)을 돌려준다."""
+    import dataclasses, io, contextlib, json, tempfile
+    import news_monitor as NM
+    now = datetime(2026, 10, 21, 5, tzinfo=timezone.utc)
+    old = "Mon, 01 Jun 2026 00:00:00 GMT"
+    items = [{"title": f"{t} - Filler", "link": f"https://x/{i}", "pub": old, "source": "Filler"}
+             for i, t in enumerate(SIM_CORPUS)]
+    items += [{"title": f"{t} - {s}", "link": f"https://y/{i}", "source": s,
+               "pub": "Tue, 20 Oct 2026 20:00:00 GMT"} for i, (t, s) in enumerate(fresh)]
+    with tempfile.TemporaryDirectory() as d:
+        st = os.path.join(d, "state.json")
+        with open(st, "w", encoding="utf-8") as f:
+            json.dump(state or {"sent": [], "last_run": "2026-10-20T05:00:00+00:00"}, f)
+        c = dataclasses.replace(cfg, state_file=st, out_file=os.path.join(d, "msg.txt"),
+                                log_file="", ir_feed="", rss_feeds=[])
+
+        class Fixed(datetime):
+            @classmethod
+            def now(cls, tz=None):
+                return now
+        saved = NM.datetime, NM._fetch_all
+        NM.datetime, NM._fetch_all = Fixed, (lambda cfg, errors=None: list(items))
+        buf = io.StringIO()
+        try:
+            with contextlib.redirect_stdout(buf):
+                NM.run_monitor(c)
+        finally:
+            NM.datetime, NM._fetch_all = saved
+        shown = [l[4:].rsplit("  [", 1)[0] for l in buf.getvalue().splitlines()
+                 if l.startswith("  - ")]
+        with open(st, encoding="utf-8") as f:
+            return shown, json.load(f)
+
+
+def in_run_sim_cases():
+    """회차 안 제목 유사도 묶기 — 10-11~20 실발송에서 키가 못 묶은 같은 사건과,
+    유사도가 높게 나오는 다른 사건(정형 제목·같은 매체)."""
+    fail = 0
+    cases = [  # (레인, [(제목, 매체)], 함께 나가면 안 되나)
+        (NV, [("NVIDIA invests $250 million in UK AI safety research", "NewsBytes"),
+              ("Business News | NVIDIA to Invest USD 250 Million in UK AI Safety Research over Five Years",
+               "LatestLY")], True),
+        (NV, [("Nvidia-backed doubleAI launches AI model that cuts compute costs", "Quartz"),
+              ("Nvidia-Backed doubleAI Debuts AI 'Code Execution' Models", "PYMNTS.com")], True),
+        (PL, [("Customers Bank Taps Palantir to Rebuild Deposit Onboarding", "Securities.io"),
+              ("Customers Bank Taps Palantir Platform for AI Deposit Onboarding", "TOKENPOST")], True),
+        (PL, [("Volunteer police chief fired after Palantir probe", "cedarnews.net"),
+              ("Chief of Met Police volunteer force sacked over intimate images after Palantir probe",
+               "The Mirror")], True),
+        # 같은 매체의 정형 제목 — 유사도 0.5지만 다른 나라 투자
+        (NV, [("NVIDIA Announces New Investments in France's Startups", "NVIDIA Blog"),
+              ("NVIDIA Announces New Investments in the UK Startup Ecosystem", "NVIDIA Blog")], False),
+        (NV, [("Nvidia to invest $1 billion over five years in quantum computing and U.S. science",
+               "디지털투데이"),
+              ("NVIDIA Reportedly Considers $1 Billion Investment in Humanoid Robotics Startup Figure AI",
+               "Konsulteer")], False),
+        (PL, [("127 Groups Urge Europe to Cut Ties With Palantir", "tovima.com"),
+              ("Westpac silent on petition calling on bank to cut ties with Palantir", "Cyber Daily")],
+         False),
+    ]
+    for cfg, fresh, want_merge in cases:
+        shown, _ = _replay(cfg, fresh)
+        merged = sum(t in shown for t, _ in fresh) == 1
+        ok = merged == want_merge
+        fail += not ok
+        print(f"{'OK  ' if ok else 'FAIL'} 회차안  {fresh[0][0][:44]!r} / {fresh[1][0][:30]!r} → "
+              f"{'묶임' if merged else '따로'} (보낸 {len(shown)}건)")
+
+    # 유사도로 묶여 빠진 기사는 이력에 제목만 남는다 → 다음 회차 같은 제목 재수집을 막는다
+    fresh = cases[0][1]
+    shown, state = _replay(NV, fresh)
+    dup = next(t for t, _ in fresh if t not in shown)
+    rec = [e for e in state["sent"] if e["title"] == dup.lower()]
+    ok = len(rec) == 1 and rec[0]["key"] == []
+    fail += not ok
+    print(f"{'OK  ' if ok else 'FAIL'} 이력  묶인 기사 제목 기록 {rec[:1]}")
+    shown2, _ = _replay(NV, [(dup, "LatestLY")], state)
+    ok = shown2 == []
+    fail += not ok
+    print(f"{'OK  ' if ok else 'FAIL'} 이력  다음 회차 같은 제목 → {'차단' if ok else shown2}")
     return fail
 
 

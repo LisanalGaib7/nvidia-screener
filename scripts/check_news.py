@@ -124,6 +124,10 @@ CONFIG = MonitorConfig(
     # 유일한 알림으로 나갔다 — 근접 규칙의 `buys`에 걸렸다.
     # 출처 표기가 "YouTube"일 때와 "youtu.be"일 때가 다 관측돼 둘 다 넣는다.
     exclude_sources=["youtube", "youtu.be"],
+    # 같은 회차 안에서 키로 못 묶은 같은 사건(영국 AI 안전 $250M 3건, doubleAI 3건)을
+    # 제목 유사도로 묶는다. 10-11~20 실측: 같은 사건 0.40 이상, 다른 사건 대부분 0.26
+    # 이하. 0.25는 정형 제목 쌍(0.24~0.30)과 붙어 있어 0.35로 둔다.
+    title_sim=0.35, title_sim_cross_run=False,
 )
 
 if __name__ == "__main__":
