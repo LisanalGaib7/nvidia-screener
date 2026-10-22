@@ -1213,7 +1213,36 @@
     "nscale"
    ],
    "ts": "2026-10-21T02:33:17.768997+00:00"
+  },
+  {
+   "title": "ambarella (amba) shares rise 2.4% amid nvidia acquisition speculation",
+   "key": [
+    "amba",
+    "ambarella",
+    "speculation"
+   ],
+   "ts": "2026-10-22T02:30:19.744702+00:00"
+  },
+  {
+   "title": "nvidia backs up to $164.5b of ai data centers, report says",
+   "key": [
+    "nvidiabacksupto"
+   ],
+   "ts": "2026-10-22T02:30:19.744702+00:00"
+  },
+  {
+   "title": "nvidia backs $164.5 billion of ai data centers to keep gpus selling",
+   "key": [],
+   "ts": "2026-10-22T02:30:19.744702+00:00"
+  },
+  {
+   "title": "f5 selected for telenor's nvidia-backed ai infrastructure",
+   "key": [
+    "selected",
+    "telenor"
+   ],
+   "ts": "2026-10-22T02:30:19.744702+00:00"
   }
  ],
- "last_run": "2026-10-21T02:33:17.768997+00:00"
+ "last_run": "2026-10-22T02:30:19.744702+00:00"
 }
