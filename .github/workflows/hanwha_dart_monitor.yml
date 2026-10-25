@@ -6,6 +6,12 @@ on:
     # DART 키 한도는 2만콜/일이라 24회는 부담이 없고, 중복 발송은 발송 이력
     # (data/hanwha_dart_state.json)으로 막는다 — DART가 접수 시각을 안 주기 때문.
     - cron: '30 * * * *'
+    # 실험(2026-10-25~): GitHub가 예약 실행을 대부분 건너뛴다 — 30일 720회 중 143회(20%)만 돌아,
+    # 평일 08~20시 KST에 뜬 공시를 잡기까지 중간값 3.0h, p90 6.2h, 최대 10.3h 걸렸다.
+    # 공시가 몰리는 평일 KST 08~20시만 10분 간격으로 촘촘히 건다(분은 :30과 안 겹치게 3,13,…,53).
+    # 판정: 첫 한 주의 같은 대기 중간값이 1h 이하면 유지, 아니면 매시로 되돌린다.
+    - cron: '3-59/10 23 * * 0-4'   # 월~금 08시대 KST
+    - cron: '3-59/10 0-10 * * 1-5' # 월~금 09~19시대 KST
   workflow_dispatch:
     inputs:
       lookback_days:
@@ -16,6 +22,11 @@ on:
 permissions:
   contents: write
 
+# 한 번에 하나씩 — 두 회차가 겹치면 둘 다 같은 이력을 읽고 같은 공시를 두 번 보낸다.
+concurrency:
+  group: hanwha-dart
+  cancel-in-progress: false
+
 jobs:
   monitor-hanwha-dart:
     runs-on: ubuntu-latest
@@ -23,6 +34,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+        with:
+          # 예약 시점의 커밋이 아니라 지금 브랜치 끝을 받는다 — 앞 회차가 막 올린 발송 이력을 읽으려고.
+          ref: ${{ github.ref_name }}
 
       - name: Setup Python
         uses: actions/setup-python@v7
