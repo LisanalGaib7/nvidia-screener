@@ -9,12 +9,18 @@ GitHub Actions 평일 08:00 KST 실행 — Telegram 알림 발송.
 임계 돌파 시 1회만 알림, 기준선 아래 복귀 시 상태 리셋.
 상태는 data/macro_state.json 에 저장.
 
-FRED 시리즈: CORESTICKM159SFRBATL (Core Sticky Price CPI less Food & Energy, Atlanta Fed)
-  ⚠️ KB 리포트의 "less shelter"와 완전 동일하지 않음 — 가장 근접한 공개 시리즈.
-  FRED_API_KEY 환경변수가 있으면 사용, 없어도 소량 요청이라 작동함.
+FRED 시리즈: CRESTKCPIXSLTRM159SFRBATL (Sticky Price CPI less Food, Energy, and
+  Shelter, 전년 대비 %, Atlanta Fed) — KB 기준 "Core Sticky CPI less shelter"와 같은 정의.
+  키가 필요 없는 공개 CSV(fredgraph.csv)로 받는다. 예전엔 FRED API를 키 없이 불러
+  2026-05-31부터 매번 400이었고, 실패가 로그에만 남아 다섯 달 동안 아무도 몰랐다.
+
+조회가 하나라도 실패하면 상태는 저장하고 실행을 실패로 끝낸다 — 다시 조용히 죽지 않게.
 """
 
+import csv
+import io
 import os
+import sys
 import json
 import requests
 import yfinance as yf
@@ -24,7 +30,8 @@ from datetime import datetime, timezone
 YIELD_THRESHOLD = 5.0    # 10년물 국채금리 %
 CPI_THRESHOLD   = 3.3    # Core Sticky CPI less shelter %
 
-CPI_SERIES = "CORESTICKM159SFRBATL"
+CPI_SERIES = "CRESTKCPIXSLTRM159SFRBATL"
+CPI_LABEL  = "Core Sticky CPI(주거비 제외)"
 
 STATE_PATH = os.path.join(
     os.path.dirname(os.path.abspath(__file__)), "..", "data", "macro_state.json"
@@ -57,21 +64,16 @@ def fetch_yield():
 
 
 def fetch_cpi():
-    """Core Sticky CPI (CORESTICKM159SFRBATL) via FRED API."""
-    api_key = os.environ.get("FRED_API_KEY", "")
-    url = (
-        "https://api.stlouisfed.org/fred/series/observations"
-        f"?series_id={CPI_SERIES}&sort_order=desc&limit=3&file_type=json"
-    )
-    if api_key:
-        url += f"&api_key={api_key}"
+    """Core Sticky CPI less shelter — FRED 공개 CSV(키 불필요). (값, 'YYYY-MM-DD')"""
+    url = f"https://fred.stlouisfed.org/graph/fredgraph.csv?id={CPI_SERIES}"
     try:
-        r = requests.get(url, timeout=15, headers={"Accept": "application/json"})
+        r = requests.get(url, timeout=20)
         r.raise_for_status()
-        obs = r.json().get("observations", [])
-        for o in obs:  # "." = missing value 건너뜀
-            if o.get("value", ".") != ".":
-                return float(o["value"]), o["date"]
+        rows = list(csv.reader(io.StringIO(r.text)))
+        for date, value in reversed(rows[1:]):   # 최신부터, "."·빈칸 = 결측
+            if value not in (".", ""):
+                return float(value), date
+        print("CPI fetch error: no observations")
     except Exception as e:
         print(f"CPI fetch error: {e}")
     return None, None
@@ -113,7 +115,7 @@ def main():
         )
         send_telegram(
             f"🧪 <b>[테스트] 매크로 위험 알림 포맷 미리보기</b>\n\n"
-            f"🚨 <b>Core Sticky CPI 3.3% 돌파</b>\n"
+            f"🚨 <b>{CPI_LABEL} 3.3% 돌파</b>\n"
             f"현재: <b>3.4%</b>  (2026-04-01)\n\n"
             f"AI 사이클 자본공급 위험 시그널 #2\n"
             f"출처: FRED · Atlanta Fed"
@@ -122,7 +124,8 @@ def main():
         return
 
     state  = load_state()
-    alerts = []
+    alerts = []   # (메시지, 발송 성공 시 반영할 상태)
+    failed = []
 
     # ── ① 10년물 국채금리 ────────────────────────────────────────────────────
     yield_val = fetch_yield()
@@ -131,34 +134,34 @@ def main():
     if yield_val is not None:
         already = state.get("yield_above_5", False)
         if yield_val >= YIELD_THRESHOLD and not already:
-            alerts.append(
+            alerts.append((
                 f"🚨 <b>10년물 국채금리 {YIELD_THRESHOLD}% 돌파</b>\n"
                 f"현재: <b>{yield_val:.2f}%</b>\n\n"
                 f"AI 사이클 자본공급 위험 시그널 #1\n"
-                f"출처: Yahoo Finance"
-            )
-            state["yield_above_5"] = True
+                f"출처: Yahoo Finance",
+                {"yield_above_5": True}))
             print("ALERT: yield breached")
         elif yield_val < YIELD_THRESHOLD and already:
             state["yield_above_5"] = False
             print("yield back below threshold — state reset")
         else:
             print("yield: no change")
+    else:
+        failed.append("10Y yield")
 
-    # ── ② Core Sticky CPI ───────────────────────────────────────────────────
+    # ── ② Core Sticky CPI(주거비 제외) ──────────────────────────────────────
     cpi_val, cpi_date = fetch_cpi()
-    print(f"Core Sticky CPI: {cpi_val}%  date: {cpi_date}  (threshold ≥ {CPI_THRESHOLD}%)")
+    print(f"{CPI_LABEL}: {cpi_val}%  date: {cpi_date}  (threshold ≥ {CPI_THRESHOLD}%)")
 
     if cpi_val is not None:
         last_alert_date = state.get("cpi_last_alert_date", "")
         if cpi_val >= CPI_THRESHOLD and cpi_date != last_alert_date:
-            alerts.append(
-                f"🚨 <b>Core Sticky CPI {CPI_THRESHOLD}% 돌파</b>\n"
+            alerts.append((
+                f"🚨 <b>{CPI_LABEL} {CPI_THRESHOLD}% 돌파</b>\n"
                 f"현재: <b>{cpi_val:.1f}%</b>  ({cpi_date})\n\n"
                 f"AI 사이클 자본공급 위험 시그널 #2\n"
-                f"출처: FRED · Atlanta Fed"
-            )
-            state["cpi_last_alert_date"] = cpi_date
+                f"출처: FRED · Atlanta Fed",
+                {"cpi_last_alert_date": cpi_date}))
             print(f"ALERT: CPI breached ({cpi_date})")
         elif cpi_val < CPI_THRESHOLD:
             if last_alert_date:
@@ -166,17 +169,27 @@ def main():
                 print("CPI back below threshold — state reset")
         else:
             print("CPI: no change")
+    else:
+        failed.append("CPI")
 
     # ── 발송 ─────────────────────────────────────────────────────────────────
     if alerts:
-        for msg in alerts:
+        for msg, upd in alerts:
             ok = send_telegram(msg)
             print(f"telegram sent: {ok}")
+            # 못 보낸 알림은 상태에 안 남긴다 — 다음 회차가 다시 보낸다.
+            if ok:
+                state.update(upd)
+            else:
+                failed.append("telegram")
     else:
         print("✅ no threshold breach")
 
     save_state(state)
     print(f"state saved → {STATE_PATH}")
+    if failed:
+        print(f"❌ failed: {', '.join(failed)}")
+        sys.exit(1)
 
 
 if __name__ == "__main__":

@@ -30,11 +30,13 @@ jobs:
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID:   ${{ secrets.TELEGRAM_CHAT_ID }}
-          FRED_API_KEY:       ${{ secrets.FRED_API_KEY }}
           TEST_MODE:          ${{ inputs.test_mode }}
         run: python scripts/check_macro.py
 
+      # 조회 하나가 실패해도 스크립트는 상태를 저장한 뒤 실패로 끝난다. 그때도
+      # 커밋해야 이미 보낸 다른 알림이 다음 회차에 중복으로 안 나간다.
       - name: Commit state
+        if: always()
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
