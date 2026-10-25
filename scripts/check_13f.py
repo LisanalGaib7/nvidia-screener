@@ -15,7 +15,8 @@ import requests
 
 APP_PY = Path(__file__).resolve().parent.parent / "app.py"
 CIK = "0001045810"  # NVIDIA Corp
-HEADERS = {"User-Agent": "nvidia-screener-monitor aaaehgus@naver.com"}
+# SEC는 연락처가 든 User-Agent를 요구한다. 예전 주소가 든 값은 어떤 형식이든 403이었다(2026-10-25 실측).
+HEADERS = {"User-Agent": "nvidia-screener-monitor aaaehgus@gmail.com"}
 
 
 def last_reflected_13f():

@@ -835,7 +835,7 @@ st.markdown("""
 
 # ══════════════════════════════════════════════════════════════════════════════
 # 데이터 — 출처: SEC 13F, NVIDIA 공식 보도자료, Bloomberg/CNBC 교차검증
-# 마지막 검증일: 2026-05-14
+# 마지막 검증일: 2026-10-25 (Q2 2026 13F 원문과 13F 8종목 주식 수 전량 대조, Iambic 424B4 원문)
 # ══════════════════════════════════════════════════════════════════════════════
 
 # ── 2026년 신규 투자 (검증 완료) ─────────────────────────────────────────────
@@ -987,6 +987,25 @@ NEW_2026 = [
         "note": "$21.0B 지분 (xAI 투자분 전환) | 122,764,805주 · 6/30 기준 | 10-Q·13F 동시 공시 (2026.08.14) | xAI 투자 원금 비공개",
         "note_eng": "$21.0B stake (converted from xAI position) | 122,764,805 shares · as of 6/30 | Disclosed via 10-Q + 13F (2026.08.14) | Original xAI investment amount undisclosed",
         "source": "SEC 13F-HR 원문(acc. 0001045810-26-000065, 2026.08.14), Bloomberg·CNBC·Fortune 교차확인",
+    },
+    {
+        "ticker": "IAM",
+        "name": "Iambic Therapeutics",
+        "sector": "AI 신약개발",
+        "invest_year": 2026,
+        # 424B4 관계자 거래 표: 시리즈 B 1,536,034주 $20.0M(2023.09~12) + B-4 291,658주 $5.0M(2026.04~05).
+        # 주식 수는 2026.10.07 주식 병합(5.2587:1) 반영 — S-1의 약 960만주는 병합 전 숫자.
+        "invest_amt_m": 25.0,
+        "invest_date": "2026-10-15",
+        "badge": "new",
+        "alert_date": "2026-10-15",
+        "alert_desc": "나스닥 상장, 투자 원금 $25M",
+        "alert_desc_eng": "Nasdaq IPO, $25M invested",
+        "nvidia_thesis": "AI로 항암제 후보 물질을 설계하는 바이오텍. 엔비디아가 시리즈 B·B-4에 $25M 투자(1,827,692주), 엔비디아 하드웨어 최적화 기술 협력과 특허 공동 소유",
+        "nvidia_thesis_eng": "A biotech designing cancer drug candidates with AI. NVIDIA invested $25M in its Series B and B-4 (1,827,692 shares), with a technology collaboration on NVIDIA hardware and a co-owned patent family",
+        "note": "1,827,692주 · 원금 $25M (시리즈 B $20M + B-4 $5M) | 2026.10.15 나스닥 상장(IAM), 공모가 $16 | 상장 후 5% 미만",
+        "note_eng": "1,827,692 shares · $25M invested (Series B $20M + B-4 $5M) | 2026.10.15 Nasdaq IPO (IAM) at $16 | under 5% after IPO",
+        "source": "SEC 424B4 원문(Iambic, 2026.10.15), Investing.com·IPOScoop 교차확인",
     },
 ]
 
@@ -1216,6 +1235,12 @@ THESIS_KO = {
         # 13F 원 주수 833,325 · 6/30 평가액 $14.1M · NVentures 투자 원금 비공개
         "83만주 보유 · 2026.02 나스닥 상장",
     ),
+    "IAM": (
+        "AI로 항암제 후보 물질을 설계하는 바이오텍",
+        "단백질과 약물이 어떻게 결합하는지 AI 모델(NeuralPLexer)로 예측해 신약 후보를 설계합니다. 엔비디아와는 모델을 엔비디아 하드웨어에 최적화하는 기술 협력을 하고, 이 모델 특허 일부를 공동 소유합니다. 2026년 10월 나스닥에 상장했습니다.",
+        # 424B4 관계자 거래 표 · 시리즈 B $20M(2023) + B-4 $5M(2026) · 주식 병합 반영
+        "183만주 보유 · 원금 $25M · 2026.10 나스닥 상장",
+    ),
     "SPCX": (
         "일론 머스크의 우주 기업. 엔비디아 xAI 투자가 지분 전환으로 이어진 케이스",
         "2026년 1월 엔비디아가 참여한 xAI 시리즈E($20B) 투자가, 2월 SpaceX의 xAI 인수합병으로 SpaceX Class A 주식으로 전환됐습니다. 6월 나스닥 상장 이후 엔비디아 2번째로 큰 보유 종목이 됐습니다.",
@@ -1301,6 +1326,11 @@ THESIS_EN = {
         "NVIDIA's venture arm NVentures backed it at an early stage. Listed on Nasdaq in February 2026, with multiple pipelines (asthma, oncology) in clinical trials.",
         "833,325 shares · $14.1M as of 6/30 · NVentures investment amount not disclosed · 2026.02 Nasdaq listing",
     ),
+    "IAM": (
+        "A biotech designing cancer drug candidates with AI",
+        "Its AI model (NeuralPLexer) predicts how proteins and drug molecules bind, to design new drug candidates. NVIDIA collaborates on optimizing the models for NVIDIA hardware and co-owns part of the model's patent portfolio. Listed on Nasdaq in October 2026.",
+        "1,827,692 shares · $25M invested · 2026.10 Nasdaq listing",
+    ),
     "SPCX": (
         "Elon Musk's space company. NVIDIA's xAI bet that converted into an equity stake",
         "NVIDIA's January 2026 participation in xAI's $20B Series E converted into SpaceX Class A shares when SpaceX acquired xAI in February. Since SpaceX's June Nasdaq listing, it's become NVIDIA's 2nd-largest holding.",
@@ -1313,6 +1343,9 @@ THESIS_EN = {
 # IPO·SC 13G 등 13F가 아닌 이벤트는 quarter를 아예 생략 — filed(사건 발생일)만 표시.
 # 두 종류를 섞어서 quarter를 채우면 "Q2인데 8월?" 식으로 독자가 오독함(2026-08-17 확인).
 FILINGS_HISTORY = [
+    # Iambic 나스닥 상장(2026-10-15) — 13F 대상 아님(상장 전 사모 투자). 424B4 관계자 거래 표 원문:
+    # 시리즈 B 1,536,034주 $20.0M + B-4 291,658주 $5.0M, 주식 병합 반영.
+    {"ticker":"IAM", "company":"Iambic Therapeutics", "filed":"2026-10-15","change":"나스닥 상장 · 1,827,692주 (시리즈 B·B-4 $25M)", "change_eng":"Nasdaq IPO · 1,827,692 shares (Series B & B-4, $25M)", "change_type":"new","value_m":25.0},
     # MediaTek 해외 전환사채(2026-08-31 발표) — 13F 대상 아님(대만 상장, 사채 인수). 발표일은
     # MediaTek 공식 X 게시물 시각으로 확정. 전환 조건은 TrendForce 단독, MOPS 원문 미열람.
     {"ticker":"2454.TW", "company":"MediaTek",       "filed":"2026-08-31","change":"해외 전환사채 · 무이자 5년", "change_eng":"Overseas convertible bonds · 0% coupon, 5-year", "change_type":"new","value_m":3500.0},
