@@ -32,11 +32,13 @@ jobs:
           BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           REPO: ${{ github.repository }}
+          RUN_ID: ${{ github.run_id }}
         run: |
           RESULT=$(cat check_result.txt 2>/dev/null || echo "상세 오류 파일 없음")
           NOW=$(date -u '+%Y-%m-%d %H:%M UTC')
-          MSG="$(printf '📊 *NVIDIA Tracker — 데이터 이상 감지*\n\n⏰ %s\n\n%s\n\n🔍 [Actions 로그](https://github.com/%s/actions)' "$NOW" "$RESULT" "$REPO")"
-          curl -s -X POST "https://api.telegram.org/bot${BOT_TOKEN}/sendMessage" \
+          # 일반 텍스트로 보낸다(parse_mode 없음) — 예외 문구에 _나 *가 섞여도 발송이 거절되지 않는다.
+          MSG="$(printf '📊 NVIDIA Tracker — 데이터 이상 감지\n\n⏰ %s\n\n%s\n\n🔍 https://github.com/%s/actions/runs/%s' "$NOW" "$RESULT" "$REPO" "$RUN_ID")"
+          curl -sS --fail-with-body -X POST "https://api.telegram.org/bot${BOT_TOKEN}/sendMessage" \
             -d "chat_id=${CHAT_ID}" \
             --data-urlencode "text=${MSG}" \
-            -d "parse_mode=Markdown"
+            -d "disable_web_page_preview=true"
