@@ -3,32 +3,35 @@ NVIDIA Portfolio Tracker — Daily market-close data check
 Runs via GitHub Actions after US market close (weekdays).
 Exits with code 1 if any ticker has stale or missing data.
 """
+import os
+import re
 import yfinance as yf
 import sys
 from datetime import date
 
-# Active holdings only (exited positions excluded)
-TICKERS = [
-    ("IREN",   "IREN Ltd"),
-    ("GLW",    "Corning"),
-    ("MRVL",   "Marvell Technology"),
-    ("LITE",   "Lumentum Holdings"),
-    ("COHR",   "Coherent Corp"),
-    ("INTC",   "Intel"),
-    ("SNPS",   "Synopsys"),
-    ("NOK",    "Nokia"),
-    ("CRWV",   "CoreWeave"),
-    ("NBIS",   "Nebius Group"),
-    ("6954.T", "FANUC"),   # Tokyo Stock Exchange — closes earlier, data still valid
-]
+from fetch_market_data import TICKERS as SNAPSHOT_TICKERS
+
+
+def load_names():
+    """app.py 종목 데이터의 ticker → name. 메시지 표시용."""
+    app_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "app.py")
+    with open(app_path, encoding="utf-8") as f:
+        src = f.read()
+    return dict(re.findall(r'"ticker"\s*:\s*"([^"]+)"\s*,\s*"name"\s*:\s*"([^"]+)"', src))
+
+
+# 스냅샷이 받는 종목 그대로 = 앱 화면에 나오는 종목(청산 카드 포함). 예전엔 11개를
+# 손으로 적어 앱의 23개 중 12개(Naver, MediaTek, PLTR 등)를 안 보고 있었다.
+_NAMES = load_names()
+TICKERS = [(tk, _NAMES.get(tk, tk)) for tk in SNAPSHOT_TICKERS]
 
 MAX_STALE_DAYS = 4  # 미국 종목용. 최장 공백이 목요일 휴장 → 월요일 = 4일
 
 # 해외 종목은 달력이 아니라 '자기 시장'과 비교한다. 도쿄가 09-19~23 닷새 휴장
 # (실버위크)했을 때 FANUC의 마지막 데이터가 정직하게 5일 전이었는데 달력 기준
 # 4일에 걸려 오탐 경보가 나갔다. 종목이 시장 대표 지수와 같은 날에 멈춰 있으면
-# 시장이 쉰 것이지 피드가 고장난 게 아니다.
-MARKET_REF = {".T": "^N225"}
+# 시장이 쉰 것이지 피드가 고장난 게 아니다. 한국(추석·설)과 대만(춘절)도 4일보다 길게 쉰다.
+MARKET_REF = {".T": "^N225", ".KS": "^KS11", ".TW": "^TWII"}
 
 # 시장 기준만 쓰면 한 가지가 안 보인다 — 그 나라 피드 전체가 멈추면 지수와
 # 종목이 같이 멈춰 '시장과 같음'으로 통과한다. 그걸 막는 절대 상한. 정확한 최장
@@ -98,11 +101,12 @@ def main():
                 print(f"⚠️  {ticker}: stale ({last_date}, {why})")
             elif price <= 0:
                 issue_lines.append(
-                    f"❌ {ticker} ({name}): 비정상 가격 (${price:.2f})"
+                    f"❌ {ticker} ({name}): 비정상 가격 ({price:,.2f})"
                 )
                 print(f"❌ {ticker}: bad price {price}")
             else:
-                ok_lines.append(f"✅ {ticker} {name} — ${price:.2f} ({last_date})")
+                # 통화가 섞여 있어(USD, KRW, TWD, JPY) 기호는 뺀다
+                ok_lines.append(f"✅ {ticker} {name} — {price:,.2f} ({last_date})")
                 print(f"✅ {ticker}: ${price:.2f} ({last_date})")
 
         except Exception as e:
