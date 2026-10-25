@@ -1,0 +1,46 @@
+name: 🩺 알람 주간 점검
+
+on:
+  schedule:
+    # 일요일 00:20 UTC = 09:20 KST 예약(실제로는 몇 시간 늦을 수 있음). 지난 일~토(KST)를 본다.
+    # 이 메시지가 일요일에 안 오면 그 자체가 신호다 — 예약 실행 전체가 멈췄을 수 있다.
+    - cron: '20 0 * * 0'
+  workflow_dispatch:
+    inputs:
+      end_date:
+        description: '점검 구간 끝(KST, YYYY-MM-DD, 그날 0시 직전까지 7일). 비우면 오늘.'
+        required: false
+        default: ''
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  weekly-health:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: 알람 점검과 발송
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          END_DATE: ${{ inputs.end_date }}
+        run: |
+          if [ -n "${END_DATE}" ]; then
+            python scripts/weekly_health.py --end "${END_DATE}"
+          else
+            python scripts/weekly_health.py
+          fi
