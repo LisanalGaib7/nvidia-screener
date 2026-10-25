@@ -83,7 +83,7 @@ def main():
         try:
             hist = yf.Ticker(ticker).history(period="5d")
             if hist.empty:
-                issue_lines.append(f"❌ **{ticker}** ({name}): 데이터 없음 (empty response)")
+                issue_lines.append(f"❌ {ticker} ({name}): 데이터 없음 (empty response)")
                 print(f"❌ {ticker}: no data")
                 continue
 
@@ -93,20 +93,20 @@ def main():
 
             if not fresh:
                 issue_lines.append(
-                    f"⚠️ **{ticker}** ({name}): 마지막 데이터 {last_date} ({why})"
+                    f"⚠️ {ticker} ({name}): 마지막 데이터 {last_date} ({why})"
                 )
                 print(f"⚠️  {ticker}: stale ({last_date}, {why})")
             elif price <= 0:
                 issue_lines.append(
-                    f"❌ **{ticker}** ({name}): 비정상 가격 (${price:.2f})"
+                    f"❌ {ticker} ({name}): 비정상 가격 (${price:.2f})"
                 )
                 print(f"❌ {ticker}: bad price {price}")
             else:
-                ok_lines.append(f"✅ `{ticker}` {name} — **${price:.2f}** ({last_date})")
+                ok_lines.append(f"✅ {ticker} {name} — ${price:.2f} ({last_date})")
                 print(f"✅ {ticker}: ${price:.2f} ({last_date})")
 
         except Exception as e:
-            issue_lines.append(f"❌ **{ticker}** ({name}): 예외 발생 — {str(e)[:120]}")
+            issue_lines.append(f"❌ {ticker} ({name}): 예외 발생 — {str(e)[:120]}")
             print(f"❌ {ticker}: exception — {e}")
 
     # Summary
@@ -114,10 +114,11 @@ def main():
     print(f"\n{total}개 종목 중 {len(ok_lines)}개 정상 / {len(issue_lines)}개 이상")
 
     if issue_lines:
-        body  = f"### 이상 감지 ({len(issue_lines)}/{total})\n\n"
+        # 텔레그램에 일반 텍스트로 나간다 — 서식 기호를 쓰지 않는다.
+        body  = f"이상 감지 ({len(issue_lines)}/{total})\n\n"
         body += "\n".join(issue_lines)
-        body += "\n\n---\n\n### 정상 종목\n\n"
-        body += "\n".join(ok_lines) if ok_lines else "_없음_"
+        body += "\n\n정상 종목\n\n"
+        body += "\n".join(ok_lines) if ok_lines else "없음"
 
         with open("check_result.txt", "w", encoding="utf-8") as f:
             f.write(body)
