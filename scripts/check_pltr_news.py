@@ -103,6 +103,9 @@ NEGATIVE = [
     # 남의 회사가 팔란티어 방식을 따라 한다는 기사("SAP Taps Palantir-Style Strike Teams")
     "palantir-style", "palantir-like",
     "jim cramer",
+    # SEC 내부자 공시 알림("Form 4 Palantir Technologies Inc For: 17 October By Investing.com").
+    # 기사가 아니다. 10-08~24 발송 2건. 뒤 공백으로 "Form 40-F" 등과 구분한다.
+    "form 4 ", "form 144 ",
 ]
 
 # 주가 논평이 본업인 매체. 이 레인은 POSITIVE 게이트가 없어 NEGATIVE 문구가
@@ -118,6 +121,10 @@ STOCK_COMMENTARY = [
     # 10-05 추가. 7일 풀에서 이 매체들만 다룬 사건 0건. tradersunion은 RSS 표기가
     # "tradersunion.com"이라 위의 "traders union"에 안 걸리고 있었다.
     "tradersunion", "insider monkey", "tradingkey", "pluang", "kalkine", "quiver",
+    # 10-25 추가. 10-08~24 발송 151건 중 12건(8%)이 이 매체의 주간 정리·논평이었고,
+    # 이 매체만 다룬 사건은 0건(3분기 발표일은 Palantir IR, UK 계약은 10-08 다른 매체).
+    # 출처 표기가 "ad-hoc-news.de"와 "AD HOC NEWS" 둘 다 관측됐다.
+    "ad-hoc-news", "ad hoc news",
 ]
 
 # 섹션 — 앞에서부터 보고 terms가 빈 항이 catch-all.
@@ -158,7 +165,13 @@ POLICY_RULE = [t for t in POLICY if t != "union"] + """ice protests protester pr
 motion unions lawsuits sue probe inquiry regulator criticising critics scandal lobbyist lobbying
 threatening fears concerns bans banned scrap scraps cancel cancels cancelled cancellation evict
 evicting senators lawmakers mp mps questioned dhs deportation strike urge warned purge activists
-object objections oppose opposition halt""".split() + [
+object objections oppose opposition halt
+rejected rejects rejecting reject controversial dangerous fighting
+terminate terminates terminated termination""".split() + [
+    # 10-25 추가(위 두 줄과 아래 두 구). 10-08~24 발송 151건에 다시 적용해 8건이 옮겨 갔고
+    # 8건 모두 맞았다 — "NHS trusts에서 거절", "스위스군 5번 거절", "NHS 계약을 끝내라" 등이
+    # '그 외'나 계약 칸에 있었다.
+    "cut links", "out of the nhs",
     "day of action", "to end", "must end", "end its", "kick out", "tear up",
     "replace palantir", "trade union", "nurses union", "cut ties", "hands off"]
 RIVAL_STRONG = ["answer to palantir", "alternative to palantir", "alternative", "alternatives",
