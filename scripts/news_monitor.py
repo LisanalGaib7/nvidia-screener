@@ -849,6 +849,10 @@ def run_monitor(cfg):
     # 무엇이 왜 막혔는지 남긴다. 예전엔 건수만 찍혀서 "ipo" 한 단어가 사건을
     # 삼켜도 2주간 아무도 몰랐다. 제목과 공유 토큰을 보면 오판인지 바로 보인다.
     drop = KEY_NOISE | run_common | set(cfg.key_ignore)
+    # 공유 키가 이번 수집분 몇 건에 나오나 — 계측용. 'microsoft'처럼 여러 사건에 두루
+    # 나오는 이름이 한 단어 키로 다른 사건을 막는다(NVIDIA 10-08~24, 37건 중 약 5건).
+    # 제목 유사도로는 안 갈린다. 빈도 기준을 정할 근거를 쌓는다.
+    pool = [re.sub(r"[^0-9a-z가-힣]", "", it["title"].lower()) for it in items]
     fresh = []
     for m in deduped:
         hit = _sent_match(m, state, now, drop, None if in_run_only else sim, single)
@@ -857,7 +861,9 @@ def run_monitor(cfg):
             continue
         e, shared = hit
         print(f"  (이미 보냄) {m['headline'][:90]}")
-        print(f"       ↳ 공유 {sorted(shared)} ← {e.get('title', '')[:80]}")
+        freq = [k if k.startswith("(") else f"{k} {sum(k in p for p in pool)}/{len(pool)}"
+                for k in sorted(shared)]
+        print(f"       ↳ 공유 {freq} ← {e.get('title', '')[:80]}")
     if cfg.state_file and len(fresh) < len(deduped):
         print(f"  (이미 보낸 {len(deduped) - len(fresh)}건 제외)")
     deduped = fresh
