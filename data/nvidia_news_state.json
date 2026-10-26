@@ -1347,7 +1347,23 @@
     "tesla"
    ],
    "ts": "2026-10-25T02:20:52.319755+00:00"
+  },
+  {
+   "title": "nvidia corporation $nvda stock acquired by mcf advisors llc",
+   "key": [
+    "advisors",
+    "mcf"
+   ],
+   "ts": "2026-10-26T02:20:57.514917+00:00"
+  },
+  {
+   "title": "nvidia corporation $nvda stake trimmed by rench wealth management inc",
+   "key": [
+    "rench",
+    "trimmed"
+   ],
+   "ts": "2026-10-26T02:20:57.514917+00:00"
   }
  ],
- "last_run": "2026-10-25T02:20:52.319755+00:00"
+ "last_run": "2026-10-26T02:20:57.514917+00:00"
 }
