@@ -6,7 +6,7 @@ import plotly.express as px
 import re
 import time
 import html
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 from concurrent.futures import ThreadPoolExecutor
 
 st.set_page_config(
@@ -71,6 +71,19 @@ TRANSLATIONS = {
     "news_none":            {"KOR": "뉴스 없음",                     "ENG": "No news found"},
     # 알림 배너
     "alert_title":          {"KOR": "최신 투자 알림",                 "ENG": "Latest Investment Alerts"},
+    # 첫 화면 헤드라인과 올해 투자 카드(HERO_V2)
+    "yi_kicker":            {"KOR": "SEC 13F와 공시 원문 기준",        "ENG": "From SEC 13F filings and primary disclosures"},
+    "yi_title":             {"KOR": "{year}년 상장사 투자 {total}",    "ENG": "{year} public-company commitments: {total}"},
+    "yi_deck":              {"KOR": "공개된 약정 {n}건 중 {amt}가 {cat} 분야 {names}에 들어갔습니다.",
+                             "ENG": "Of {n} disclosed commitments, {amt} went to {cat}: {names}."},
+    "yi_by_cat":            {"KOR": "분야별",                        "ENG": "By sector"},
+    "yi_by_cat_sub":        {"KOR": "{year}년 공개 약정 {n}건",        "ENG": "{n} disclosed commitments in {year}"},
+    "yi_timeline":          {"KOR": "타임라인",                       "ENG": "Timeline"},
+    "yi_timeline_sub":      {"KOR": "점 색은 분야, 크기는 약정액",        "ENG": "Dot color = sector, size = amount"},
+    "yi_timeline_sub_m":    {"KOR": "색은 분야",                      "ENG": "Color = sector"},
+    "yi_each":              {"KOR": "각 {amt}",                      "ENG": "{amt} each"},
+    "yi_note":              {"KOR": "원금이 비공개인 투자는 빠져 있습니다: {names}.",
+                             "ENG": "Investments with undisclosed amounts are not shown: {names}."},
     # 13F 탭
     "filings_title":        {"KOR": "NVIDIA 13F 공시 히스토리",       "ENG": "NVIDIA 13F Filing History"},
     "filings_caption":      {"KOR": "SEC EDGAR 13F 기반 · 글로벌 주요 언론 교차검증 · 미확인 항목은 별도 표기",
@@ -299,6 +312,50 @@ st.markdown("""
   .alert-date  { color: #828a94; font-size: 0.72rem; min-width: 82px; flex-shrink: 0; font-variant-numeric: tabular-nums; }
   .alert-co    { color: #f0f1ef; font-weight: 600; }
   .alert-desc  { color: #9aa3b0; }
+
+  /* ── 첫 화면 헤드라인 + 올해 투자 카드 (HERO_V2) — 값은 DESIGN.md 토큰만 ── */
+  .yi-hero { display: flex; flex-direction: column; gap: 8px; max-width: 860px; margin: 4px 0 24px; }
+  .yi-kicker { color: #828a94; font-size: 12px; }
+  .yi-hero-title { margin: 0; color: #f0f1ef; font-size: 32px; font-weight: 600; letter-spacing: -0.5px; line-height: 1.25; }
+  .yi-hero-title .yi-amt { color: #c87f00; }
+  .yi-deck { margin: 0; color: #9aa3b0; font-size: 15px; line-height: 1.6; }
+  .yi-card { background: #0e0e0e; border: 1px solid #2a2d33; border-radius: 6px; padding: 16px 24px 20px;
+             display: flex; flex-direction: column; gap: 16px; margin-bottom: 24px; }
+  .yi-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px; }
+  .yi-h { margin: 0; color: #f0f1ef; font-size: 15px; font-weight: 600; }
+  .yi-sub { color: #828a94; font-size: 12px; }
+  .yi-bar { display: flex; height: 16px; border-radius: 3px; overflow: hidden; gap: 4px; }
+  .yi-bar > div { min-width: 4px; }
+  .yi-row { display: grid; grid-template-columns: 12px minmax(0, 150px) 64px 44px minmax(0, 1fr); gap: 12px;
+            align-items: baseline; padding: 8px 0; border-bottom: 1px solid #1a1a1a; font-size: 13px; }
+  .yi-sw { width: 10px; height: 10px; border-radius: 3px; align-self: center; }
+  .yi-cat { color: #f0f1ef; font-weight: 600; }
+  .yi-num { color: #c87f00; text-align: right; }
+  .yi-pct { color: #828a94; text-align: right; }
+  .yi-mem { color: #9aa3b0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .yi-tl { border-top: 1px solid #2a2d33; padding-top: 16px; display: flex; flex-direction: column; gap: 8px; }
+  .yi-zone { position: relative; }
+  .yi-axis { position: relative; height: 1px; background: #2a2d33; }
+  .yi-tick { position: absolute; top: -3px; width: 1px; height: 7px; background: #2a2d33; }
+  .yi-dot { position: absolute; top: 0; border-radius: 50%; transform: translate(-50%, -50%); box-shadow: 0 0 0 3px #0e0e0e; }
+  .yi-ev { position: absolute; display: flex; flex-direction: column; }
+  .yi-ev.up { bottom: 0; } .yi-ev.down { top: 0; }
+  .yi-ev.c { transform: translateX(-50%); align-items: center; }
+  .yi-ev.s { align-items: flex-start; }
+  .yi-ev.e { transform: translateX(-100%); align-items: flex-end; }
+  .yi-stem { flex-grow: 1; width: 1px; background: #2a2d33; }
+  .yi-lab { white-space: nowrap; line-height: 1.35; }
+  .yi-ev.c .yi-lab { text-align: center; } .yi-ev.e .yi-lab { text-align: right; }
+  .yi-lab b { display: block; color: #f0f1ef; font-size: 13px; font-weight: 600; }
+  .yi-lab span { color: #c87f00; font-size: 12px; }
+  .yi-lab i { color: #828a94; font-style: normal; }
+  .yi-month { position: absolute; color: #828a94; font-size: 11px; }
+  .yi-note { color: #828a94; font-size: 11px; }
+  .yi-list { display: flex; flex-direction: column; }
+  .yi-li { display: grid; grid-template-columns: 44px 12px minmax(0, 1fr) auto; gap: 8px; align-items: baseline;
+           padding: 8px 0; border-bottom: 1px solid #1a1a1a; font-size: 13px; }
+  .yi-li .yi-d { color: #828a94; font-size: 12px; }
+  .yi-li .yi-n { color: #f0f1ef; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
   /* ── 배지 ── */
   .badge-core    { background: transparent; color: #4a90d9; border: 1px solid #1e3a5f;
@@ -755,6 +812,11 @@ st.markdown("""
     .alert-title  { font-size: 0.62rem; }
     .alert-item   { font-size: 0.76rem; gap: 8px; }
     .alert-date   { font-size: 0.65rem; min-width: 66px; }
+    .yi-hero-title { font-size: 26px; }
+    .yi-deck       { font-size: 13px; }
+    .yi-card       { padding: 12px 16px 16px; }
+    .yi-row        { grid-template-columns: 12px minmax(0, 1fr) 56px 40px; }
+    .yi-row .yi-mem { display: none; }
 
 
     /* 메트릭 카드 4개 → 2×2 */
@@ -2477,6 +2539,171 @@ if VISITOR_BADGE:
         + '</span>')
 ), height=0)
 
+# 모바일/데스크톱 분기(서버측 user-agent → 깜빡임 없음). 범례 위치, 올해 투자 카드 모양 등에 사용.
+try:
+    _ua = st.context.headers.get("User-Agent", "")
+except Exception:
+    _ua = ""
+is_mobile = any(k in _ua for k in ["Mobile", "Android", "iPhone", "iPad"])
+
+# ── 첫 화면 헤드라인 + 올해 투자 카드 (HERO_V2) ─────────────────────────────────
+# 첫 화면이 "어느 대시보드에나 있는 틀"로 보이던 문제(2026-10-27 리뷰) — 올해 무엇에 걸었나를
+# 한 문장과 그림으로 먼저 보여 준다. 숫자는 전부 실행 시점 집계(하드코딩 금지).
+#   • 약정액(invest_amt_m)만 쓴다. 13F 평가액(fmv_m)과 섞지 않는다(원금 비공개 건은 각주로).
+#   • 분야는 SECTOR_GROUP·CAT_COLORS 그대로(SSOT) — Sectors 탭과 같은 분야는 같은 색.
+#   • 사이드바 필터와 무관하게 보유 종목 전체(NEW_2026 + CURRENT_HOLDINGS) 기준.
+#   • 롤백: HERO_V2 = False 한 줄이면 이전 화면.
+HERO_V2 = True
+
+_NAME_SUFFIX = re.compile(r"\s+(Holdings|Corp\.?|Corporation|Technology|Technologies|Inc\.?|Ltd\.?|Group|Therapeutics)$")
+
+
+def _short_name(name):
+    return _NAME_SUFFIX.sub("", name)
+
+
+def _fmt_amt(m):
+    return f"${m/1000:.1f}B" if m >= 1000 else f"${m:.0f}M"
+
+
+def _year_invest(today=None):
+    """올해(없으면 작년) 공개 약정 집계. 반환: dict 또는 None."""
+    today = today or date.today()
+    held = NEW_2026 + CURRENT_HOLDINGS
+    for year in (today.year, today.year - 1):
+        items, hidden = [], []
+        for c in held:
+            d = c.get("invest_date", "")
+            if not d.startswith(str(year)):
+                continue
+            try:
+                dt = datetime.strptime(d, "%Y-%m-%d").date()
+            except ValueError:
+                continue
+            if c.get("invest_amt_m"):
+                items.append((dt, c))
+            else:
+                hidden.append(c)
+        if items:
+            break
+    else:
+        return None
+    total = sum(c["invest_amt_m"] for _, c in items)
+    cats = {}
+    for _, c in items:
+        g = SECTOR_GROUP.get(c["sector"], c["sector"])
+        cats.setdefault(g, []).append(c)
+    cats = sorted(cats.items(), key=lambda kv: -sum(c["invest_amt_m"] for c in kv[1]))
+    # 같은 날 들어간 투자는 점 하나로 — 이름표가 정확히 겹친다
+    by_day = {}
+    for dt, c in sorted(items, key=lambda x: x[0]):
+        by_day.setdefault(dt, []).append(c)
+    events = [(dt, cs) for dt, cs in by_day.items()]
+    # 축 끝 = 작년이면 12-31, 올해면 이번 달 말일
+    nxt = date(year + (today.month == 12), today.month % 12 + 1, 1)
+    end = date(year, 12, 31) if year < today.year else nxt - timedelta(days=1)
+    end = max(end, max(dt for dt, _ in events))
+    return {"year": year, "total": total, "n": len(items), "cats": cats, "events": events,
+            "hidden": hidden, "start": date(year, 1, 1), "end": end}
+
+
+def _hero_html(yi):
+    top_cat, top_cs = yi["cats"][0]
+    top_cs = sorted(top_cs, key=lambda c: -c["invest_amt_m"])
+    names = ", ".join(_short_name(c["name"]) for c in top_cs)
+    title = t("yi_title").format(year=yi["year"], total=f'<span class="yi-amt">{_fmt_amt(yi["total"])}</span>')
+    deck = t("yi_deck").format(n=yi["n"], amt=_fmt_amt(sum(c["invest_amt_m"] for c in top_cs)),
+                               cat=cat_name(top_cat), names=names)
+    return (f'<div class="yi-hero"><div class="yi-kicker">{t("yi_kicker")}</div>'
+            # h1/h2 태그는 전역 h1 규칙(1.7rem !important)과 Streamlit 앵커 링크가 붙어서 div + role로
+            f'<div class="yi-hero-title" role="heading" aria-level="1">{title}</div><p class="yi-deck">{deck}</p></div>')
+
+
+def _timeline_desktop(yi):
+    span = (yi["end"] - yi["start"]).days or 1
+    pos = lambda dt: (dt - yi["start"]).days / span * 100
+    # 이름표 겹침: 위·아래를 번갈아 쓰고, 같은 쪽에서 앞 이름표와 겹치면 한 줄 올린다.
+    # 폭은 1000px 기준 추정(13px 이름 한 글자 약 7px) — 좁은 데스크톱에선 살짝 붙을 수 있음.
+    last = {"up": [-99, -99], "down": [-99, -99]}
+    ups, downs, dots = [], [], []
+    for i, (dt, cs) in enumerate(yi["events"]):
+        side = "up" if i % 2 == 0 else "down"
+        x = pos(dt)
+        name = ", ".join(_short_name(c["name"]) for c in cs)
+        amts = {c["invest_amt_m"] for c in cs}
+        amt = (t("yi_each").format(amt=_fmt_amt(cs[0]["invest_amt_m"])) if len(cs) > 1 and len(amts) == 1
+               else _fmt_amt(sum(c["invest_amt_m"] for c in cs)))
+        half = (max(len(name), len(amt) + 6) * 7 + 8) / 2 / 10   # % 단위
+        lane = 0 if x - half > last[side][0] else 1 if x - half > last[side][1] else 0
+        last[side][lane] = x + half
+        mode = "s" if x < half else "e" if x > 100 - half else "c"
+        h = (56 if lane == 0 else 108) if side == "up" else (48 if lane == 0 else 96)
+        lab = f'<div class="yi-lab"><b>{name}</b><span>{amt} <i>{dt:%m-%d}</i></span></div>'
+        stem = f'<div class="yi-stem" style="margin-{"top" if side == "up" else "bottom"}:4px"></div>'
+        body = lab + stem if side == "up" else stem + lab
+        (ups if side == "up" else downs).append(
+            f'<div class="yi-ev {side} {mode}" style="left:{x:.1f}%;height:{h}px">{body}</div>')
+        fill = CAT_COLORS.get(SECTOR_GROUP.get(cs[0]["sector"], cs[0]["sector"]), "#828a94")
+        b = sum(c["invest_amt_m"] for c in cs) / 1000
+        dots.append((b, f'<div class="yi-dot" style="left:{x:.1f}%;width:{round(8+b*4)}px;'
+                        f'height:{round(8+b*4)}px;background:{fill}"></div>'))
+    dots = "".join(d for _, d in sorted(dots, key=lambda x: -x[0]))   # 큰 점부터 깔고 작은 점을 위에
+    months, ticks = [], []
+    m = date(yi["start"].year, 1, 1)
+    while m <= yi["end"]:
+        x = pos(m)
+        label = f"{m.month}월" if st.session_state.lang == "KOR" else m.strftime("%b")
+        months.append(f'<div class="yi-month" style="left:{x:.1f}%">{label}</div>')
+        ticks.append(f'<div class="yi-tick" style="left:{x:.1f}%"></div>')
+        m = date(m.year + (m.month == 12), m.month % 12 + 1, 1)
+    up_h = 168 if ups else 8
+    down_h = 144 if any("height:96px" in d for d in downs) else 92 if downs else 8
+    return (f'<div class="yi-zone" style="height:{up_h}px">{"".join(ups)}</div>'
+            f'<div class="yi-axis">{"".join(ticks)}{dots}</div>'
+            f'<div class="yi-zone" style="height:{down_h}px">{"".join(downs)}</div>'
+            f'<div class="yi-zone" style="height:16px">{"".join(months)}</div>')
+
+
+def _timeline_mobile(yi):
+    rows = []
+    for dt, cs in yi["events"]:
+        for c in cs:
+            fill = CAT_COLORS.get(SECTOR_GROUP.get(c["sector"], c["sector"]), "#828a94")
+            rows.append(f'<div class="yi-li"><span class="yi-d">{dt:%m-%d}</span>'
+                        f'<span class="yi-sw" style="background:{fill}"></span>'
+                        f'<span class="yi-n">{_short_name(c["name"])}</span>'
+                        f'<span class="yi-num">{_fmt_amt(c["invest_amt_m"])}</span></div>')
+    return f'<div class="yi-list">{"".join(rows)}</div>'
+
+
+def _year_card_html(yi):
+    bar, rows = [], []
+    for g, cs in yi["cats"]:
+        amt = sum(c["invest_amt_m"] for c in cs)
+        share = amt / yi["total"] * 100
+        fill = CAT_COLORS.get(g, "#828a94")
+        pct = f"{share:.0f}%" if share >= 1 else f"{share:.1f}%"
+        bar.append(f'<div style="width:{share:.2f}%;background:{fill}"></div>')
+        members = ", ".join(_short_name(c["name"]) for c in sorted(cs, key=lambda c: -c["invest_amt_m"]))
+        rows.append(f'<div class="yi-row"><span class="yi-sw" style="background:{fill}"></span>'
+                    f'<span class="yi-cat">{cat_name(g)}</span><span class="yi-num">{_fmt_amt(amt)}</span>'
+                    f'<span class="yi-pct">{pct}</span><span class="yi-mem">{members}</span></div>')
+    tl = _timeline_mobile(yi) if is_mobile else _timeline_desktop(yi)
+    note = (f'<div class="yi-note">{t("yi_note").format(names=", ".join(_short_name(c["name"]) for c in yi["hidden"]))}</div>'
+            if yi["hidden"] else "")
+    return (f'<div class="yi-card">'
+            f'<div class="yi-head"><div class="yi-h" role="heading" aria-level="2">{t("yi_by_cat")}</div>'
+            f'<span class="yi-sub">{t("yi_by_cat_sub").format(year=yi["year"], n=yi["n"])}</span></div>'
+            f'<div class="yi-bar">{"".join(bar)}</div><div>{"".join(rows)}</div>'
+            f'<div class="yi-tl"><div class="yi-head"><div class="yi-h" role="heading" aria-level="2">{t("yi_timeline")}</div>'
+            f'<span class="yi-sub">{t("yi_timeline_sub_m" if is_mobile else "yi_timeline_sub")}</span></div>{tl}{note}</div>'
+            f'</div>')
+
+
+_yi = _year_invest() if HERO_V2 else None
+if _yi:
+    st.markdown(_hero_html(_yi), unsafe_allow_html=True)
+
 # ── 요약 지표 ─────────────────────────────────────────────────────────────────
 # 파트너십(지분 없음)은 수익률 집계에서 제외 — NVIDIA 실제 보유분 성과만 반영
 ytd_vals = [stock_data[c["ticker"]].get("ytd_pct")
@@ -2755,7 +2982,12 @@ for col, label, value, color, sub, extra_html in [
 # 지표 카드도, 알림 배너도 이미 자체 테두리 박스라 사이 구분선은 과했음(위 탭바 건과 동일 원인).
 st.markdown('<div style="height:26px"></div>', unsafe_allow_html=True)
 
-# ── 🚨 신규 투자 알림 배너 — 최근 5건 (첫 화면 위계: 헤더→요약 카드→알림 순으로 배치) ──
+# 올해 투자 카드 — 요약 카드와 알림 배너 사이(2026-10-27 결정: 배너는 유지하고 이 아래로).
+# 타임라인은 원금 공개 건만, 배너는 원금 비공개 건(SpaceX 등)까지 최근 5건이라 역할이 겹치지 않는다.
+if _yi:
+    st.markdown(_year_card_html(_yi), unsafe_allow_html=True)
+
+# ── 🚨 신규 투자 알림 배너 — 최근 5건 (첫 화면 위계: 헤더→요약 카드→올해 투자→알림 순으로 배치) ──
 all_investments = NEW_2026 + CURRENT_HOLDINGS + PARTNERSHIPS
 recent_5 = sorted(
     [c for c in all_investments if c.get("alert_date")],
@@ -2799,12 +3031,6 @@ active_tab = st.segmented_control(
 ) or "Portfolio"  # None(선택 해제) 가드 → 항상 한 탭 활성
 
 PLOTLY_CFG = {"displayModeBar": False, "scrollZoom": False, "doubleClick": False}  # 툴바·줌 비활성(터치 시 의도치 않은 zoom 방지)
-# 모바일/데스크톱 분기(서버측 user-agent → 깜빡임 없음). 범례 위치 등에 사용.
-try:
-    _ua = st.context.headers.get("User-Agent", "")
-except Exception:
-    _ua = ""
-is_mobile = any(k in _ua for k in ["Mobile", "Android", "iPhone", "iPad"])
 
 # ══ Tab 1 ════════════════════════════════════════════════════════════════════
 # 탭 본문을 active_tab-keyed 컨테이너로 감싸 매 전환마다 강제 remount →
