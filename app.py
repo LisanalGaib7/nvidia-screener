@@ -2215,6 +2215,10 @@ show_partner = "partner" in _view
 show_exited  = "exited" in _view
 
 # ── 데이터 로드 ───────────────────────────────────────────────────────────────
+# 두 범위 (2026-10-28): BASE = 요약 카드·Performance·News가 보는 고정 범위(보유 + 파트너십).
+# all_display = Portfolio 표가 보는 칩 결과. 칩은 Portfolio 탭 안에만 있으므로, 칩이 안 보이는
+# 화면까지 바꾸면 숨은 상태가 된다 — 그래서 나머지는 고정.
+BASE = NEW_2026 + CURRENT_HOLDINGS + PARTNERSHIPS
 all_display = []
 if show_current: all_display += NEW_2026 + CURRENT_HOLDINGS
 if show_partner: all_display += PARTNERSHIPS
@@ -2224,7 +2228,8 @@ if show_exited:  all_display += [
     for e in EXITED
 ]
 
-tickers = [c["ticker"] for c in all_display]
+# 시세는 두 범위의 합집합만 — 청산 종목은 칩을 켰을 때만 더 부른다(Finnhub 호출 수)
+tickers = list(dict.fromkeys(c["ticker"] for c in BASE + all_display))
 with st.spinner(t("loading")):
     # 1순위: 일일 스냅샷(JSON) — Yahoo rate-limit 회피. 없으면 live fetch 로 fallback.
     _snapshot = load_market_data()
@@ -2764,8 +2769,9 @@ _yi = _year_invest() if HERO_V2 else None
 if _yi:
     st.markdown(_hero_html(_yi), unsafe_allow_html=True)
 
-# ── 보기 칩 + 정렬 (사이드바에서 옮김, 2026-10-27) ──────────────────────────────
-# 요약 카드와 표가 둘 다 이 선택을 따르므로 카드 바로 위에 둔다.
+# ── 보기 칩 + 정렬 (사이드바에서 옮김, 2026-10-27 → Portfolio 탭 안으로 2026-10-28) ────────
+# 둘 다 Portfolio 표만 바꾸므로 그 표 바로 위에서 그린다(_view_bar, 아래 Portfolio 분기).
+# 요약 카드 위에 뒀을 땐 칩이 보이지 않는 탭(Performance·News)까지 바꿔 숨은 상태가 됐다.
 _view_counts = {"current": len(NEW_2026) + len(CURRENT_HOLDINGS),
                 "partner": len(PARTNERSHIPS), "exited": len(EXITED)}
 _view_names = {"current": t("chip_current"), "partner": t("sb_partner"), "exited": t("sb_exited")}
@@ -2779,30 +2785,34 @@ def _keep_sort(k):
 
 # 위젯 키에 언어를 붙인다 — 같은 키로 표시 문자열만 바뀌면 화면이 이전 언어 표시와 이전 선택을
 # 그대로 들고 있었다(실측). 언어마다 새 위젯을 만들고 값은 view_sel·sort_sel에서 이어받는다.
-_lk = st.session_state.lang
-with st.container(key="view_bar"):
-    _vc1, _vc2 = st.columns([5, 2])
-    with _vc1:
-        st.pills(t("chip_view"), VIEW_KEYS, selection_mode="multi", default=st.session_state.view_sel,
-                 format_func=lambda k: f"{_view_names[k]}  {_view_counts[k]}",
-                 key=f"view_chips_{_lk}", label_visibility="collapsed",
-                 on_change=_keep_view, args=(f"view_chips_{_lk}",))
-    with _vc2:
-        st.selectbox(t("sb_sort"), SORT_KEYS, index=SORT_KEYS.index(st.session_state.sort_sel),
-                     key=f"sort_by_{_lk}", label_visibility="collapsed",
-                     on_change=_keep_sort, args=(f"sort_by_{_lk}",),
-                     format_func=lambda k: f"{t('chip_sort')} · {t('sb_sort_' + k)}")
+def _view_bar():
+    # 탭을 바꾸면 이 위젯은 안 그려져 Streamlit이 상태를 지운다 — 값은 view_sel·sort_sel에서 이어받음
+    _lk = st.session_state.lang
+    with st.container(key="view_bar"):
+        _vc1, _vc2 = st.columns([5, 2])
+        with _vc1:
+            st.pills(t("chip_view"), VIEW_KEYS, selection_mode="multi", default=st.session_state.view_sel,
+                     format_func=lambda k: f"{_view_names[k]}  {_view_counts[k]}",
+                     key=f"view_chips_{_lk}", label_visibility="collapsed",
+                     on_change=_keep_view, args=(f"view_chips_{_lk}",))
+        with _vc2:
+            st.selectbox(t("sb_sort"), SORT_KEYS, index=SORT_KEYS.index(st.session_state.sort_sel),
+                         key=f"sort_by_{_lk}", label_visibility="collapsed",
+                         on_change=_keep_sort, args=(f"sort_by_{_lk}",),
+                         format_func=lambda k: f"{t('chip_sort')} · {t('sb_sort_' + k)}")
+
+
 # 표 정렬 코드는 번역된 라벨과 비교한다 — 그 계약을 유지
 sort_by = t("sb_sort_" + st.session_state.sort_sel)
 
 # ── 요약 지표 ─────────────────────────────────────────────────────────────────
 # 파트너십(지분 없음)은 수익률 집계에서 제외 — NVIDIA 실제 보유분 성과만 반영
 ytd_vals = [stock_data[c["ticker"]].get("ytd_pct")
-            for c in all_display
+            for c in BASE
             if c["badge"] != "partner"
             and stock_data.get(c["ticker"],{}).get("ytd_pct") is not None]
 avg_ytd = sum(ytd_vals)/len(ytd_vals) if ytd_vals else None
-total_invest = sum(c["invest_amt_m"] for c in all_display if c.get("invest_amt_m"))
+total_invest = sum(c["invest_amt_m"] for c in BASE if c.get("invest_amt_m"))
 
 avg_ytd_str   = f"{avg_ytd:+.1f}%" if avg_ytd else "—"
 invest_str    = f"${total_invest/1000:.1f}B+"
@@ -2810,7 +2820,7 @@ invest_str    = f"${total_invest/1000:.1f}B+"
 # 카드 부제 — 네 카드가 모두 같은 높이를 유지하도록 항상 채운다(빈 값이면 &nbsp;).
 # Streamlit 래퍼 중첩 때문에 height:100%로는 정렬이 안 잡혀서, 슬롯 자체를 상시 렌더링한다.
 _kor = st.session_state.lang == "KOR"
-_held = [c for c in all_display if c["badge"] not in ("partner", "exited")]
+_held = [c for c in BASE if c["badge"] not in ("partner", "exited")]
 _disc = sum(1 for c in _held if c.get("invest_amt_m"))
 holdings_sub = (f"파트너십 {len(PARTNERSHIPS)} · 청산 {len(EXITED)}" if _kor
                 else f"{len(PARTNERSHIPS)} partners · {len(EXITED)} exited")
@@ -2827,7 +2837,7 @@ else:
 # 지표가 상수였다(임계값을 15%로 올려도 0, 20%까지 올려야 2). 평균 낙폭으로 바꾸면
 # 매일 변하는 실수치가 되고, 옆 카드 '평균 YTD'와 수익률↔낙폭으로 짝을 이룬다.
 _near_high = []
-for c in all_display:
+for c in BASE:
     if c["badge"] in ("partner", "exited"):
         continue
     _sd = stock_data.get(c["ticker"], {})
@@ -3015,7 +3025,7 @@ for col, label, value, color, sub, extra_html in [
          f'{"$%.1fB" % (c["invest_amt_m"]/1000) if c["invest_amt_m"]>=1000 else "$%.0fM" % c["invest_amt_m"]}'
          f'</span></div>'
          for c in sorted(
-             [c for c in all_display if c.get("invest_amt_m") and c["badge"] != "exited"],
+             [c for c in BASE if c.get("invest_amt_m") and c["badge"] != "exited"],
              key=lambda x: x["invest_amt_m"], reverse=True
          )
      )
@@ -3023,7 +3033,7 @@ for col, label, value, color, sub, extra_html in [
          f'<div class="tooltip-row" style="opacity:0.6;font-size:0.68rem;margin-top:4px;border-top:1px solid #2a2d33;padding-top:6px">'
          f'{t("metric_invested_excl").format(n=len(_excl))}'
          f'</div>' if _excl else ''
-       ))([c for c in all_display if c["badge"] != "exited" and not c.get("invest_amt_m") and c.get("fmv_m")])
+       ))([c for c in BASE if c["badge"] != "exited" and not c.get("invest_amt_m") and c.get("fmv_m")])
      + '</div>'),
     (m3, t("metric_avg_ytd"), avg_ytd_str,  "#76b900",
      avg_ytd_sub,
@@ -3036,7 +3046,7 @@ for col, label, value, color, sub, extra_html in [
          f'{"▲" if ytd>=0 else "▼"}{abs(ytd):.1f}%</span></div>'
          for c, ytd in sorted(
              [(c, stock_data[c["ticker"]].get("ytd_pct"))
-              for c in all_display
+              for c in BASE
               if stock_data.get(c["ticker"],{}).get("ytd_pct") is not None
               and c["badge"] not in ("exited", "partner")],
              key=lambda x: x[1], reverse=True
@@ -3130,6 +3140,8 @@ PLOTLY_CFG = {"displayModeBar": False, "scrollZoom": False, "doubleClick": False
 _tab_body = st.container(key=f"tabbody{TAB_LABELS.index(active_tab)}")
 with _tab_body:
     if active_tab == "Portfolio":
+        _view_bar()
+
         def sort_key(c):
             sd = stock_data.get(c["ticker"],{})
             # 카드에 표시되는 값(약정액, 없으면 13F 평가액)과 정렬 기준을 일치시킴
@@ -3321,7 +3333,7 @@ with _tab_body:
             f'<div style="color:#f0f1ef;font-size:0.85rem;margin:-6px 0 10px">{_hint}</div>',
             unsafe_allow_html=True)
         # 파트너십(지분 없음)은 수익률 차트에서 제외 — NVIDIA 실제 보유분만
-        chart_items = [c for c in all_display
+        chart_items = [c for c in BASE
                        if c["badge"] != "partner"
                        and "error" not in stock_data.get(c["ticker"],{})]
         fig = go.Figure()
@@ -3382,7 +3394,7 @@ with _tab_body:
         st.plotly_chart(fig, use_container_width=True, config=PLOTLY_CFG)
 
         ytd_data = [{"ticker":disp_ticker(c["ticker"], c["name"]),"name":c["name"],"ytd":stock_data.get(c["ticker"],{}).get("ytd_pct")}
-                    for c in all_display
+                    for c in BASE
                     if c["badge"] != "partner"
                     and stock_data.get(c["ticker"],{}).get("ytd_pct") is not None]
         if ytd_data:
@@ -3469,10 +3481,10 @@ with _tab_body:
     elif active_tab == "News":
         st.markdown(f"### {t('news_title')}")
         st.caption(t("news_caption_live") if _live_meta.get("live") else t("news_caption"))
-        news_map = {c["ticker"]: f"{c['name']} ({disp_ticker(c['ticker'], c['name'])})" for c in all_display
+        news_map = {c["ticker"]: f"{c['name']} ({disp_ticker(c['ticker'], c['name'])})" for c in BASE
                     if "error" not in stock_data.get(c["ticker"],{})}
         sel_t = st.selectbox(t("news_stock"), list(news_map.keys()), format_func=lambda x: news_map[x])
-        sel_c = next((c for c in all_display if c["ticker"]==sel_t), None)
+        sel_c = next((c for c in BASE if c["ticker"]==sel_t), None)
         if sel_c:
             sd = stock_data.get(sel_t,{})
             _chg = sd.get("change_pct"); _ytd = sd.get("ytd_pct")
