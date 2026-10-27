@@ -665,14 +665,28 @@ st.markdown("""
   }
   /* 1.61(운영 고정 버전)은 baseweb select가 아니라 div[role=group] > input[role=combobox] 구조
      (2026-10-27 운영 DOM 실측). 위 규칙이 안 닿아 테마 바탕(#111827)과 8px 반경이 나왔음. 양쪽 병기. */
+  /* 높이 36px = 칩과 같게. 안쪽 input·button이 38px 고정이라 상자가 40px이 됐었다(운영 실측). */
   [class*="st-key-sort_by"] [data-testid="stSelectbox"] [role="group"] {
-    min-height: 36px !important; background: transparent !important;
+    height: 36px !important; min-height: 36px !important; align-items: center !important;
+    background: transparent !important;
     border: 1px solid #2a2d33 !important; border-radius: 6px !important; box-shadow: none !important;
   }
   [class*="st-key-sort_by"] [data-testid="stSelectbox"] [role="group"]:focus-within { border-color: #c3c9d1 !important; }
   [class*="st-key-sort_by"] input[role="combobox"] {
+    height: 34px !important; padding: 0 8px !important;
     color: #c3c9d1 !important; font-size: 13px !important; background: transparent !important;
   }
+  [class*="st-key-sort_by"] [data-testid="stSelectbox"] [role="group"] > button { height: 34px !important; }
+  /* "정렬" 머리말은 닫힌 상자에만 한 번 — 목록 항목마다 붙이면 소음이었다(2026-10-28 사용자 지적).
+     위젯 키에 언어가 붙어(sort_by_KOR/ENG) 정적 CSS로 언어별 글자를 줄 수 있다.
+     글자는 TRANSLATIONS["chip_sort"]와 같게 유지할 것. */
+  [class*="st-key-sort_by"] [role="group"]::before,
+  [class*="st-key-sort_by"] [data-baseweb="select"] > div::before {
+    padding-left: 12px; color: #828a94; font-size: 12px; white-space: nowrap; flex-shrink: 0;
+    align-self: center;
+  }
+  .st-key-sort_by_KOR [role="group"]::before, .st-key-sort_by_KOR [data-baseweb="select"] > div::before { content: "정렬"; }
+  .st-key-sort_by_ENG [role="group"]::before, .st-key-sort_by_ENG [data-baseweb="select"] > div::before { content: "Sort"; }
 
   /* ── 피드백 FAB ──────────────────────────────────────────────────────────
      이 화면은 카드가 폭을 꽉 채워 빈 모서리가 없다 — 어디에 둬도 겹친다(우하단 9/11,
@@ -2799,7 +2813,7 @@ def _view_bar():
             st.selectbox(t("sb_sort"), SORT_KEYS, index=SORT_KEYS.index(st.session_state.sort_sel),
                          key=f"sort_by_{_lk}", label_visibility="collapsed",
                          on_change=_keep_sort, args=(f"sort_by_{_lk}",),
-                         format_func=lambda k: f"{t('chip_sort')} · {t('sb_sort_' + k)}")
+                         format_func=lambda k: t("sb_sort_" + k))
 
 
 # 표 정렬 코드는 번역된 라벨과 비교한다 — 그 계약을 유지
