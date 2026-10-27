@@ -663,6 +663,16 @@ st.markdown("""
   [class*="st-key-sort_by"] [data-baseweb="select"] div, [class*="st-key-sort_by"] [data-baseweb="select"] span {
     color: #c3c9d1 !important; font-size: 13px !important;
   }
+  /* 1.61(운영 고정 버전)은 baseweb select가 아니라 div[role=group] > input[role=combobox] 구조
+     (2026-10-27 운영 DOM 실측). 위 규칙이 안 닿아 테마 바탕(#111827)과 8px 반경이 나왔음. 양쪽 병기. */
+  [class*="st-key-sort_by"] [data-testid="stSelectbox"] [role="group"] {
+    min-height: 36px !important; background: transparent !important;
+    border: 1px solid #2a2d33 !important; border-radius: 6px !important; box-shadow: none !important;
+  }
+  [class*="st-key-sort_by"] [data-testid="stSelectbox"] [role="group"]:focus-within { border-color: #c3c9d1 !important; }
+  [class*="st-key-sort_by"] input[role="combobox"] {
+    color: #c3c9d1 !important; font-size: 13px !important; background: transparent !important;
+  }
 
   /* ── 피드백 FAB ──────────────────────────────────────────────────────────
      이 화면은 카드가 폭을 꽉 채워 빈 모서리가 없다 — 어디에 둬도 겹친다(우하단 9/11,
