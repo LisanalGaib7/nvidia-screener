@@ -75,8 +75,12 @@ TRANSLATIONS = {
     "yi_kicker":            {"KOR": "SEC 13F와 공시 원문 기준",        "ENG": "From SEC 13F filings and primary disclosures"},
     "yi_title":             {"KOR": "{year}년 상장사 투자 {total}",    "ENG": "{year} public-company commitments: {total}"},
     # 금액 뒤 조사(가/이)는 $25M처럼 끝 글자에 따라 틀리므로 쓰지 않는 문장 구조로
-    "yi_deck":              {"KOR": "{n}건 중 가장 많이 투자한 섹터는 {cat}: {names} {k}곳에 {amt} ({pct}).",
-                             "ENG": "Largest sector of the {n}: {cat}. {names}, {amt} ({pct})."},
+    "yi_deck":              {"KOR": "{n}건 중 가장 많이 투자한 섹터는 {cat}: {names} {k}곳에 {amt} ({pct})",
+                             "ENG": "Largest sector of the {n}: {cat}. {names}, {amt} ({pct})"},
+    # 보기 칩 + 정렬(사이드바에서 옮김)
+    "chip_view":            {"KOR": "보기",                         "ENG": "Show"},
+    "chip_current":         {"KOR": "현재 보유",                     "ENG": "Holdings"},
+    "chip_sort":            {"KOR": "정렬",                         "ENG": "Sort"},
     "yi_by_cat":            {"KOR": "분야별",                        "ENG": "By sector"},
     "yi_by_cat_sub":        {"KOR": "{year}년 공개 약정 {n}건",        "ENG": "{n} disclosed commitments in {year}"},
     "yi_timeline":          {"KOR": "타임라인",                       "ENG": "Timeline"},
@@ -627,6 +631,37 @@ st.markdown("""
   .st-key-lang_pills button[data-variant="pills"][data-selected="true"] {
     color: #f0f1ef !important; font-weight: 600 !important;
     background: #20242b !important; box-shadow: inset 0 0 0 1px #2a2d33 !important;
+  }
+
+  /* ── 보기 칩 + 정렬(2026-10-27, 사이드바에서 옮김) — 2차 컨트롤: 밝기 차이만, 초록·캡슐 금지.
+     테마 primaryColor(#76b900)가 선택 칩에 그대로 칠해지므로 이 스코프에서 덮는다. ── */
+  .st-key-view_bar { margin: 0 0 12px; }
+  [class*="st-key-view_chips"] [data-testid="stButtonGroup"] > div[data-baseweb="button-group"],
+  [class*="st-key-view_chips"] [data-testid="stButtonGroup"] > div[role="radiogroup"] {
+    flex-wrap: wrap !important; gap: 8px !important;
+  }
+  [class*="st-key-view_chips"] button[data-testid^="stBaseButton-pills"],
+  [class*="st-key-view_chips"] button[data-variant="pills"] {
+    min-height: 36px !important; padding: 0 12px !important; border-radius: 6px !important;
+    border: 1px solid #1a1a1a !important; background: transparent !important; box-shadow: none !important;
+    color: #9aa3b0 !important; font-size: 13px !important; font-weight: 500 !important;
+    letter-spacing: 0 !important; text-transform: none !important;
+  }
+  [class*="st-key-view_chips"] button[data-variant="pills"] p,
+  [class*="st-key-view_chips"] button[data-testid^="stBaseButton-pills"] p { color: inherit !important; font: inherit !important; }
+  [class*="st-key-view_chips"] button[data-testid="stBaseButton-pills"]:hover,
+  [class*="st-key-view_chips"] button[data-variant="pills"]:not([data-selected="true"]):hover { color: #c3c9d1 !important; }
+  [class*="st-key-view_chips"] button[data-testid="stBaseButton-pillsActive"],
+  [class*="st-key-view_chips"] button[data-variant="pills"][data-selected="true"] {
+    color: #f0f1ef !important; background: #20242b !important; border-color: #2a2d33 !important;
+  }
+  [class*="st-key-sort_by"] [data-baseweb="select"] > div {
+    min-height: 36px !important; background: transparent !important;
+    border: 1px solid #2a2d33 !important; border-radius: 6px !important; box-shadow: none !important;
+  }
+  [class*="st-key-sort_by"] [data-baseweb="select"] > div:focus-within { border-color: #c3c9d1 !important; }
+  [class*="st-key-sort_by"] [data-baseweb="select"] div, [class*="st-key-sort_by"] [data-baseweb="select"] span {
+    color: #c3c9d1 !important; font-size: 13px !important;
   }
 
   /* ── 피드백 FAB ──────────────────────────────────────────────────────────
@@ -2008,14 +2043,8 @@ with st.sidebar:
         st.rerun()
 
     st.markdown("## NVIDIA Portfolio Tracker")
-    st.markdown("---")
-    show_current  = st.checkbox(t("sb_holdings"), value=True)
-    show_partner  = st.checkbox(t("sb_partner"),  value=True)
-    show_exited   = st.checkbox(t("sb_exited"),   value=False)
-    st.markdown("---")
-    sort_options = [t("sb_sort_invest"), t("sb_sort_ytd"), t("sb_sort_cap"), t("sb_sort_daily"), t("sb_sort_date")]
-    sort_by = st.selectbox(t("sb_sort"), sort_options)
-
+    # 보기 필터와 정렬은 본문 칩 줄로 옮겼다(2026-10-27) — 요약 카드와 표를 같이 바꾸는 컨트롤이라
+    # 바뀌는 대상 바로 위에 둔다. 사이드바엔 언어, 데이터, 도구만 남긴다.
     st.markdown("---")
 
     with st.expander(t("sb_tag_guide")):
@@ -2157,6 +2186,23 @@ def feedback_dialog():
 # 9/11 → 7/11로 줄어드는 크기(375px 실측).
 if st.button("", key="feedback_fab", icon=":material/feedback:"):
     feedback_dialog()
+
+# ── 보기 필터 상태 ─────────────────────────────────────────────────────────────
+# 칩 위젯(view_chips)은 헤드라인 아래에서 그려지지만 값은 여기서 먼저 읽는다 — 칩을 누르면
+# 재실행되며 새 값이 세션에 먼저 들어오므로 체크박스 때와 동작이 같다.
+# 값은 언어와 무관한 고정 키 — 표시 문자열을 값으로 쓰면 언어 전환 때 선택이 풀린다.
+VIEW_KEYS = ["current", "partner", "exited"]
+VIEW_DEFAULT = ["current", "partner"]
+SORT_KEYS = ["invest", "ytd", "cap", "daily", "date"]
+# 선택값은 위젯 키가 아닌 별도 키(view_sel·sort_sel)에 둔다. 언어 토글이 사이드바 맨 위에서
+# st.rerun()으로 실행을 끊으면 그 실행엔 칩 위젯이 없어 Streamlit이 위젯 상태를 지운다
+# (실측: 언어를 바꾸자 '청산 완료' 선택이 풀리고 정렬 표시가 이전 언어로 남음).
+st.session_state.setdefault("view_sel", list(VIEW_DEFAULT))
+st.session_state.setdefault("sort_sel", "invest")
+_view = st.session_state.view_sel
+show_current = "current" in _view
+show_partner = "partner" in _view
+show_exited  = "exited" in _view
 
 # ── 데이터 로드 ───────────────────────────────────────────────────────────────
 all_display = []
@@ -2707,6 +2753,37 @@ def _year_card_html(yi):
 _yi = _year_invest() if HERO_V2 else None
 if _yi:
     st.markdown(_hero_html(_yi), unsafe_allow_html=True)
+
+# ── 보기 칩 + 정렬 (사이드바에서 옮김, 2026-10-27) ──────────────────────────────
+# 요약 카드와 표가 둘 다 이 선택을 따르므로 카드 바로 위에 둔다.
+_view_counts = {"current": len(NEW_2026) + len(CURRENT_HOLDINGS),
+                "partner": len(PARTNERSHIPS), "exited": len(EXITED)}
+_view_names = {"current": t("chip_current"), "partner": t("sb_partner"), "exited": t("sb_exited")}
+def _keep_view(k):
+    st.session_state.view_sel = list(st.session_state[k] or [])
+
+
+def _keep_sort(k):
+    st.session_state.sort_sel = st.session_state[k]
+
+
+# 위젯 키에 언어를 붙인다 — 같은 키로 표시 문자열만 바뀌면 화면이 이전 언어 표시와 이전 선택을
+# 그대로 들고 있었다(실측). 언어마다 새 위젯을 만들고 값은 view_sel·sort_sel에서 이어받는다.
+_lk = st.session_state.lang
+with st.container(key="view_bar"):
+    _vc1, _vc2 = st.columns([5, 2])
+    with _vc1:
+        st.pills(t("chip_view"), VIEW_KEYS, selection_mode="multi", default=st.session_state.view_sel,
+                 format_func=lambda k: f"{_view_names[k]}  {_view_counts[k]}",
+                 key=f"view_chips_{_lk}", label_visibility="collapsed",
+                 on_change=_keep_view, args=(f"view_chips_{_lk}",))
+    with _vc2:
+        st.selectbox(t("sb_sort"), SORT_KEYS, index=SORT_KEYS.index(st.session_state.sort_sel),
+                     key=f"sort_by_{_lk}", label_visibility="collapsed",
+                     on_change=_keep_sort, args=(f"sort_by_{_lk}",),
+                     format_func=lambda k: f"{t('chip_sort')} · {t('sb_sort_' + k)}")
+# 표 정렬 코드는 번역된 라벨과 비교한다 — 그 계약을 유지
+sort_by = t("sb_sort_" + st.session_state.sort_sel)
 
 # ── 요약 지표 ─────────────────────────────────────────────────────────────────
 # 파트너십(지분 없음)은 수익률 집계에서 제외 — NVIDIA 실제 보유분 성과만 반영
