@@ -74,16 +74,17 @@ TRANSLATIONS = {
     # 첫 화면 헤드라인과 올해 투자 카드(HERO_V2)
     "yi_kicker":            {"KOR": "SEC 13F와 공시 원문 기준",        "ENG": "From SEC 13F filings and primary disclosures"},
     "yi_title":             {"KOR": "{year}년 상장사 투자 {total}",    "ENG": "{year} public-company commitments: {total}"},
-    "yi_deck":              {"KOR": "공개된 약정 {n}건 중 {amt}가 {cat} 분야 {names}에 들어갔습니다.",
-                             "ENG": "Of {n} disclosed commitments, {amt} went to {cat}: {names}."},
+    # 금액 뒤 조사(가/이)는 $25M처럼 끝 글자에 따라 틀리므로 쓰지 않는 문장 구조로
+    "yi_deck":              {"KOR": "{n}건 중 가장 많이 투자한 섹터는 {cat}: {names} {k}곳에 {amt} ({pct}).",
+                             "ENG": "Largest sector of the {n}: {cat}. {names}, {amt} ({pct})."},
     "yi_by_cat":            {"KOR": "분야별",                        "ENG": "By sector"},
     "yi_by_cat_sub":        {"KOR": "{year}년 공개 약정 {n}건",        "ENG": "{n} disclosed commitments in {year}"},
     "yi_timeline":          {"KOR": "타임라인",                       "ENG": "Timeline"},
     "yi_timeline_sub":      {"KOR": "점 색은 분야, 크기는 약정액",        "ENG": "Dot color = sector, size = amount"},
     "yi_timeline_sub_m":    {"KOR": "색은 분야",                      "ENG": "Color = sector"},
     "yi_each":              {"KOR": "각 {amt}",                      "ENG": "{amt} each"},
-    "yi_note":              {"KOR": "원금이 비공개인 투자는 빠져 있습니다: {names}.",
-                             "ENG": "Investments with undisclosed amounts are not shown: {names}."},
+    "yi_note":              {"KOR": "{names} {k}곳은 투자금 비공개로 제외",
+                             "ENG": "{names}: excluded, investment amount not disclosed"},
     # 13F 탭
     "filings_title":        {"KOR": "NVIDIA 13F 공시 히스토리",       "ENG": "NVIDIA 13F Filing History"},
     "filings_caption":      {"KOR": "SEC EDGAR 13F 기반 · 글로벌 주요 언론 교차검증 · 미확인 항목은 별도 표기",
@@ -2612,8 +2613,9 @@ def _hero_html(yi):
     top_cs = sorted(top_cs, key=lambda c: -c["invest_amt_m"])
     names = ", ".join(_short_name(c["name"]) for c in top_cs)
     title = t("yi_title").format(year=yi["year"], total=f'<span class="yi-amt">{_fmt_amt(yi["total"])}</span>')
-    deck = t("yi_deck").format(n=yi["n"], amt=_fmt_amt(sum(c["invest_amt_m"] for c in top_cs)),
-                               cat=cat_name(top_cat), names=names)
+    top_amt = sum(c["invest_amt_m"] for c in top_cs)
+    deck = t("yi_deck").format(n=yi["n"], amt=_fmt_amt(top_amt), pct=f"{top_amt / yi['total'] * 100:.0f}%",
+                               cat=cat_name(top_cat), names=names, k=len(top_cs))
     return (f'<div class="yi-hero"><div class="yi-kicker">{t("yi_kicker")}</div>'
             # h1/h2 태그는 전역 h1 규칙(1.7rem !important)과 Streamlit 앵커 링크가 붙어서 div + role로
             f'<div class="yi-hero-title" role="heading" aria-level="1">{title}</div><p class="yi-deck">{deck}</p></div>')
@@ -2689,8 +2691,10 @@ def _year_card_html(yi):
                     f'<span class="yi-cat">{cat_name(g)}</span><span class="yi-num">{_fmt_amt(amt)}</span>'
                     f'<span class="yi-pct">{pct}</span><span class="yi-mem">{members}</span></div>')
     tl = _timeline_mobile(yi) if is_mobile else _timeline_desktop(yi)
-    note = (f'<div class="yi-note">{t("yi_note").format(names=", ".join(_short_name(c["name"]) for c in yi["hidden"]))}</div>'
-            if yi["hidden"] else "")
+    # 13F 평가액이 큰 순(SpaceX 먼저) — 금액은 섞지 않고 순서에만 쓴다
+    hidden = sorted(yi["hidden"], key=lambda c: -(c.get("fmv_m") or 0))
+    note = (f'<div class="yi-note">{t("yi_note").format(names=", ".join(_short_name(c["name"]) for c in hidden), k=len(hidden))}</div>'
+            if hidden else "")
     return (f'<div class="yi-card">'
             f'<div class="yi-head"><div class="yi-h" role="heading" aria-level="2">{t("yi_by_cat")}</div>'
             f'<span class="yi-sub">{t("yi_by_cat_sub").format(year=yi["year"], n=yi["n"])}</span></div>'
