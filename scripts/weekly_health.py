@@ -193,7 +193,7 @@ def summarize(s, repo, wf_file, kind, start, end):
             else:
                 reasons.append("금리 값을 못 읽음")
             if cv:
-                parts.append(f"CPI {cv}%")
+                parts.append(f"CPI {float(cv):.2f}%")   # 예전 로그는 원값(2.361826573)으로 찍혀 있음
             else:
                 reasons.append("CPI 값을 못 읽음")
         elif kind == "snapshot":

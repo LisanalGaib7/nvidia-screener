@@ -1005,8 +1005,8 @@ NEW_2026 = [
         "alert_date": "2026-03-31",
         "nvidia_thesis": "NVLink Fusion: Marvell XPU를 NVIDIA Rubin GPU·Vera CPU와 동일 랙에서 1.8TB/s로 통합. 실리콘 포토닉스 공동 R&D",
         "nvidia_thesis_eng": "NVLink Fusion: integrates Marvell XPU with NVIDIA Rubin GPU & Vera CPU in the same rack at 1.8TB/s. Silicon photonics co-R&D",
-        "note": "$2B 투자 (2026.03.31) | NVLink Fusion 파트너십 | 실리콘 포토닉스·5G/6G 공동 R&D",
-        "note_eng": "$2B investment (2026.03.31) | NVLink Fusion partnership | Silicon photonics & 5G/6G co-R&D",
+        "note": "$2B 투자 (2026.03.31) | NVLink Fusion 파트너십 | 실리콘 포토닉스·5G/6G 공동 R&D | Marvell이 Lumentum 인수 합의(2026.11.02, Lumentum 1주당 Marvell 4.5주, 2028년 상반기 종결 예정)",
+        "note_eng": "$2B investment (2026.03.31) | NVLink Fusion partnership | Silicon photonics & 5G/6G co-R&D | Marvell agreed to acquire Lumentum (2026.11.02, 4.5 Marvell shares per Lumentum share, expected to close 1H 2028)",
         "source": "NVIDIA Newsroom, CNBC (2026.03.31)",
     },
     {
@@ -1020,8 +1020,8 @@ NEW_2026 = [
         "alert_date": "2026-03-02",
         "nvidia_thesis": "AI 광학 레이저·포토닉스. 미국 내 신규 fab 구축, 고급 레이저 부품 독점 공급권. 우선주 2,876,415주 @$695.31",
         "nvidia_thesis_eng": "AI optical lasers & photonics. New US fab construction, exclusive supply of advanced laser components. 2,876,415 preferred shares @$695.31",
-        "note": "$2B 우선주 사모 (2026.03.02) | 2,876,415주 @$695.31 | 멀티빌리언 구매 약정 포함",
-        "note_eng": "$2B preferred stock private placement (2026.03.02) | 2,876,415 shares @$695.31 | Multi-billion purchase commitment",
+        "note": "$2B 우선주 사모 (2026.03.02) | 2,876,415주 @$695.31 | 멀티빌리언 구매 약정 포함 | Marvell이 Lumentum 인수 합의(2026.11.02, Lumentum 1주당 Marvell 4.5주, 2028년 상반기 종결 예정)",
+        "note_eng": "$2B preferred stock private placement (2026.03.02) | 2,876,415 shares @$695.31 | Multi-billion purchase commitment | Marvell agreed to acquire Lumentum (2026.11.02, 4.5 Marvell shares per Lumentum share, expected to close 1H 2028)",
         "source": "NVIDIA Newsroom, CNBC (2026.03.02)",
     },
     {
@@ -1049,13 +1049,13 @@ NEW_2026 = [
         "invest_date": "2026-07-27",
         "badge": "new",
         "alert_date": "2026-07-27",
-        "alert_desc": "$1B 유상증자 (1.48조원)",
-        "alert_desc_eng": "$1B share placement (₩1.48T)",
-        "nvidia_thesis": "세종 GAK 데이터센터에 엔비디아 GPU 배치, 2028년까지 200MW AI 인프라 구축. 제3자배정 유상증자 참여로 지분 4.5% 확보",
-        "nvidia_thesis_eng": "NVIDIA GPUs deployed at Naver's Sejong GAK data center, scaling to 200MW AI infrastructure by 2028. NVIDIA takes a 4.5% stake via third-party share placement",
-        "note": "1조 4,809억원(~$1B) 유상증자 (2026.07.27) | 7,241,564주 @204,500원 | 납입 10/30·상장 11/20 예정",
-        "note_eng": "₩1.481T (~$1B) share placement (2026.07.27) | 7,241,564 shares @₩204,500 | Payment 10/30, listing 11/20 (pending)",
-        "source": "Naver 공시(주요사항보고서·유상증자결정, 2026.07.27), Reuters·KED Global 교차확인, DART 원문 미열람",
+        "alert_desc": "$1B 유상증자 (1.34조원)",
+        "alert_desc_eng": "$1B share placement (₩1.34T)",
+        "nvidia_thesis": "세종 GAK 데이터센터에 엔비디아 GPU 배치, 2028년까지 200MW AI 인프라 구축. 제3자배정 유상증자 참여로 지분 약 4.1% 확보",
+        "nvidia_thesis_eng": "NVIDIA GPUs deployed at Naver's Sejong GAK data center, scaling to 200MW AI infrastructure by 2028. NVIDIA takes a ~4.1% stake via third-party share placement",
+        "note": "1조 3,412억원($1B) 유상증자 (2026.07.27) | 6,558,435주 @204,500원 | 납입 11/6·상장 11/27 예정",
+        "note_eng": "₩1.341T ($1B) share placement (2026.07.27) | 6,558,435 shares @₩204,500 | Payment 11/6, listing 11/27 (pending)",
+        "source": "Naver 주요사항보고서(유상증자결정) 2026.07.27 및 [기재정정] 10.30(납입·상장일)·11.03(납입 환율로 주식 수 확정), DART 원문. 지분율은 공시 주식 수로 계산(6,558,435 / 158,684,979 = 4.13%)",
     },
     {
         "ticker": "2454.TW",
@@ -1294,12 +1294,12 @@ THESIS_KO = {
     "MRVL": (
         "엔비디아 GPU와 한 랙에서 초고속으로 연결되는 맞춤형 AI 칩을 만드는 회사",
         "엔비디아 차세대 GPU(Rubin)·CPU(Vera)와 마벨 칩을 같은 랙에서 1.8TB/s로 묶는 'NVLink Fusion' 기술을 함께 만듭니다. 빛으로 데이터를 나르는 실리콘 포토닉스도 공동 개발합니다.",
-        "$2B 투자 · NVLink Fusion 파트너십 · 실리콘 포토닉스와 5G/6G 공동 R&D",
+        "$2B 투자 · NVLink Fusion 파트너십 · 실리콘 포토닉스와 5G/6G 공동 R&D · 2026.11 Lumentum 인수 합의(주식 교환, 2028년 상반기 종결 예정)",
     ),
     "LITE": (
         "AI 데이터센터 광통신에 쓰는 레이저·포토닉스 부품을 만드는 회사",
         "광연결의 핵심인 고급 레이저 부품을 루멘텀이 독점 공급합니다. 미국 내 새 생산시설(fab)도 짓습니다.",
-        "$2B 우선주 사모 (288만주, 주당 $695.31) · 수십억 달러 구매 약정",
+        "$2B 우선주 사모 (288만주, 주당 $695.31) · 수십억 달러 구매 약정 · 2026.11 Marvell이 인수 합의(1주당 Marvell 4.5주, 2028년 상반기 종결 예정)",
     ),
     "COHR": (
         "AI 데이터센터의 초고속 광신호 송수신 장치(트랜시버)를 만드는 회사",
@@ -1348,8 +1348,8 @@ THESIS_KO = {
     ),
     "035420.KS": (
         "세종시에 엔비디아 GPU로 AI 데이터센터를 함께 짓는 한국 인터넷 기업",
-        "네이버 세종 GAK 데이터센터에 엔비디아 Vera Rubin·Blackwell 칩을 배치해, 2028년까지 200MW 규모 AI 인프라를 단계적으로 구축합니다. 엔비디아는 제3자배정 유상증자에 참여해 지분 4.5%를 확보합니다.",
-        "1조 4,809억원 제3자배정 유상증자 (724만주, 주당 204,500원) · 지분 4.5%",
+        "네이버 세종 GAK 데이터센터에 엔비디아 Vera Rubin·Blackwell 칩을 배치해, 2028년까지 200MW 규모 AI 인프라를 단계적으로 구축합니다. 엔비디아는 제3자배정 유상증자에 참여해 지분 약 4.1%를 확보합니다.",
+        "1조 3,412억원 제3자배정 유상증자 (656만주, 주당 204,500원) · 지분 약 4.1% · 납입 11/6, 상장 11/27 예정",
     ),
     "GENB": (
         "생성형 AI로 새 단백질 구조를 설계하는 AI 신약개발 바이오텍",
@@ -1386,12 +1386,12 @@ THESIS_EN = {
     "MRVL": (
         "Makes custom AI chips that link to NVIDIA GPUs at ultra-high speed in the same rack",
         "Co-develops 'NVLink Fusion,' binding Marvell's XPU with NVIDIA's next-gen Rubin GPU & Vera CPU in one rack at 1.8TB/s. Also co-developing silicon photonics (moving data with light).",
-        "$2B investment · NVLink Fusion partnership · silicon photonics & 5G/6G co-R&D",
+        "$2B investment · NVLink Fusion partnership · silicon photonics & 5G/6G co-R&D · agreed to acquire Lumentum (Nov 2026, all-stock, expected to close 1H 2028)",
     ),
     "LITE": (
         "Makes the laser & photonics components used in AI data-center optical networking",
         "Lumentum is the exclusive supplier of the high-end laser components central to optical interconnects, and is building a new US fab.",
-        "$2B preferred-stock placement (2,876,415 shares @$695.31) · multi-billion purchase commitment",
+        "$2B preferred-stock placement (2,876,415 shares @$695.31) · multi-billion purchase commitment · Marvell agreed to acquire Lumentum (Nov 2026, 4.5 Marvell shares per share, expected to close 1H 2028)",
     ),
     "COHR": (
         "Makes the high-speed optical transceivers that send/receive signals in AI data centers",
@@ -1440,8 +1440,8 @@ THESIS_EN = {
     ),
     "035420.KS": (
         "A Korean internet company co-building an NVIDIA-powered AI data center in Sejong",
-        "NVIDIA GPUs (Vera Rubin, Blackwell) go into Naver's GAK data center in Sejong, scaling to 200MW of AI infrastructure by 2028. NVIDIA takes a 4.5% stake via a third-party share placement.",
-        "₩1.481T (~$1B) third-party placement · 7,241,564 shares @₩204,500 · 4.5% stake",
+        "NVIDIA GPUs (Vera Rubin, Blackwell) go into Naver's GAK data center in Sejong, scaling to 200MW of AI infrastructure by 2028. NVIDIA takes a ~4.1% stake via a third-party share placement.",
+        "₩1.341T ($1B) third-party placement · 6,558,435 shares @₩204,500 · ~4.1% stake · payment 11/6, listing 11/27 (pending)",
     ),
     "GENB": (
         "An AI drug-discovery biotech designing novel proteins with generative AI",
@@ -1475,8 +1475,8 @@ FILINGS_HISTORY = [
     # information_table.xml 직접 대조 완료 — SpaceX 신규 편입 외 기존 7종목 주식수 전량 동일.
     {"ticker":"SPCX", "company":"SpaceX",            "quarter":"Q2 2026","filed":"2026-08-14","change":"122,764,805주 (xAI 투자분, SpaceX·xAI 합병으로 전환)", "change_eng":"122,764,805 shares (converted from xAI stake via SpaceX-xAI merger)", "change_type":"new","value_m":20975.6},
     # Naver 공시(주요사항보고서·유상증자결정, 2026-07-27) — 13F 대상 아님(한국 상장, 직접 신주 인수).
-    # Reuters/KED Global/한국경제 교차확인, DART 원문 문서는 미열람(동적 뷰어라 자동 접근 불가).
-    {"ticker":"035420.KS", "company":"Naver",        "filed":"2026-07-27","change":"제3자배정 유상증자 참여 · 4.5% 지분 확보", "change_eng":"Third-party share placement · 4.5% stake", "change_type":"new","value_m":1000.0},
+    # 2026-11-03 [기재정정]으로 주식 수 6,558,435주·1조 3,412억원 확정, 납입 11/6·상장 11/27(DART API 원문).
+    {"ticker":"035420.KS", "company":"Naver",        "filed":"2026-07-27","change":"제3자배정 유상증자 참여 · 약 4.1% 지분", "change_eng":"Third-party share placement · ~4.1% stake", "change_type":"new","value_m":1000.0},
     # SC 13G (2026-07-20, NVIDIA Corp 제출) — 13F 분기 공시 아님, 신규 매수 아니고 기존 워런트
     # 재분류(60일 내 행사가능 규정)로 지분율만 8.3%→9.3% 갱신. SEC EDGAR 원문 확인(acc 0001045810-26-000062).
     {"ticker":"NBIS", "company":"Nebius Group",      "filed":"2026-07-20","change":"SC 13G · 9.3% 지분(워런트 포함 2,226만주), 신규 매수 아님", "change_eng":"SC 13G · 9.3% stake (22.26M shares incl. warrant), not a new purchase", "change_type":"increase","value_m":None},
