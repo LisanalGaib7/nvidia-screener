@@ -151,7 +151,10 @@ def main():
 
     # ── ② Core Sticky CPI(주거비 제외) ──────────────────────────────────────
     cpi_val, cpi_date = fetch_cpi()
-    print(f"{CPI_LABEL}: {cpi_val}%  date: {cpi_date}  (threshold ≥ {CPI_THRESHOLD}%)")
+    # 소수 둘째 자리까지 — CSV 원값(2.361826573)이 그대로 찍혀 주간 점검에도 길게 나왔다.
+    # 형식은 weekly_health.py의 CPI_RE("…: 2.36%  date:")와 맞물려 있다.
+    _cpi_txt = f"{cpi_val:.2f}" if cpi_val is not None else "None"
+    print(f"{CPI_LABEL}: {_cpi_txt}%  date: {cpi_date}  (threshold ≥ {CPI_THRESHOLD}%)")
 
     if cpi_val is not None:
         last_alert_date = state.get("cpi_last_alert_date", "")
