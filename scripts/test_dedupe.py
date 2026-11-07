@@ -12,7 +12,8 @@ import sys
 from datetime import datetime, timezone
 
 sys.path.insert(0, os.path.dirname(__file__))
-from news_monitor import _dedupe_key, _sent_match, KEY_NOISE  # noqa: E402
+from news_monitor import (_dedupe_key, _sent_match, KEY_NOISE,  # noqa: E402
+                          _confirm_of, _card_of, _has_amount)
 import check_news as N          # noqa: E402
 import check_pltr_news as P     # noqa: E402
 import check_hanwha_news as H   # noqa: E402
@@ -72,6 +73,43 @@ def main():
         ok = blocked == want_block
         fail += not ok
         print(f"{'OK  ' if ok else 'FAIL'} 교차  {h[:52]!r} → {'차단' if blocked else '통과'}")
+
+    # 확정 보도 통과 — 추측 기사 뒤 금액 붙은 확정 기사는 막지 않는다 (2026-10-27 Meta 실제 제목·키)
+    now = datetime(2026, 10, 28, 12, tzinfo=timezone.utc)
+    for old_t, old_k, h, want in (
+            ("nvidia investment interest in meta ai expansion lifts nvidia stock higher", ["meta"],
+             "Nvidia to invest $3 billion in Meta, expand partnership on Muse", True),
+            # 앞 기사에도 금액이 있으면 이미 확정을 보낸 것
+            ("naver seals $9 billion brookfield deal for nvidia-backed ai factories", ["brookfield", "naver"],
+             "Nvidia acquires over 4% stake in Naver for $1bn", False),
+            # 신규 투자 섹션이 아니면 해당 없음
+            ("australia regulator probes bankers’ role in nvidia-backed firmus ipo", ["australia", "firmus"],
+             "Australia's ASIC looks into why NVIDIA-backed Firmus's $5B IPO failed", False)):
+        state = {"sent": [{"title": old_t, "key": old_k, "ts": "2026-10-27T03:00:00+00:00"}]}
+        m = {"headline": h, "dkey": _dedupe_key(h, NV)}
+        got = _confirm_of(m, state, now, KEY_NOISE, None, None, NV) is not None
+        ok = got == want
+        fail += not ok
+        print(f"{'OK  ' if ok else 'FAIL'} 확정  {h[:52]!r} → {'통과' if got else '차단'}")
+
+    # 카드 표시 — 별칭 단어 경계, 일반어 첫 단어는 이름 전체로
+    for h, want in (("Coherent slides 25% in three months as Nvidia-backed optics ramp", "Coherent Corp"),
+                    ("Nvidia to invest $3 billion in Meta, expand partnership on Muse", "Meta Platforms"),
+                    ("Nvidia-backed startup helps chipmakers generate revenue", None),
+                    ("Nvidia eyes metaverse push", None)):
+        got = _card_of(h, NV.cards)
+        ok = got == want
+        fail += not ok
+        print(f"{'OK  ' if ok else 'FAIL'} 카드  {h[:52]!r} → {got}")
+
+    # 금액 판정
+    for h, want in (("Tesla and Nvidia to Invest KRW3.7 Trillion in Samsung", True),
+                    ("MediaTek targets global AI leadership as Nvidia invests US$3.5 billion", True),
+                    ("Nvidia Secures 4.13% Stake in Naver", False),
+                    ("Nvidia backs five UK startups", False)):
+        ok = _has_amount(h) == want
+        fail += not ok
+        print(f"{'OK  ' if ok else 'FAIL'} 금액  {h[:52]!r} → {_has_amount(h)}")
 
     # 2026-11-07 실측: 국적 형용사·통화 한 단어로 다른 사건이 막혔다 (상태 파일의 실제 키)
     now = datetime(2026, 11, 3, 12, tzinfo=timezone.utc)
