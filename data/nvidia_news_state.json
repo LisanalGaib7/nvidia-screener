@@ -1728,7 +1728,33 @@
     "agility"
    ],
    "ts": "2026-11-06T04:14:44.433361+00:00"
+  },
+  {
+   "title": "nvidia invests in taiwan's spil to scale cowos ai packaging",
+   "key": [
+    "cowos",
+    "spil",
+    "taiwan"
+   ],
+   "ts": "2026-11-07T03:46:10.319122+00:00"
+  },
+  {
+   "title": "nvidia-backed groq seeks $8 billion valuation in new funding round - bloomberg",
+   "key": [
+    "bloomberg",
+    "groq"
+   ],
+   "ts": "2026-11-07T03:46:10.319122+00:00"
+  },
+  {
+   "title": "nvidia-backed effort speeds reinforcement learning training",
+   "key": [
+    "learning",
+    "reinforcement",
+    "speeds"
+   ],
+   "ts": "2026-11-07T03:46:10.319122+00:00"
   }
  ],
- "last_run": "2026-11-06T04:14:44.433361+00:00"
+ "last_run": "2026-11-07T03:46:10.319122+00:00"
 }
