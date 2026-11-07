@@ -73,6 +73,19 @@ def main():
         fail += not ok
         print(f"{'OK  ' if ok else 'FAIL'} 교차  {h[:52]!r} → {'차단' if blocked else '통과'}")
 
+    # 2026-11-07 실측: 국적 형용사·통화 한 단어로 다른 사건이 막혔다 (상태 파일의 실제 키)
+    now = datetime(2026, 11, 3, 12, tzinfo=timezone.utc)
+    for old_t, old_k, h in (
+            ("did you hear that nvidia and tesla invested trillions in the same korean company", ["korean"],
+             "Dunamu & Partners Sole South Korean Investor in Starcloud's approximately $250 Million Round"),
+            ("nvidia backs five uk startups with usd $250 million", ["five", "usd"],
+             "NVIDIA Backs Bengaluru AI Startup in USD 14 Million Funding Round")):
+        state = {"sent": [{"title": old_t, "key": old_k, "ts": "2026-11-01T03:00:00+00:00"}]}
+        m = {"headline": h, "dkey": _dedupe_key(h, NV)}
+        blocked = _sent_match(m, state, now, KEY_NOISE) is not None
+        fail += blocked
+        print(f"{'FAIL' if blocked else 'OK  '} 교차  {h[:52]!r} → {'차단' if blocked else '통과'}")
+
     # 한글 레인은 키 방식이 달라 영향이 없어야 한다
     hk = _dedupe_key("한화엔진, 1조원 규모 선박엔진 공급계약 체결", H.CONFIG)
     ok = hk == {"한화엔진1조원규모선박엔진"}
