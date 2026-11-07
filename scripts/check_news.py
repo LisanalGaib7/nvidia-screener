@@ -6,6 +6,10 @@ NVIDIA가 다른 기업에 투자/지분참여한 뉴스와, 이미 투자한 �
 
 수집·필터·포맷 로직은 news_monitor.py 공용 코어에 있음 — 여기는 설정만.
 """
+import json
+import os
+import re
+
 from news_monitor import MonitorConfig, run_monitor
 
 # Google News 검색 쿼리 — 갈래 분할.
@@ -111,11 +115,37 @@ GROUPS = [
     {"label": "🏢 포트폴리오사 동향", "terms": [], "max": 4},
 ]
 
+# 흔한 단어 사전(소문자 용례 기준)에 없지만 제목에선 일반어로 더 자주 나오는 첫 단어.
+_PLAIN_FIRST = {"generate", "applied", "serve"}
+
+
+def load_cards():
+    """트래커 카드 {제목에서 찾을 별칭: 카드 이름} — app.py에서 읽는다(SSOT).
+
+    별칭은 이름 첫 단어. 흔한 단어("Generate", "Serve", "Applied")나 3자 이하("Arm")면
+    이름 전체를 쓴다 — 첫 단어로는 다른 기사에 다 걸린다. ticker 바로 뒤의 name만
+    읽어서 app.py의 다른 "name" 키(GA 지표 등)는 안 걸린다.
+    """
+    base = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
+    with open(os.path.join(base, "app.py"), encoding="utf-8") as f:
+        src = f.read()
+    with open(os.path.join(base, "data", "common_words.json"), encoding="utf-8") as f:
+        common = set(json.load(f))
+    cards = {}
+    for name in re.findall(r'"ticker"\s*:\s*"[^"]+"\s*,\s*"name"\s*:\s*"([^"]+)"', src):
+        first = name.split()[0].lower()
+        alias = name.lower() if (first in common or first in _PLAIN_FIRST
+                                 or len(first) <= 3) else first
+        cards.setdefault(alias, name)
+    return cards
+
+
 CONFIG = MonitorConfig(
     query=QUERIES[0], queries=QUERIES,
     positive=POSITIVE, negative=NEGATIVE,
     header="🟢 <b>NVIDIA 투자 뉴스 감지</b>",
-    footer="👉 트래커 업데이트 검토 필요",
+    footer="👉 🔁 확정 보도는 카드 추가, 📌 카드 있음은 숫자 변경 여부 확인",
+    footer_marked_only=True, cards=load_cards(), confirm_group="📈 신규 투자·인수",
     state_file="data/nvidia_news_state.json",
     out_file="news_alert.txt",
     locale="en", label="news monitor",

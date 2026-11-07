@@ -174,6 +174,16 @@ class MonitorConfig:
     # 알림이 하루 1건 안팎인 레인은 침묵이 정상이라, '조용한 날'과 '고장 난 날'을
     # 가르려면 따로 남겨야 한다. 비우면 기록하지 않는다(기존 동작).
     log_file: str = ""
+    # 트래커 카드가 있는 회사. {제목에서 찾을 별칭(소문자): 카드 이름}. 제목에 나오면
+    # 줄머리를 📌로 바꾸고 카드 이름을 단다 — 숫자가 바뀌었는지 볼 건. 비우면 끈다.
+    cards: dict = field(default_factory=dict)
+    # 이 섹션 기사는 앞서 보낸 같은 사건 기사에 금액이 없고 이번 기사엔 있으면 막지 않고
+    # 🔁(확정 보도)로 보낸다. 추측 기사 뒤의 확정 기사가 같은 사건으로 막혀 Meta $3B
+    # (2026-10-26)가 트래커에서 빠졌다. 비우면 끈다(기존 동작).
+    confirm_group: str = ""
+    # True면 footer를 📌·🔁 표시가 있는 메시지에만 붙인다. 매번 붙는 꼬리표는
+    # 신호가 못 됐다 — Meta 추측 기사에도 붙어 있었다.
+    footer_marked_only: bool = False
 
 
 # 실행 간 중복 차단. 창(WINDOW_HOURS)만으로는 "어제 보냈는지"를 알 수 없어서,
@@ -182,6 +192,41 @@ class MonitorConfig:
 ENTITY_TTL_DAYS = 3     # 한 딜의 보도 사이클이 보통 2~3일. 그 안의 재보도만 막는다.
 TITLE_TTL_DAYS = 30     # 완전히 같은 제목은 재게시이므로 더 길게 막아도 안전하다.
 KEEP_ENTRIES = 400
+
+
+# 제목 속 금액 — "$3 billion", "US$3.5B", "KRW3.7 Trillion", "€500m", "4 billion".
+_AMOUNT_RE = re.compile(r"(?:[$€£¥₩]|us\$|usd|krw|eur)\s?\d"
+                        r"|\d(?:[\d.,]*)\s?(?:billion|million|trillion|bn|mn)\b", re.I)
+
+
+def _has_amount(title):
+    return bool(_AMOUNT_RE.search(title or ""))
+
+
+def _card_of(headline, cards):
+    """제목에 나오는 카드 이름(첫 번째). 없으면 None."""
+    hl = headline.lower()
+    for alias, name in cards.items():
+        if re.search(r"(?<![a-z0-9])" + re.escape(alias) + r"(?![a-z0-9])", hl):
+            return name
+    return None
+
+
+def _confirm_of(m, state, now, drop, sim, single, cfg):
+    """확정 보도면 앞서 보낸 추측 기사 항목, 아니면 None.
+
+    confirm_group 섹션 기사이고, 제목에 금액이 있고, 같은 사건으로 잡히는 발송 이력이
+    전부 금액 없는 기사일 때만. 금액 있는 이력이 하나라도 걸리면 이미 확정을 보낸 것이다.
+    """
+    if not cfg.confirm_group or not _has_amount(m["headline"]):
+        return None
+    if cfg.groups[_group_index(m["headline"], cfg, m.get("pin"))]["label"] != cfg.confirm_group:
+        return None
+    priced = {"sent": [e for e in state.get("sent", []) if _has_amount(e.get("title"))]}
+    if _sent_match(m, priced, now, drop, sim, single) is not None:
+        return None
+    hit = _sent_match(m, state, now, drop, sim, single)
+    return hit[0] if hit else None
 
 
 def _load_state(cfg):
@@ -863,6 +908,13 @@ def run_monitor(cfg):
             fresh.append(m)
             continue
         e, shared = hit
+        up = _confirm_of(m, state, now, drop, None if in_run_only else sim, single, cfg) \
+            if "(같은 제목)" not in shared else None
+        if up is not None:
+            m["confirm_of"] = up
+            print(f"  (확정 보도 통과) {m['headline'][:90]}\n       ↳ 앞선 추측 ← {up.get('title', '')[:80]}")
+            fresh.append(m)
+            continue
         print(f"  (이미 보냄) {m['headline'][:90]}")
         freq = [k if k.startswith("(") else f"{k} {sum(k in p for p in pool)}/{len(pool)}"
                 for k in sorted(shared)]
@@ -914,8 +966,10 @@ def run_monitor(cfg):
         return
 
     kst = (now + timedelta(hours=9)).strftime("%Y-%m-%d")
+    marked = [False]   # build가 📌·🔁를 하나라도 찍었나 — footer_marked_only용
 
     def build(items):
+        marked[0] = False
         lines = [cfg.header, "", f"⏰ {kst} KST", ""]
         cur = None
         for m in items:
@@ -931,11 +985,24 @@ def run_monitor(cfg):
             meta = f"{html.escape(m['source'])} · {d}" if m["source"] else d
             if cfg.show_dups and m.get("dups"):
                 meta += f" · 같은 사건 외 {m['dups']}건"
-            lines.append(f'• <a href="{link}">{h}</a>')
+            bullet = "•"
+            up = m.get("confirm_of")
+            if up:
+                bullet = "🔁"
+                prev = up.get("title", "")
+                prev = prev if len(prev) <= 40 else prev[:40].rstrip() + "…"
+                meta += f' · 확정 보도: {up.get("ts", "")[5:10]} "{html.escape(prev)}" 후속'
+            card = _card_of(m["headline"], cfg.cards) if cfg.cards else None
+            if card:
+                bullet = "📌" if bullet == "•" else bullet
+                meta += f" · 카드: {html.escape(card)}"
+            marked[0] = marked[0] or bullet != "•"
+            lines.append(f'{bullet} <a href="{link}">{h}</a>')
             lines.append(f"   <i>{meta}</i>")
         if len(items) < len(matches):
             lines.append(f"   <i>… 외 {len(matches) - len(items)}건</i>")
-        lines += ["", cfg.footer]
+        if marked[0] or not cfg.footer_marked_only:
+            lines += ["", cfg.footer]
         return "\n".join(lines)
 
     # 길이 초과 시 뒤에서부터 덜어낸다 — 전체가 거절당하느니 몇 건이라도.
