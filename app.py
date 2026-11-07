@@ -1053,9 +1053,9 @@ NEW_2026 = [
         "alert_desc_eng": "$1B share placement (₩1.34T)",
         "nvidia_thesis": "세종 GAK 데이터센터에 엔비디아 GPU 배치, 2028년까지 200MW AI 인프라 구축. 제3자배정 유상증자 참여로 지분 약 4.1% 확보",
         "nvidia_thesis_eng": "NVIDIA GPUs deployed at Naver's Sejong GAK data center, scaling to 200MW AI infrastructure by 2028. NVIDIA takes a ~4.1% stake via third-party share placement",
-        "note": "1조 3,412억원($1B) 유상증자 (2026.07.27) | 6,558,435주 @204,500원 | 납입 11/6·상장 11/27 예정",
-        "note_eng": "₩1.341T ($1B) share placement (2026.07.27) | 6,558,435 shares @₩204,500 | Payment 11/6, listing 11/27 (pending)",
-        "source": "Naver 주요사항보고서(유상증자결정) 2026.07.27 및 [기재정정] 10.30(납입·상장일)·11.03(납입 환율로 주식 수 확정), DART 원문. 지분율은 공시 주식 수로 계산(6,558,435 / 158,684,979 = 4.13%)",
+        "note": "1조 3,412억원($1B) 유상증자 (2026.07.27) | 6,558,435주 @204,500원 | 납입 완료(11/6)·상장 11/27 예정",
+        "note_eng": "₩1.341T ($1B) share placement (2026.07.27) | 6,558,435 shares @₩204,500 | Paid 11/6, listing 11/27 (pending)",
+        "source": "Naver 주요사항보고서(유상증자결정) 2026.07.27 및 [기재정정] 10.30(납입·상장일)·11.03(납입 환율로 주식 수 확정), 발행결과 11.06(납입 완료), DART 원문. 지분율은 공시 주식 수로 계산(6,558,435 / 158,684,979 = 4.13%)",
     },
     {
         "ticker": "2454.TW",
@@ -1128,6 +1128,26 @@ NEW_2026 = [
         "note": "1,827,692주 · 원금 $25M (시리즈 B $20M + B-4 $5M) | 2026.10.15 나스닥 상장(IAM), 공모가 $16 | 상장 후 5% 미만",
         "note_eng": "1,827,692 shares · $25M invested (Series B $20M + B-4 $5M) | 2026.10.15 Nasdaq IPO (IAM) at $16 | under 5% after IPO",
         "source": "SEC 424B4 원문(Iambic, 2026.10.15), Investing.com·IPOScoop 교차확인",
+    },
+    {
+        "ticker": "META",
+        "name": "Meta Platforms",
+        "sector": "AI 소프트웨어",
+        "invest_year": 2026,
+        # NVIDIA 보도자료(2026.10.26)가 "$3B 투자"를 밝힘. Meta 424B5엔 NVIDIA·AMD·Broadcom이
+        # 보통주 최대 합계 $5.0B 구속력 없는 의향(cornerstone)으로만 나오고 NVIDIA 몫·주식 수는 없음.
+        # 주식 수는 공시가 아니라서 안 씀($3B ÷ $625 ≈ 480만주는 계산일 뿐).
+        "invest_amt_m": 3000.0,
+        "invest_date": "2026-10-26",
+        "badge": "new",
+        "alert_date": "2026-10-26",
+        "alert_desc": "$3B 유상증자 참여",
+        "alert_desc_eng": "$3B in equity offering",
+        "nvidia_thesis": "Meta의 AI 모델 Muse 학습·추론 성능 협력 확대, Vera Rubin·Vera CPU·엔비디아 네트워킹 도입 확대. Meta 보통주 공모(주당 $625)에 $3B 참여",
+        "nvidia_thesis_eng": "Expanded collaboration on training and inference for Meta's Muse models, with wider deployment of Vera Rubin, Vera CPUs and NVIDIA networking. $3B into Meta's common stock offering ($625 per share)",
+        "note": "$3B 보통주 공모 참여 (2026.10.26) | 공모가 $625, 결제 10/29 | 주식 수 비공개",
+        "note_eng": "$3B in common stock offering (2026.10.26) | Offer price $625, settled 10/29 | Share count not disclosed",
+        "source": "NVIDIA 보도자료(2026.10.26), Meta 424B5 원문(acc. 0001193125-26-436410) — 공시엔 cornerstone 의향(구속력 없음)으로만 표기",
     },
 ]
 
@@ -1349,7 +1369,7 @@ THESIS_KO = {
     "035420.KS": (
         "세종시에 엔비디아 GPU로 AI 데이터센터를 함께 짓는 한국 인터넷 기업",
         "네이버 세종 GAK 데이터센터에 엔비디아 Vera Rubin·Blackwell 칩을 배치해, 2028년까지 200MW 규모 AI 인프라를 단계적으로 구축합니다. 엔비디아는 제3자배정 유상증자에 참여해 지분 약 4.1%를 확보합니다.",
-        "1조 3,412억원 제3자배정 유상증자 (656만주, 주당 204,500원) · 지분 약 4.1% · 납입 11/6, 상장 11/27 예정",
+        "1조 3,412억원 제3자배정 유상증자 (656만주, 주당 204,500원) · 지분 약 4.1% · 납입 완료(11/6), 상장 11/27 예정",
     ),
     "GENB": (
         "생성형 AI로 새 단백질 구조를 설계하는 AI 신약개발 바이오텍",
@@ -1362,6 +1382,12 @@ THESIS_KO = {
         "단백질과 약물이 어떻게 결합하는지 AI 모델(NeuralPLexer)로 예측해 신약 후보를 설계합니다. 엔비디아와는 모델을 엔비디아 하드웨어에 최적화하는 기술 협력을 하고, 이 모델 특허 일부를 공동 소유합니다. 2026년 10월 나스닥에 상장했습니다.",
         # 424B4 관계자 거래 표 · 시리즈 B $20M(2023) + B-4 $5M(2026) · 주식 병합 반영
         "183만주 보유 · 원금 $25M · 2026.10 나스닥 상장",
+    ),
+    "META": (
+        "페이스북·인스타그램 운영사, 자체 AI 모델 Muse를 엔비디아 칩으로 키우는 중",
+        "엔비디아와 Muse 모델의 학습·추론 성능을 함께 끌어올리고, 데이터센터에 엔비디아 Vera Rubin 칩과 Vera CPU, 네트워킹을 더 넓게 씁니다. Meta는 엔비디아의 큰 고객이기도 합니다.",
+        # NVIDIA 보도자료 $3B · Meta 424B5 공모가 $625 · 주식 수 비공개
+        "$3B 보통주 공모 참여 · 공모가 $625 · 2026.10",
     ),
     "SPCX": (
         "일론 머스크의 우주 기업. 엔비디아 xAI 투자가 지분 전환으로 이어진 케이스",
@@ -1441,7 +1467,7 @@ THESIS_EN = {
     "035420.KS": (
         "A Korean internet company co-building an NVIDIA-powered AI data center in Sejong",
         "NVIDIA GPUs (Vera Rubin, Blackwell) go into Naver's GAK data center in Sejong, scaling to 200MW of AI infrastructure by 2028. NVIDIA takes a ~4.1% stake via a third-party share placement.",
-        "₩1.341T ($1B) third-party placement · 6,558,435 shares @₩204,500 · ~4.1% stake · payment 11/6, listing 11/27 (pending)",
+        "₩1.341T ($1B) third-party placement · 6,558,435 shares @₩204,500 · ~4.1% stake · paid 11/6, listing 11/27 (pending)",
     ),
     "GENB": (
         "An AI drug-discovery biotech designing novel proteins with generative AI",
@@ -1452,6 +1478,11 @@ THESIS_EN = {
         "A biotech designing cancer drug candidates with AI",
         "Its AI model (NeuralPLexer) predicts how proteins and drug molecules bind, to design new drug candidates. NVIDIA collaborates on optimizing the models for NVIDIA hardware and co-owns part of the model's patent portfolio. Listed on Nasdaq in October 2026.",
         "1,827,692 shares · $25M invested · 2026.10 Nasdaq listing",
+    ),
+    "META": (
+        "The company behind Facebook and Instagram, scaling its own Muse AI models on NVIDIA chips",
+        "NVIDIA and Meta work together on training and inference performance for Muse, and Meta deploys NVIDIA Vera Rubin chips, Vera CPUs and networking more widely in its data centers. Meta is also one of NVIDIA's biggest customers.",
+        "$3B in common stock offering · $625 per share · 2026.10",
     ),
     "SPCX": (
         "Elon Musk's space company. NVIDIA's xAI bet that converted into an equity stake",
@@ -1467,6 +1498,8 @@ THESIS_EN = {
 FILINGS_HISTORY = [
     # Iambic 나스닥 상장(2026-10-15) — 13F 대상 아님(상장 전 사모 투자). 424B4 관계자 거래 표 원문:
     # 시리즈 B 1,536,034주 $20.0M + B-4 291,658주 $5.0M, 주식 병합 반영.
+    # Meta 보통주 공모(424B5, 2026.10.26) — 13F 반영은 Q4분(2027.02). NVIDIA 몫 $3B는 NVIDIA 보도자료 기준.
+    {"ticker":"META", "company":"Meta Platforms",    "filed":"2026-10-26","change":"보통주 공모 참여 · 공모가 $625", "change_eng":"Common stock offering · $625 per share", "change_type":"new","value_m":3000.0},
     {"ticker":"IAM", "company":"Iambic Therapeutics", "filed":"2026-10-15","change":"나스닥 상장 · 1,827,692주 (시리즈 B·B-4 $25M)", "change_eng":"Nasdaq IPO · 1,827,692 shares (Series B & B-4, $25M)", "change_type":"new","value_m":25.0},
     # MediaTek 해외 전환사채(2026-08-31 발표) — 13F 대상 아님(대만 상장, 사채 인수). 발표일은
     # MediaTek 공식 X 게시물 시각으로 확정. 전환 조건은 TrendForce 단독, MOPS 원문 미열람.
@@ -1475,7 +1508,7 @@ FILINGS_HISTORY = [
     # information_table.xml 직접 대조 완료 — SpaceX 신규 편입 외 기존 7종목 주식수 전량 동일.
     {"ticker":"SPCX", "company":"SpaceX",            "quarter":"Q2 2026","filed":"2026-08-14","change":"122,764,805주 (xAI 투자분, SpaceX·xAI 합병으로 전환)", "change_eng":"122,764,805 shares (converted from xAI stake via SpaceX-xAI merger)", "change_type":"new","value_m":20975.6},
     # Naver 공시(주요사항보고서·유상증자결정, 2026-07-27) — 13F 대상 아님(한국 상장, 직접 신주 인수).
-    # 2026-11-03 [기재정정]으로 주식 수 6,558,435주·1조 3,412억원 확정, 납입 11/6·상장 11/27(DART API 원문).
+    # 2026-11-03 [기재정정]으로 주식 수 6,558,435주·1조 3,412억원 확정, 납입 11/6·상장 11/27(DART API 원문). 11-06 발행결과 공시로 납입 완료 확인.
     {"ticker":"035420.KS", "company":"Naver",        "filed":"2026-07-27","change":"제3자배정 유상증자 참여 · 약 4.1% 지분", "change_eng":"Third-party share placement · ~4.1% stake", "change_type":"new","value_m":1000.0},
     # SC 13G (2026-07-20, NVIDIA Corp 제출) — 13F 분기 공시 아님, 신규 매수 아니고 기존 워런트
     # 재분류(60일 내 행사가능 규정)로 지분율만 8.3%→9.3% 갱신. SEC EDGAR 원문 확인(acc 0001045810-26-000062).

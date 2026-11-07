@@ -594,10 +594,13 @@ portfolio
 # 틀릴 때는 '쪼개는' 쪽으로 틀리게 설계했다. 잘못 합치면 사건이 안 보이게
 # 사라지지만, 잘못 쪼개면 중복 발송으로 눈에 보인다.
 KEY_ACRONYMS = set("ipo ceo cfo cto ai us u.s uk eu nyse nasdaq gpu gpus etf spac "
-                   "nvda pltr llm api".split())
+                   "nvda pltr llm api usd eur krw".split())
+# 국적 형용사는 2026-11-07 실측에서 추가: "korean" 하나로 Starcloud $250M 라운드가
+# 삼성전기 기사에 막혔다. 통화(usd)도 다른 사건끼리 이었다.
 KEY_MEASURED = set("""ipo files filing startup startups firm firms revenue valuation
 infrastructure ahead just another push hit hits tests joins center centre wall street
-drug president senior alliance alliances""".split())
+drug president senior alliance alliances
+korean japanese chinese indian""".split())
 
 
 def _load_common_words():
