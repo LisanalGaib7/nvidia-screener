@@ -1978,7 +1978,40 @@
     "nvidiabackedaicloud"
    ],
    "ts": "2026-11-13T04:08:44.492568+00:00"
+  },
+  {
+   "title": "wall street ends mixed as nvidia-led tech selloff weighs on s&p 500, nasdaq",
+   "key": [
+    "s&p"
+   ],
+   "ts": "2026-11-14T04:05:20.955594+00:00"
+  },
+  {
+   "title": "nvidia eyes worst week since trump tariff selloff as huang exits",
+   "key": [
+    "tariff",
+    "worst"
+   ],
+   "ts": "2026-11-14T04:05:20.955594+00:00"
+  },
+  {
+   "title": "renaissance technologies' 13f: almost all its nvidia, meta and apple sold, micron and amd now its top holdings",
+   "key": [
+    "amd",
+    "apple",
+    "meta",
+    "micron",
+    "renaissance"
+   ],
+   "ts": "2026-11-14T04:05:20.955594+00:00"
+  },
+  {
+   "title": "why did nvidia’s attempted acquisition of arm ltd. fail?",
+   "key": [
+    "arm"
+   ],
+   "ts": "2026-11-14T04:05:20.955594+00:00"
   }
  ],
- "last_run": "2026-11-13T04:08:44.492568+00:00"
+ "last_run": "2026-11-14T04:05:20.955594+00:00"
 }
