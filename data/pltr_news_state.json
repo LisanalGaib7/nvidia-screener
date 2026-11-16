@@ -1,45 +1,6 @@
 {
  "sent": [
   {
-   "title": "samsung sds expands 'palantir-style' ai business with 200 field engineers",
-   "key": [
-    "engineers",
-    "field",
-    "palantir-style",
-    "samsung",
-    "sds"
-   ],
-   "ts": "2026-09-11T12:26:32.291463+00:00"
-  },
-  {
-   "title": "former labour health minister calls for 'forensic' review of £330m nhs contract with american tech giant palantir",
-   "key": [
-    "american",
-    "labour",
-    "nhs"
-   ],
-   "ts": "2026-09-11T12:26:32.291463+00:00"
-  },
-  {
-   "title": "fire point criticizes palantir partnership with company that emerged from yandex",
-   "key": [
-    "fire",
-    "point",
-    "yandex"
-   ],
-   "ts": "2026-09-13T04:37:57.820457+00:00"
-  },
-  {
-   "title": "palantir's army ai deal hits fed week",
-   "key": [
-    "army",
-    "fed",
-    "hits",
-    "week"
-   ],
-   "ts": "2026-09-15T04:45:47.460086+00:00"
-  },
-  {
    "title": "palantir wins higher ubs target as customer demand outpaces capacity",
    "key": [
     "ubs"
@@ -3324,7 +3285,37 @@
     "ciso"
    ],
    "ts": "2026-11-15T06:14:02.569977+00:00"
+  },
+  {
+   "title": "palantir and fujitsu deepen partnership to advance enterprise ai",
+   "key": [
+    "fujitsu"
+   ],
+   "ts": "2026-11-16T06:12:16.901990+00:00"
+  },
+  {
+   "title": "palantir customers set new standard for ai at aipcon 11",
+   "key": [
+    "aipcon",
+    "standard"
+   ],
+   "ts": "2026-11-16T06:12:16.901990+00:00"
+  },
+  {
+   "title": "uk companies line up to replace palantir in nhs contract",
+   "key": [
+    "nhs"
+   ],
+   "ts": "2026-11-16T06:12:16.901990+00:00"
+  },
+  {
+   "title": "how sensitive data from centrelink and other australian agencies may have been fed to palantir software",
+   "key": [
+    "australian",
+    "centrelink"
+   ],
+   "ts": "2026-11-16T06:12:16.901990+00:00"
   }
  ],
- "last_run": "2026-11-15T06:14:02.569977+00:00"
+ "last_run": "2026-11-16T06:12:16.901990+00:00"
 }
