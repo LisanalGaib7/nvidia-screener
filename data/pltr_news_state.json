@@ -1,106 +1,6 @@
 {
  "sent": [
   {
-   "title": "palantir (pltr) will keep winning as sovereign ai takes hold",
-   "key": [
-    "hold",
-    "keep",
-    "sovereign",
-    "takes",
-    "will",
-    "winning"
-   ],
-   "ts": "2026-09-22T04:43:52.001785+00:00"
-  },
-  {
-   "title": "palantir's data-isolation gambit meets a split wall street",
-   "key": [
-    "data-isolation",
-    "gambit",
-    "meets",
-    "split",
-    "street",
-    "wall"
-   ],
-   "ts": "2026-09-22T04:43:52.001785+00:00"
-  },
-  {
-   "title": "palantir technologies (pltr) announces three new ai and cybersecurity alliances",
-   "key": [
-    "alliances",
-    "announces",
-    "cybersecurity",
-    "three"
-   ],
-   "ts": "2026-09-23T04:37:21.622030+00:00"
-  },
-  {
-   "title": "quick spark: michael burry adds to micron, palantir, nebius, soxx shorts",
-   "key": [
-    "adds",
-    "burry",
-    "michael",
-    "micron",
-    "nebius",
-    "quick",
-    "shorts",
-    "soxx",
-    "spark"
-   ],
-   "ts": "2026-09-23T04:37:21.622030+00:00"
-  },
-  {
-   "title": "army awards palantir $48.1m to modernize ammo management",
-   "key": [
-    "army"
-   ],
-   "ts": "2026-09-24T04:36:36.474131+00:00"
-  },
-  {
-   "title": "palantir’s ceo just sent a message silicon valley won’t ignore",
-   "key": [
-    "silicon",
-    "valley"
-   ],
-   "ts": "2026-09-24T04:36:36.474131+00:00"
-  },
-  {
-   "title": "trump discloses july trades in microsoft, spacex, nvidia, and palantir",
-   "key": [
-    "july",
-    "microsoft",
-    "nvidia",
-    "spacex",
-    "trump"
-   ],
-   "ts": "2026-09-24T04:36:36.474131+00:00"
-  },
-  {
-   "title": "palantir hires ex-labour deputy tom watson as it aims to expand u.k. operations",
-   "key": [
-    "aims",
-    "deputy",
-    "ex-labour",
-    "expand",
-    "hires",
-    "operations",
-    "tom",
-    "u.k",
-    "watson"
-   ],
-   "ts": "2026-09-24T04:36:36.474131+00:00"
-  },
-  {
-   "title": "palantir's quiet takeover of media's data stack",
-   "key": [
-    "media",
-    "quiet",
-    "stack",
-    "takeover"
-   ],
-   "ts": "2026-09-24T04:36:36.474131+00:00"
-  },
-  {
    "title": "$palantir (pltr.us)$",
    "key": [
     "palantirpltrus"
@@ -3283,7 +3183,90 @@
     "sabrina"
    ],
    "ts": "2026-11-18T07:12:36.254709+00:00"
+  },
+  {
+   "title": "concerns continue as palantir strikes two public sector deals with cambridge services",
+   "key": [
+    "cambridge"
+   ],
+   "ts": "2026-11-19T07:12:22.925108+00:00"
+  },
+  {
+   "title": "palantir’s political controversy is hiding a much bigger story",
+   "key": [
+    "controversy",
+    "hiding",
+    "political"
+   ],
+   "ts": "2026-11-19T07:12:22.925108+00:00"
+  },
+  {
+   "title": "dan ives: nvidia, palantir and 5 ai picks for 2027",
+   "key": [
+    "dan",
+    "ives",
+    "nvidia"
+   ],
+   "ts": "2026-11-19T07:12:22.925108+00:00"
+  },
+  {
+   "title": "edison scientific hires former palantir healthcare leader lewis woolfson as head of forward deployed engineering",
+   "key": [
+    "deployed",
+    "edison",
+    "leader",
+    "lewis",
+    "scientific",
+    "woolfson"
+   ],
+   "ts": "2026-11-19T07:12:22.925108+00:00"
+  },
+  {
+   "title": "y combinator ceo garry tan recalls palantir’s early hotel debate",
+   "key": [
+    "combinator",
+    "debate",
+    "garry",
+    "hotel",
+    "tan"
+   ],
+   "ts": "2026-11-19T07:12:22.925108+00:00"
+  },
+  {
+   "title": "alex karp put palantir’s early sales team in the mandarin oriental instead of a motel 6—at 10x the price",
+   "key": [
+    "alex",
+    "karp",
+    "mandarin",
+    "motel",
+    "oriental"
+   ],
+   "ts": "2026-11-19T07:12:22.925108+00:00"
+  },
+  {
+   "title": "palantir unveils ai tools to reduce civilian harm in military strikes",
+   "key": [
+    "civilian",
+    "harm"
+   ],
+   "ts": "2026-11-19T07:12:22.925108+00:00"
+  },
+  {
+   "title": "austrac to face activist pressure over palantir links",
+   "key": [
+    "austrac"
+   ],
+   "ts": "2026-11-19T07:12:22.925108+00:00"
+  },
+  {
+   "title": "file photo: file photo: logo of u.s. software company palantir technologies is seen in davos",
+   "key": [
+    "davos",
+    "logo",
+    "photo"
+   ],
+   "ts": "2026-11-19T07:12:22.925108+00:00"
   }
  ],
- "last_run": "2026-11-18T07:12:36.254709+00:00"
+ "last_run": "2026-11-19T07:12:22.925108+00:00"
 }
