@@ -1,31 +1,6 @@
 {
  "sent": [
   {
-   "title": "nvidia and palantir want to speed up the ai buildout. nvidia is first in line",
-   "key": [
-    "nvidia"
-   ],
-   "ts": "2026-09-29T05:35:37.099996+00:00"
-  },
-  {
-   "title": "do the british museum’s links with palantir and bp bring it into disrepute? | letter",
-   "key": [
-    "british",
-    "museum"
-   ],
-   "ts": "2026-09-29T05:35:37.099996+00:00"
-  },
-  {
-   "title": "jana partners pushes fiserv (nyse: fisv) to more than double cost cuts and adopt palantir technology",
-   "key": [
-    "adopt",
-    "fiserv",
-    "fisv",
-    "jana"
-   ],
-   "ts": "2026-09-30T05:23:56.441004+00:00"
-  },
-  {
    "title": "nebius group seen as strong buy due to palantir partnership boosting growth and compute demand",
    "key": [
     "nebius"
@@ -3279,7 +3254,31 @@
     "king"
    ],
    "ts": "2026-11-21T06:55:36.206285+00:00"
+  },
+  {
+   "title": "palantir just dropped 25% in a month. is it time to sell, or load up?",
+   "key": [
+    "dropped",
+    "load"
+   ],
+   "ts": "2026-11-22T06:33:00.707023+00:00"
+  },
+  {
+   "title": "russian man accused of spying on palantir employees from a palo alto café",
+   "key": [
+    "alto",
+    "palo",
+    "russian"
+   ],
+   "ts": "2026-11-22T06:33:00.707023+00:00"
+  },
+  {
+   "title": "will replacing palantir solve the nhs’s fragmented governance problem?",
+   "key": [
+    "nhs"
+   ],
+   "ts": "2026-11-22T06:33:00.707023+00:00"
   }
  ],
- "last_run": "2026-11-21T06:55:36.206285+00:00"
+ "last_run": "2026-11-22T06:33:00.707023+00:00"
 }
