@@ -1,31 +1,6 @@
 {
  "sent": [
   {
-   "title": "nebius group seen as strong buy due to palantir partnership boosting growth and compute demand",
-   "key": [
-    "nebius"
-   ],
-   "ts": "2026-09-30T05:23:56.441004+00:00"
-  },
-  {
-   "title": "people vs palantir – day of action",
-   "key": [
-    "people"
-   ],
-   "ts": "2026-09-30T05:23:56.441004+00:00"
-  },
-  {
-   "title": "sap taps palantir-style strike teams to speed up ai payoff",
-   "key": [
-    "palantir-style",
-    "payoff",
-    "sap",
-    "speed",
-    "strike"
-   ],
-   "ts": "2026-10-01T05:40:37.131907+00:00"
-  },
-  {
    "title": "san francisco nurses protest ice connection with palantir",
    "key": [
     "francisco",
@@ -3278,7 +3253,30 @@
     "nhs"
    ],
    "ts": "2026-11-22T06:33:00.707023+00:00"
+  },
+  {
+   "title": "‘palantir is leaving our nhs. but the fight isn’t over’",
+   "key": [
+    "nhs"
+   ],
+   "ts": "2026-11-23T07:22:46.891800+00:00"
+  },
+  {
+   "title": "anthropic: following the palantir playbook (nasdaq:ant)",
+   "key": [
+    "ant",
+    "anthropic",
+    "playbook"
+   ],
+   "ts": "2026-11-23T07:22:46.891800+00:00"
+  },
+  {
+   "title": "palantir targeted by russian intelligence",
+   "key": [
+    "russian"
+   ],
+   "ts": "2026-11-23T07:22:46.891800+00:00"
   }
  ],
- "last_run": "2026-11-22T06:33:00.707023+00:00"
+ "last_run": "2026-11-23T07:22:46.891800+00:00"
 }
