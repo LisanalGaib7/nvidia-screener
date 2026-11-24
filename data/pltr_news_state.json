@@ -1,52 +1,6 @@
 {
  "sent": [
   {
-   "title": "san francisco nurses protest ice connection with palantir",
-   "key": [
-    "francisco",
-    "ice",
-    "san"
-   ],
-   "ts": "2026-10-01T05:40:37.131907+00:00"
-  },
-  {
-   "title": "protesters occupy chalmers’ office over future fund’s $165m palantir investment – news hub",
-   "key": [
-    "chalmers",
-    "occupy"
-   ],
-   "ts": "2026-10-01T05:40:37.131907+00:00"
-  },
-  {
-   "title": "mp reveals he was sent ‘threatening’ letter warning against criticising palantir",
-   "key": [
-    "mprevealshewas"
-   ],
-   "ts": "2026-10-01T05:40:37.131907+00:00"
-  },
-  {
-   "title": "palantir's software integration drives growth b",
-   "key": [
-    "palantirssoftwareintegration"
-   ],
-   "ts": "2026-10-01T05:40:37.131907+00:00"
-  },
-  {
-   "title": "palantir versus the people",
-   "key": [
-    "palantirversusthepeople"
-   ],
-   "ts": "2026-10-01T05:40:37.131907+00:00"
-  },
-  {
-   "title": "nhs england must end its £330 million palantir contract",
-   "key": [
-    "england",
-    "nhs"
-   ],
-   "ts": "2026-10-02T05:25:36.626298+00:00"
-  },
-  {
    "title": "palantir and armada partner to accelerate sovereign ai infrastructure",
    "key": [
     "armada"
@@ -3276,7 +3230,57 @@
     "russian"
    ],
    "ts": "2026-11-23T07:22:46.891800+00:00"
+  },
+  {
+   "title": "palantir fdp contract to end in march 2029",
+   "key": [
+    "fdp",
+    "march"
+   ],
+   "ts": "2026-11-24T09:42:54.604992+00:00"
+  },
+  {
+   "title": "tesla, palantir lead goldman’s list of hedge funds’ biggest short positions (sp500:)",
+   "key": [
+    "goldman",
+    "sp500",
+    "tesla"
+   ],
+   "ts": "2026-11-24T09:42:54.604992+00:00"
+  },
+  {
+   "title": "massive ai data centers will shift to modular compute | palantir｜mts",
+   "key": [
+    "compute",
+    "mts"
+   ],
+   "ts": "2026-11-24T09:42:54.604992+00:00"
+  },
+  {
+   "title": "palantir's chad wahlquist says the ai buildout shifts to 1–10 mw modular data centers as power, not permits, becomes the blocker",
+   "key": [
+    "blocker",
+    "chad",
+    "wahlquist"
+   ],
+   "ts": "2026-11-24T09:42:54.604992+00:00"
+  },
+  {
+   "title": "agentic ai security market is going to boom |• palantir technologies • darktrace • crowdstrike",
+   "key": [
+    "agentic",
+    "crowdstrike",
+    "darktrace"
+   ],
+   "ts": "2026-11-24T09:42:54.604992+00:00"
+  },
+  {
+   "title": "micro palantir technologies inc (xpltrh27.cme) futures chain",
+   "key": [
+    "micropalantirtechnologiesinc"
+   ],
+   "ts": "2026-11-24T09:42:54.604992+00:00"
   }
  ],
- "last_run": "2026-11-23T07:22:46.891800+00:00"
+ "last_run": "2026-11-24T09:42:54.604992+00:00"
 }
