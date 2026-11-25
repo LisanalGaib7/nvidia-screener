@@ -1,62 +1,6 @@
 {
  "sent": [
   {
-   "title": "palantir and armada partner to accelerate sovereign ai infrastructure",
-   "key": [
-    "armada"
-   ],
-   "ts": "2026-10-02T05:25:36.626298+00:00"
-  },
-  {
-   "title": "andy burnham searches for uk alternative to palantir",
-   "key": [
-    "andy",
-    "burnham"
-   ],
-   "ts": "2026-10-02T05:25:36.626298+00:00"
-  },
-  {
-   "title": "opinion: silicon diplomacy, kinetic realities: why europe is evicting palantir",
-   "key": [
-    "europe",
-    "opinion"
-   ],
-   "ts": "2026-10-02T05:25:36.626298+00:00"
-  },
-  {
-   "title": "revealed: britain's contracts with palantir hit £1bn",
-   "key": [
-    "britain",
-    "revealed"
-   ],
-   "ts": "2026-10-03T05:08:39.118745+00:00"
-  },
-  {
-   "title": "accenture outlines $5 billion ai acquisition plan alongside google and palantir partnerships",
-   "key": [
-    "accenture",
-    "google"
-   ],
-   "ts": "2026-10-03T05:08:39.118745+00:00"
-  },
-  {
-   "title": "palantir, hhs and the public’s data: a concentration of power worth watching",
-   "key": [
-    "concentration",
-    "hhs",
-    "watching"
-   ],
-   "ts": "2026-10-03T05:08:39.118745+00:00"
-  },
-  {
-   "title": "palantir calls on stephen conroy for reputation rehabilitation",
-   "key": [
-    "conroy",
-    "stephen"
-   ],
-   "ts": "2026-10-04T05:41:52.934927+00:00"
-  },
-  {
    "title": "jim cramer sticks with palantir (pltr) despite admitting his target was too aggressive",
    "key": [
     "admitting",
@@ -3280,7 +3224,66 @@
     "micropalantirtechnologiesinc"
    ],
    "ts": "2026-11-24T09:42:54.604992+00:00"
+  },
+  {
+   "title": "record 483,200 deportations and palantir’s “google maps” surveillance app fuel congressional scrutiny over ice plate-reader access",
+   "key": [
+    "deportations",
+    "google",
+    "ice",
+    "maps",
+    "plate-reader"
+   ],
+   "ts": "2026-11-25T08:17:56.739074+00:00"
+  },
+  {
+   "title": "palantir's sovereign ai pitch: modular, customer-owned compute",
+   "key": [
+    "palantirssovereignai"
+   ],
+   "ts": "2026-11-25T08:17:56.739074+00:00"
+  },
+  {
+   "title": "carlson-thiel relationship: palantir role downplayed",
+   "key": [
+    "carlson-thiel",
+    "downplayed",
+    "relationship"
+   ],
+   "ts": "2026-11-25T08:17:56.739074+00:00"
+  },
+  {
+   "title": "russian pleads not guilty in snooping case targeting palantir",
+   "key": [
+    "guilty",
+    "pleads",
+    "russian",
+    "snooping"
+   ],
+   "ts": "2026-11-25T08:17:56.739074+00:00"
+  },
+  {
+   "title": "ex-openai and palantir duo’s verra raises $5m to build an ai memory layer for consulting firms",
+   "key": [
+    "ex-openai",
+    "verra"
+   ],
+   "ts": "2026-11-25T08:17:56.739074+00:00"
+  },
+  {
+   "title": "palantir technologies inc. (pltr80.bk) latest press releases and corporate news",
+   "key": [
+    "palantirtechnologiesincpltr80"
+   ],
+   "ts": "2026-11-25T08:17:56.739074+00:00"
+  },
+  {
+   "title": "palantir: why i'm upgrading to strong buy after the selloff",
+   "key": [
+    "upgrading"
+   ],
+   "ts": "2026-11-25T08:17:56.739074+00:00"
   }
  ],
- "last_run": "2026-11-24T09:42:54.604992+00:00"
+ "last_run": "2026-11-25T08:17:56.739074+00:00"
 }
