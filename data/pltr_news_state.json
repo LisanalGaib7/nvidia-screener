@@ -1,76 +1,6 @@
 {
  "sent": [
   {
-   "title": "jim cramer sticks with palantir (pltr) despite admitting his target was too aggressive",
-   "key": [
-    "admitting",
-    "aggressive",
-    "cramer",
-    "jim",
-    "sticks"
-   ],
-   "ts": "2026-10-05T05:25:58.752980+00:00"
-  },
-  {
-   "title": "nhs may not be able to replace palantir before £330m deal deadline",
-   "key": [
-    "nhs"
-   ],
-   "ts": "2026-10-05T16:40:57.221825+00:00"
-  },
-  {
-   "title": "thousands back demand for coventry council to end £1.25m palantir contract",
-   "key": [
-    "coventry"
-   ],
-   "ts": "2026-10-05T16:40:57.221825+00:00"
-  },
-  {
-   "title": "concerns mount after palantir ceo's massive purchase—what's the plan for the mountain?",
-   "key": [
-    "mount",
-    "mountain"
-   ],
-   "ts": "2026-10-05T16:40:57.221825+00:00"
-  },
-  {
-   "title": "inklings | german government questioned on wfp and palantir",
-   "key": [
-    "german",
-    "inklings",
-    "wfp"
-   ],
-   "ts": "2026-10-05T16:40:57.221825+00:00"
-  },
-  {
-   "title": "justin bieber faces fierce backlash over private performance for palantir executives",
-   "key": [
-    "bieber",
-    "executives",
-    "fierce",
-    "justin"
-   ],
-   "ts": "2026-10-05T16:40:57.221825+00:00"
-  },
-  {
-   "title": "ice observer lawsuit shows how palantir records can feed border screening, analytics",
-   "key": [
-    "ice"
-   ],
-   "ts": "2026-10-05T16:40:57.221825+00:00"
-  },
-  {
-   "title": "palantir weds sovereign ai to modular data centers as washington demand and european doubts pull in",
-   "key": [
-    "doubts",
-    "european",
-    "pull",
-    "washington",
-    "weds"
-   ],
-   "ts": "2026-10-05T16:40:57.221825+00:00"
-  },
-  {
    "title": "palantir ceo says businesses are ‘unhappy’ with frontier ai labs",
    "key": [
     "frontier",
@@ -3283,7 +3213,80 @@
     "upgrading"
    ],
    "ts": "2026-11-25T08:17:56.739074+00:00"
+  },
+  {
+   "title": "goldman sachs bets on palantir’s ‘mega customers’ after nyc demo",
+   "key": [
+    "goldman",
+    "nyc",
+    "sachs"
+   ],
+   "ts": "2026-11-26T08:03:28.716238+00:00"
+  },
+  {
+   "title": "dhs surveillance contracts: house democrats ask palantir, flock if ndas limit disclosure",
+   "key": [
+    "democrats",
+    "dhs",
+    "flock",
+    "house",
+    "ndas"
+   ],
+   "ts": "2026-11-26T08:03:28.716238+00:00"
+  },
+  {
+   "title": "🇺🇸 tucker is rejecting claims that he’s gone soft on palantir, pointing to his long record of criticizing surveillance. \"i have grave concerns about palantir…i think i’ve been the chief critic of the surveillance state in mainstream media.\" he said the risks of machine",
+   "key": [
+    "tucker"
+   ],
+   "ts": "2026-11-26T08:03:28.716238+00:00"
+  },
+  {
+   "title": "north rhine-westphalia police to replace palantir system with celonis software — anadolu agency",
+   "key": [
+    "anadolu",
+    "celonis",
+    "north",
+    "rhine-westphalia"
+   ],
+   "ts": "2026-11-26T08:03:28.716238+00:00"
+  },
+  {
+   "title": "iran accuses us of using palantir and anthropic ai in war. tehran demands accountability",
+   "key": [
+    "accuses",
+    "anthropic",
+    "demands",
+    "iran",
+    "tehran"
+   ],
+   "ts": "2026-11-26T08:03:28.716238+00:00"
+  },
+  {
+   "title": "uk ministers explore nhs-built alternative to palantir’s software",
+   "key": [
+    "nhs-built"
+   ],
+   "ts": "2026-11-26T08:03:28.716238+00:00"
+  },
+  {
+   "title": "discontent in the ländle – palantir ceo alex karp builds himself a huge estate",
+   "key": [
+    "alex",
+    "discontent",
+    "himself",
+    "huge",
+    "karp"
+   ],
+   "ts": "2026-11-26T08:03:28.716238+00:00"
+  },
+  {
+   "title": "edgerunner ceo calls palantir a data architecture firm, not an ai company",
+   "key": [
+    "edgerunner"
+   ],
+   "ts": "2026-11-26T08:03:28.716238+00:00"
   }
  ],
- "last_run": "2026-11-25T08:17:56.739074+00:00"
+ "last_run": "2026-11-26T08:03:28.716238+00:00"
 }
